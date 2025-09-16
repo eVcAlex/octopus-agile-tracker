@@ -2,19 +2,20 @@ import {
   Box,
   Flex,
   Stack,
-  Heading,
   Text,
   Button,
-  Spinner,
+  Select,
   Group,
-} from '@chakra-ui/react';
+  Title,
+  Loader,
+} from '@mantine/core';
 import { usePricing } from '../../hooks/use-pricing';
 import { OctopusRegion } from '../../types';
 import { PricingStats } from '../Stats';
 import { PricingTable } from '../Table';
-import { ColorModeButton } from '../../../../components/ui/color-mode';
+import { ColorModeButton } from '../../../../provider/ColorModeButton';
 
-export function PricingDashboard() {
+export const PricingDashboard = () => {
   const {
     todayData,
     tomorrowData,
@@ -30,117 +31,111 @@ export function PricingDashboard() {
 
   if (loading && !todayData && !tomorrowData) {
     return (
-      <Flex justify="center" align="center" minH="100vh">
-        <Stack textAlign="center">
-          <Spinner size="xl" />
-          <Text fontSize="lg">Loading Octopus Agile pricing data...</Text>
+      <Flex justify="center" align="center" style={{ minHeight: '100vh' }}>
+        <Stack align="center">
+          <Loader size="xl" />
+          <Text size="lg">Loading Octopus Agile pricing data...</Text>
         </Stack>
       </Flex>
     );
   }
 
   return (
-    <Box maxW="7xl" mx="auto" px={4} py={8}>
-      {/* Header */}
-      <Box borderWidth={1} borderRadius="md" shadow="sm" mb={6}>
-        <Flex justify="space-between" align="center" p={4}>
+    <Box mx="auto" p="md" style={{ maxWidth: 1200 }}>
+      <Box
+        mb="md"
+        p="md"
+        style={{ border: '1px solid #e0e0e0', borderRadius: 8 }}
+      >
+        <Flex justify="space-between" align="center" mb="sm">
           <Box>
-            <Heading size="lg">Octopus Agile Price Tracker</Heading>
+            <Title order={2}>Octopus Agile Price Tracker</Title>
             {lastUpdated && (
-              <Text color="gray.500" mt={1}>
+              <Text color="dimmed" size="sm">
                 Last updated: {new Date(lastUpdated).toLocaleString()}
               </Text>
             )}
           </Box>
-          <Group>
-            <Button colorScheme="blue" variant="outline" onClick={refreshData}>
+          <Group gap="sm">
+            <Button variant="outline" onClick={refreshData}>
               {loading ? 'Refreshing...' : 'Refresh'}
             </Button>
             <ColorModeButton />
           </Group>
         </Flex>
 
-        {/* Region Native Select */}
-        <Box p={4}>
-          <select
-            value={currentRegion}
-            onChange={(e) => setRegion(e.target.value as OctopusRegion)}
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              borderRadius: '0.375rem',
-              border: '1px solid #CBD5E0',
-            }}
-          >
-            {regionOptions.map((region) => (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            ))}
-          </select>
-        </Box>
+        <Select
+          value={currentRegion}
+          onChange={(val) => setRegion(val as OctopusRegion)}
+          data={regionOptions.map((r) => ({ value: r, label: r }))}
+          placeholder="Select Region"
+        />
       </Box>
 
-      {/* Error */}
       {error && (
         <Box
-          borderWidth={1}
-          borderRadius="md"
-          p={4}
-          mb={6}
-          bg="red.50"
-          borderColor="red.200"
+          mb="md"
+          p="md"
+          style={{
+            border: '1px solid #f44336',
+            borderRadius: 8,
+            background: '#ffebee',
+          }}
         >
-          <Text color="red.600">{error}</Text>
+          <Text color="red">{error}</Text>
         </Box>
       )}
 
-      {/* Today's Data */}
       {todayData && (
-        <Box borderWidth={1} borderRadius="md" shadow="sm" mb={6}>
-          <Box p={4}>
-            <Heading size="md">
-              Today's Rates - {new Date().toLocaleDateString()}
-            </Heading>
-          </Box>
-          <Box p={4}>
-            <PricingStats stats={todayData.stats} title="Today" />
-            <Box mt={6}>
-              <PricingTable data={todayData.rates} loading={loading} />
-            </Box>
+        <Box
+          mb="md"
+          p="md"
+          style={{ border: '1px solid #e0e0e0', borderRadius: 8 }}
+        >
+          <Text fw={500} mb="sm">
+            Today's Rates - {new Date().toLocaleDateString()}
+          </Text>
+          <PricingStats stats={todayData.stats} title="Today" />
+          <Box mt="md">
+            <PricingTable data={todayData.rates} loading={loading} />
           </Box>
         </Box>
       )}
 
-      {/* Tomorrow's Data */}
       {tomorrowData && (
-        <Box borderWidth={1} borderRadius="md" shadow="sm" mb={6}>
-          <Box p={4}>
-            <Heading size="md">
-              Tomorrow's Rates -{' '}
-              {new Date(Date.now() + 86400000).toLocaleDateString()}
-            </Heading>
-          </Box>
-          <Box p={4}>
-            <PricingStats stats={tomorrowData.stats} title="Tomorrow" />
-            <Box mt={6}>
-              <PricingTable data={tomorrowData.rates} loading={loading} />
-            </Box>
+        <Box
+          mb="md"
+          p="md"
+          style={{ border: '1px solid #e0e0e0', borderRadius: 8 }}
+        >
+          <Text fw={500} mb="sm">
+            Tomorrow's Rates -{' '}
+            {new Date(Date.now() + 86400000).toLocaleDateString()}
+          </Text>
+          <PricingStats stats={tomorrowData.stats} title="Tomorrow" />
+          <Box mt="md">
+            <PricingTable data={tomorrowData.rates} loading={loading} />
           </Box>
         </Box>
       )}
 
-      {/* No Data */}
       {!todayData && !tomorrowData && !loading && (
-        <Box borderWidth={1} borderRadius="md" p={12} textAlign="center">
-          <Heading size="md" color="gray.500" mb={2}>
+        <Box
+          p="xl"
+          style={{
+            textAlign: 'center',
+            border: '1px solid #e0e0e0',
+            borderRadius: 8,
+          }}
+        >
+          <Text fw={500} size="lg" color="dimmed" mb="sm">
             No pricing data available
-          </Heading>
-          <Text color="gray.400">
+          </Text>
+          <Text color="dimmed">
             Please try refreshing the data or check your connection
           </Text>
         </Box>
       )}
     </Box>
   );
-}
+};

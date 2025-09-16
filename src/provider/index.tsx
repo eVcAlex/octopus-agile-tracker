@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
-import { ColorModeProvider } from '../components/ui/color-mode';
+import { type ReactNode } from 'react';
+import { MantineProvider } from '@mantine/core';
 
 interface ProviderProps {
   children: ReactNode;
@@ -8,8 +7,6 @@ interface ProviderProps {
 
 export function Provider({ children }: ProviderProps) {
   return (
-    <ChakraProvider value={defaultSystem}>
-      <ColorModeProvider>{children}</ColorModeProvider>
-    </ChakraProvider>
+    <MantineProvider defaultColorScheme="dark">{children}</MantineProvider>
   );
 }

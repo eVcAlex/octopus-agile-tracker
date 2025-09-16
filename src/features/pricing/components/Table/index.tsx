@@ -1,4 +1,4 @@
-import { Table, Badge, Flex, Text } from '@chakra-ui/react';
+import { Table, Badge, Flex, Text, Tooltip } from '@mantine/core';
 import type { ProcessedPriceData } from '../../types';
 
 interface PricingTableProps {
@@ -6,70 +6,66 @@ interface PricingTableProps {
   loading?: boolean;
 }
 
-export function PricingTable({ data, loading = false }: PricingTableProps) {
-  if (loading) {
+export const PricingTable = ({ data, loading = false }: PricingTableProps) => {
+  if (loading)
     return (
-      <Text textAlign="center" py={8}>
+      <Text ta="center" py="xl">
         Loading...
       </Text>
     );
-  }
-
-  if (!data || data.length === 0) {
-    return <Text textAlign="center">No pricing data available</Text>;
-  }
+  if (!data || data.length === 0)
+    return <Text ta="center">No pricing data available</Text>;
 
   return (
-    <Table.Root size="sm">
-      <Table.Header>
-        <Table.Row>
-          <Table.ColumnHeader>TIME</Table.ColumnHeader>
-          <Table.ColumnHeader>PRICE (INC VAT)</Table.ColumnHeader>
-          <Table.ColumnHeader>PRICE (EXC VAT)</Table.ColumnHeader>
-          <Table.ColumnHeader>STATUS</Table.ColumnHeader>
-        </Table.Row>
-      </Table.Header>
+    <Table highlightOnHover striped>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Price (Inc VAT)</th>
+          <th>Price (Ex VAT)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((item) => {
+          let status: { label: string; color: string } | null = null;
+          if (item.priceIncVat < 0) status = { label: 'FREE', color: 'green' };
+          else if (item.priceIncVat >= 0 && item.priceIncVat < 10)
+            status = { label: 'LOW', color: 'green' };
+          else if (item.priceIncVat > 25)
+            status = { label: 'HIGH', color: 'red' };
 
-      <Table.Body>
-        {data.map((item) => (
-          <Table.Row key={item.id}>
-            <Table.Cell>
-              <Text fontFamily="monospace" fontSize="sm">
-                {item.time}
-              </Text>
-            </Table.Cell>
-
-            <Table.Cell>
-              <Flex align="center" gap={2}>
-                <Text fontFamily="monospace" fontWeight="semibold">
-                  {item.priceIncVat.toFixed(2)}p
+          return (
+            <tr key={item.id}>
+              <td>
+                <Text style={{ fontFamily: 'monospace' }}>{item.time}</Text>
+              </td>
+              <td>
+                <Flex align="center" gap="xs">
+                  <Text style={{ fontFamily: 'monospace', fontWeight: 600 }}>
+                    {item.priceIncVat.toFixed(2)}p
+                  </Text>
+                  {status && (
+                    <Tooltip
+                      label={`This period is considered ${status.label}`}
+                    >
+                      <Badge color={status.color}>{status.label}</Badge>
+                    </Tooltip>
+                  )}
+                </Flex>
+              </td>
+              <td>
+                <Text color="dimmed" style={{ fontFamily: 'monospace' }}>
+                  {item.priceExcVat.toFixed(2)}p
                 </Text>
-                {item.priceIncVat < 0 && (
-                  <Badge colorScheme="green">FREE</Badge>
-                )}
-                {item.priceIncVat > 25 && <Badge colorScheme="red">HIGH</Badge>}
-                {item.priceIncVat >= 0 && item.priceIncVat < 10 && (
-                  <Badge colorScheme="green" variant="subtle">
-                    LOW
-                  </Badge>
-                )}
-              </Flex>
-            </Table.Cell>
-
-            <Table.Cell>
-              <Text fontFamily="monospace" fontSize="sm" color="gray.500">
-                {item.priceExcVat.toFixed(2)}p
-              </Text>
-            </Table.Cell>
-
-            <Table.Cell>
-              {item.isCurrentPeriod && (
-                <Badge colorScheme="blue">CURRENT</Badge>
-              )}
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table.Root>
+              </td>
+              <td>
+                {item.isCurrentPeriod && <Badge color="blue">CURRENT</Badge>}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </Table>
   );
-}
+};

@@ -1,11 +1,18 @@
-import { PricingDashboard } from "./features/pricing/components/Dashboard";
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+import { MantineProvider } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
+import { Notifications } from '@mantine/notifications';
+import { theme } from './theme';
+import { PricingDashboard } from './features/pricing/components/Dashboard';
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-background">
-      <PricingDashboard />
-    </div>
+    <MantineProvider theme={theme}>
+      <ModalsProvider>
+        <Notifications />
+        <PricingDashboard />
+      </ModalsProvider>
+    </MantineProvider>
   );
 }
-
-export default App;

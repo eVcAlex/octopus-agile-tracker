@@ -1,4 +1,4 @@
-import { Box, Flex, SimpleGrid, Text, Heading } from '@chakra-ui/react';
+import { Box, SimpleGrid, Text, Paper } from '@mantine/core';
 import { ArrowUp, ArrowDown, ChartBar, Lightning } from 'phosphor-react';
 import type { PriceStats } from '../../types';
 
@@ -7,7 +7,7 @@ interface PricingStatsProps {
   title: string;
 }
 
-export function PricingStats({ stats, title }: PricingStatsProps) {
+export const PricingStats = ({ stats, title }: PricingStatsProps) => {
   const formatPrice = (price: number) => `${price.toFixed(2)}p`;
 
   const StatCard = ({
@@ -21,29 +21,36 @@ export function PricingStats({ stats, title }: PricingStatsProps) {
     icon: React.ReactNode;
     color: string;
   }) => (
-    <Box p={4} borderWidth={1} borderRadius="md" shadow="sm">
-      <Flex align="center" gap={3}>
-        <Box p={3} borderRadius="md" bg={`${color}.100`} color={`${color}.600`}>
+    <Paper p="sm" shadow="sm" radius="md">
+      <Box style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Box
+          style={{
+            padding: 8,
+            borderRadius: 6,
+            background: `${color}.1`,
+            color: `${color}.6`,
+          }}
+        >
           {icon}
         </Box>
         <Box>
-          <Text fontSize="sm" color="gray.500">
+          <Text size="sm" color="dimmed">
             {title}
           </Text>
-          <Text fontSize="2xl" fontWeight="bold" fontFamily="monospace">
+          <Text fw={700} style={{ fontFamily: 'monospace' }}>
             {value}
           </Text>
         </Box>
-      </Flex>
-    </Box>
+      </Box>
+    </Paper>
   );
 
   return (
-    <Box mb={6}>
-      <Heading size="md" mb={4}>
+    <Box mb="md">
+      <Text fw={500} mb="sm">
         {title} - Statistics
-      </Heading>
-      <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap={4}>
+      </Text>
+      <SimpleGrid cols={4} spacing="sm">
         <StatCard
           title="Minimum Price"
           value={formatPrice(stats.min)}
@@ -73,4 +80,4 @@ export function PricingStats({ stats, title }: PricingStatsProps) {
       </SimpleGrid>
     </Box>
   );
-}
+};

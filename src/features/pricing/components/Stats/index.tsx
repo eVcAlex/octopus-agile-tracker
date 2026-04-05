@@ -12,7 +12,18 @@ interface PricingStatsProps {
   stats: PriceStats;
 }
 
-const STAT_CONFIGS = [
+interface StatConfig {
+  key: 'min' | 'max' | 'average' | 'current';
+  label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: React.ComponentType<any>;
+  getColor: (val: number) => string;
+  getBg: (val: number, dark: boolean) => string;
+  getIconBg: (val: number) => string;
+  value?: number;
+}
+
+const STAT_CONFIGS: StatConfig[] = [
   {
     key: 'min' as const,
     label: 'Lowest',
@@ -71,28 +82,24 @@ export const PricingStats = ({ stats }: PricingStatsProps) => {
 
   const formatPrice = (price: number) => `${price.toFixed(2)}p`;
 
-  const cards = STAT_CONFIGS.map((config) => ({
+  const cards: (StatConfig & { value: number })[] = STAT_CONFIGS.map((config) => ({
     ...config,
-    value: stats[config.key],
+    value: stats[config.key as 'min' | 'max' | 'average']!,
   }));
 
   if (stats.current !== undefined) {
+    const isCheap = stats.current < stats.average;
     cards.push({
-      key: 'current' as const,
+      key: 'current',
       label: 'Right Now',
       icon: Lightning,
-      getColor: () =>
-        stats.current! < stats.average ? ('teal' as const) : ('yellow' as const),
+      getColor: () => isCheap ? 'teal' : 'yellow',
       getBg: (_val: number, dark: boolean) =>
-        stats.current! < stats.average
-          ? dark
-            ? 'rgba(20, 184, 166, 0.08)'
-            : 'rgba(20, 184, 166, 0.06)'
-          : dark
-            ? 'rgba(234, 179, 8, 0.08)'
-            : 'rgba(234, 179, 8, 0.06)',
+        isCheap
+          ? dark ? 'rgba(20, 184, 166, 0.08)' : 'rgba(20, 184, 166, 0.06)'
+          : dark ? 'rgba(234, 179, 8, 0.08)' : 'rgba(234, 179, 8, 0.06)',
       getIconBg: () =>
-        stats.current! < stats.average
+        isCheap
           ? 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)'
           : 'linear-gradient(135deg, #ca8a04 0%, #eab308 100%)',
       value: stats.current!,

@@ -52,35 +52,32 @@ interface DaySectionProps {
 }
 
 const DaySection = ({ data, loading, dark }: DaySectionProps) => {
-  const [view, setView] = useState<'table' | 'heat' | 'chart'>('table');
+  const [view, setView] = useState<'table' | 'heat' | 'chart'>('heat');
 
   return (
     <Box>
-      <Flex justify="flex-end" mb="md">
-        <SegmentedControl
-          value={view}
-          onChange={(v) => setView(v as 'table' | 'heat' | 'chart')}
-          size="xs"
-          radius="md"
-          data={[
-            { value: 'heat', label: 'Heat' },
-            { value: 'chart', label: 'Chart' },
-            { value: 'table', label: 'Table' },
-          ]}
-        />
-      </Flex>
+      <SegmentedControl
+        value={view}
+        onChange={(v) => setView(v as 'table' | 'heat' | 'chart')}
+        size="sm"
+        radius="md"
+        fullWidth
+        withItemsBorders={false}
+        mb="md"
+        data={[
+          { value: 'heat', label: 'Heat' },
+          { value: 'chart', label: 'Chart' },
+          { value: 'table', label: 'Table' },
+        ]}
+      />
 
       {view === 'heat' && (
-        <>
-          <HeatmapView data={data.rates} />
-          <CheapWindows data={data.rates} stats={data.stats} />
-        </>
+        <HeatmapView data={data.rates} />
       )}
 
       {view === 'chart' && (
         <>
           <PriceChart data={data.rates} />
-          <CheapWindows data={data.rates} stats={data.stats} />
           <Box mt="md">
             <PricingStats stats={data.stats} />
           </Box>
@@ -219,7 +216,7 @@ export const PricingDashboard = () => {
       )}
 
       {/* Today / Tomorrow tabs */}
-      <Tabs defaultValue={defaultTab} color="violet">
+      <Tabs defaultValue="today" color="violet">
         <Paper
           mb="md"
           radius="lg"

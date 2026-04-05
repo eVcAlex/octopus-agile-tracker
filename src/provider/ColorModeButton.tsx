@@ -1,4 +1,8 @@
-import { ActionIcon, useMantineColorScheme, Tooltip } from '@mantine/core';
+import {
+  ActionIcon,
+  useMantineColorScheme,
+  Tooltip,
+} from '@mantine/core';
 import { Moon, Sun } from 'phosphor-react';
 
 export const ColorModeButton = () => {
@@ -7,15 +11,17 @@ export const ColorModeButton = () => {
 
   return (
     <Tooltip
-      label={`Switch to ${colorScheme === 'dark' ? 'light' : 'dark'} mode`}
+      label={`Switch to ${dark ? 'light' : 'dark'} mode`}
+      position="bottom"
     >
       <ActionIcon
-        variant="outline"
-        color={colorScheme === 'dark' ? 'yellow' : 'blue'}
+        variant="light"
+        color={dark ? 'yellow' : 'violet'}
         onClick={toggleColorScheme}
         size="lg"
+        radius="md"
       >
-        {dark ? <Sun size={18} /> : <Moon size={18} />}
+        {dark ? <Sun size={18} weight="bold" /> : <Moon size={18} weight="bold" />}
       </ActionIcon>
     </Tooltip>
   );

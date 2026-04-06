@@ -1,0 +1,96 @@
+:root {
+  // Price colors (theme-independent)
+  --price-free: #14b8a6;
+  --price-low: #22c55e;
+  --price-normal: #f59e0b;
+  --price-high: #ef4444;
+  --price-current: #7c3aed;
+  --price-current-alpha: rgba(124, 58, 237, 0.4);
+
+  // Surfaces
+  --surface-bg: #fff;
+  --surface-border: #e9ecef;
+  --surface-header: #f8f9fa;
+  --subtle-border: #f1f3f5;
+  --subtle-border-2: #eee;
+  --empty-cell: #f0f0f0;
+
+  // Chart
+  --grid-line: #eee;
+  --grid-zero: #bbb;
+  --grid-avg: #aaa;
+  --callout-bg: #fff;
+  --callout-border: #e4e4e7;
+
+  // Current period
+  --current-row-bg: rgba(124, 58, 237, 0.05);
+  --current-border-ring: #fff;
+  --divider-bg: rgba(124, 58, 237, 0.07);
+
+  // Text
+  --text-subtle: #868e96;
+
+  // App
+  --app-bg: #f8f9fa;
+}
+
+[data-mantine-color-scheme='dark'] {
+  --surface-bg: #1a1a1a;
+  --surface-border: #2a2a2a;
+  --surface-header: #141414;
+  --subtle-border: #1f1f1f;
+  --subtle-border-2: #2a2a2a;
+  --empty-cell: #1c1c1c;
+
+  --grid-line: #2a2a2a;
+  --grid-zero: #555;
+  --grid-avg: #555;
+  --callout-bg: #1f1f1f;
+  --callout-border: #3a3a3a;
+
+  --current-row-bg: rgba(124, 58, 237, 0.08);
+  --current-border-ring: #c4b5fd;
+  --divider-bg: rgba(124, 58, 237, 0.12);
+
+  --text-subtle: #666;
+
+  --app-bg: #0e0e0e;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--app-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+.mantine-Paper-root {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+// Scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+}
+
+[data-mantine-color-scheme='dark'] ::-webkit-scrollbar-thumb {
+  background: #333;
+}
+
+[data-mantine-color-scheme='light'] ::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

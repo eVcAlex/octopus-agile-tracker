@@ -1,0 +1,67 @@
+.wrapper {
+  border-radius: 10px;
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 32px 1fr 1fr;
+  gap: 3px;
+  padding: 8px 8px 4px;
+  background: var(--surface-header);
+  border-bottom: 1px solid var(--surface-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.scrollArea {
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 8px 8px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 32px 1fr 1fr;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
+.hourLabel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+}
+
+.cell {
+  height: 34px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  opacity: 0.72;
+
+  &.current {
+    opacity: 1;
+    border-color: var(--current-border-ring);
+    box-shadow: 0 0 0 1px var(--price-current);
+  }
+}
+
+.cellEmpty {
+  height: 34px;
+  border-radius: 7px;
+  background: var(--empty-cell);
+}
+
+.cellPrice {
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}

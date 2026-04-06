@@ -1,0 +1,42 @@
+.headerBar {
+  border-color: var(--surface-border);
+  background: var(--surface-bg);
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loadingLogo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabBar {
+  border-color: var(--surface-border);
+  background: var(--surface-bg);
+  overflow: hidden;
+}
+
+.errorBar {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.emptyState {
+  text-align: center;
+  border-color: var(--surface-border);
+  background: var(--surface-bg);
+}

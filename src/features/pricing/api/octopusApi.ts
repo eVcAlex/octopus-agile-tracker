@@ -18,7 +18,7 @@ const AGILE_PRODUCT_CODE = 'AGILE-24-10-01';
 export class OctopusApiService {
   private region: OctopusRegion;
 
-  constructor(region: OctopusRegion = 'N') {
+  constructor(region: OctopusRegion = 'P') {
     this.region = region;
   }
 

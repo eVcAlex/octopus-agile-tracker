@@ -1,0 +1,140 @@
+.hoverInfo {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.chartArea {
+  display: flex;
+}
+
+.yAxis {
+  width: 36px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.yLabel {
+  position: absolute;
+  right: 6px;
+  line-height: 1;
+  font-size: 10px;
+}
+
+.barsContainer {
+  flex: 1;
+  position: relative;
+}
+
+.gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--grid-line);
+  z-index: 1;
+
+  &.zero {
+    background: var(--grid-zero);
+  }
+}
+
+.avgLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1.5px dashed var(--grid-avg);
+  z-index: 2;
+}
+
+.nowLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: var(--price-current-alpha);
+  z-index: 3;
+}
+
+.bars {
+  display: flex;
+  gap: 1px;
+  height: 100%;
+  position: relative;
+  z-index: 4;
+}
+
+.barColumn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  cursor: crosshair;
+}
+
+.positiveZone {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.negativeZone {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.bar {
+  transition: opacity 0.1s;
+
+  &.positive {
+    border-radius: 2px 2px 0 0;
+  }
+
+  &.negative {
+    border-radius: 0 0 2px 2px;
+  }
+}
+
+.callout {
+  position: absolute;
+  transform: translateX(-50%);
+  background: var(--callout-bg);
+  border: 1px solid var(--callout-border);
+  border-radius: 5px;
+  padding: 2px 7px;
+  z-index: 10;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+}
+
+.timeAxis {
+  display: flex;
+}
+
+.timeAxisSpacer {
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.timeAxisLabels {
+  flex: 1;
+  position: relative;
+  height: 20px;
+  margin-top: 4px;
+}
+
+.timeLabel {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}

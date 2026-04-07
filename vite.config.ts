@@ -11,7 +11,11 @@ export default defineConfig({
       '/api/forecast': {
         target: 'https://prices.fly.dev',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/forecast/, '/api'),
+        rewrite: (path) => {
+          const url = new URL(path, 'http://localhost');
+          const region = url.searchParams.get('region') ?? '';
+          return `/api/${region}/?format=json`;
+        },
       },
     },
   },

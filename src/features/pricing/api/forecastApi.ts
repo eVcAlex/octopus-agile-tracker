@@ -59,7 +59,7 @@ function groupByDay(prices: ForecastPrice[]): ForecastDay[] {
 }
 
 export async function fetchForecast(region: OctopusRegion): Promise<ForecastData> {
-  const data = await wretch(`${AGILE_PREDICT_BASE}/${region}/?format=json`)
+  const data = await wretch(`${AGILE_PREDICT_BASE}?region=${region}`)
     .get()
     .json<AgilePredict[]>();
 

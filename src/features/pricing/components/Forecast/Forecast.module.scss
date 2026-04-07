@@ -1,0 +1,206 @@
+.wrapper {
+  border-radius: 10px;
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.disclaimer {
+  padding: 6px 16px;
+  background: rgba(124, 58, 237, 0.06);
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.cheapestBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  width: fit-content;
+}
+
+.daySelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+
+.dayChip {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--price-current);
+  }
+
+  &.active {
+    background: var(--price-current);
+    border-color: var(--price-current);
+    color: #fff;
+  }
+}
+
+// Chart
+.chartArea {
+  display: flex;
+}
+
+.yAxis {
+  width: 40px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.yLabel {
+  position: absolute;
+  right: 6px;
+  line-height: 1;
+  font-size: 10px;
+}
+
+.chartContainer {
+  flex: 1;
+  position: relative;
+}
+
+.gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--grid-line);
+
+  &.zero {
+    background: var(--grid-zero);
+  }
+}
+
+.confidenceBand {
+  position: absolute;
+  opacity: 0.15;
+  background: var(--price-current);
+}
+
+.bars {
+  display: flex;
+  gap: 1px;
+  height: 100%;
+  position: relative;
+  z-index: 4;
+}
+
+.barColumn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  cursor: crosshair;
+  position: relative;
+}
+
+.cheapestCol {
+  .bar {
+    opacity: 1 !important;
+  }
+}
+
+.cheapestMarker {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #22c55e;
+  margin-bottom: 2px;
+}
+
+.bar {
+  border-radius: 2px 2px 0 0;
+  transition: opacity 0.1s;
+}
+
+.callout {
+  position: absolute;
+  transform: translateX(-50%);
+  background: var(--callout-bg);
+  border: 1px solid var(--callout-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  z-index: 10;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+}
+
+.timeAxis {
+  display: flex;
+}
+
+.timeAxisSpacer {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.timeAxisLabels {
+  flex: 1;
+  position: relative;
+  height: 20px;
+  margin-top: 4px;
+}
+
+.timeLabel {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+// Legend
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-left: 40px; // align with chart (y-axis width)
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendBar {
+  width: 24px;
+  height: 10px;
+  border-radius: 2px;
+  opacity: 0.75;
+}
+
+.legendBand {
+  width: 24px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--price-current);
+  opacity: 0.2;
+  border: 1px solid var(--price-current);
+}
+
+.legendCheapest {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  margin: 0 8px;
+}

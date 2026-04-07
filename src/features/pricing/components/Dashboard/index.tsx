@@ -9,7 +9,6 @@ import {
   Title,
   Loader,
   Paper,
-  Badge,
   SegmentedControl,
   Tabs,
   Drawer,
@@ -18,13 +17,14 @@ import {
 } from '@mantine/core';
 import { Lightning, GearSix, MapPin } from 'phosphor-react';
 import { usePricing } from '../../hooks/use-pricing';
+import { useForecast } from '../../hooks/use-forecast';
 import { OctopusRegion } from '../../types';
 import type { DailyPriceData, OctopusRegion as OctopusRegionType } from '../../types';
 import { PricingStats } from '../Stats';
 import { PricingTable } from '../Table';
 import { PriceChart } from '../Chart';
-import { CheapWindows } from '../CheapWindows';
 import { HeatmapView } from '../Heatmap';
+import { ForecastSection } from '../Forecast';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
 import styles from './Dashboard.module.scss';
 
@@ -75,6 +75,7 @@ const DaySection = ({ data, loading }: DaySectionProps) => {
 
 export const PricingDashboard = () => {
   const { todayData, tomorrowData, loading, error, lastUpdated, setRegion, currentRegion } = usePricing();
+  const { forecast, loading: forecastLoading, error: forecastError, refresh: refreshForecast, lastUpdated: forecastUpdated } = useForecast(currentRegion);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const regionOptions = Object.entries(OctopusRegion).map(([, value]) => ({
@@ -170,18 +171,16 @@ export const PricingDashboard = () => {
                 <Text size="xs" c="dimmed">{fmtDate(today)}</Text>
               </Box>
             </Tabs.Tab>
-            <Tabs.Tab
-              value="tomorrow"
-              py="md"
-              rightSection={
-                <Badge size="xs" color={hasTomorrow ? 'violet' : 'gray'} radius="sm">
-                  {hasTomorrow ? 'Available' : 'Pending'}
-                </Badge>
-              }
-            >
+            <Tabs.Tab value="tomorrow" py="md">
               <Box>
                 <Text fw={600} size="sm">Tomorrow</Text>
                 <Text size="xs" c="dimmed">{fmtDate(tomorrow)}</Text>
+              </Box>
+            </Tabs.Tab>
+            <Tabs.Tab value="forecast" py="md">
+              <Box>
+                <Text fw={600} size="sm">Forecast</Text>
+                <Text size="xs" c="dimmed">Predictions</Text>
               </Box>
             </Tabs.Tab>
           </Tabs.List>
@@ -206,6 +205,17 @@ export const PricingDashboard = () => {
               </Stack>
             </Paper>
           )}
+        </Tabs.Panel>
+
+        <Tabs.Panel value="forecast">
+          <ForecastSection
+            forecast={forecast}
+            loading={forecastLoading}
+            error={forecastError}
+            region={REGION_LABELS[currentRegion] ?? currentRegion}
+            lastUpdated={forecastUpdated}
+            onRefresh={refreshForecast}
+          />
         </Tabs.Panel>
       </Tabs>
     </Container>

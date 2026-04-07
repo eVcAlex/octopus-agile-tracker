@@ -7,6 +7,13 @@ export default defineConfig({
   server: {
     port: 5174,
     open: true,
+    proxy: {
+      '/api/forecast': {
+        target: 'https://prices.fly.dev',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/forecast/, '/api'),
+      },
+    },
   },
   base: '/',
 });

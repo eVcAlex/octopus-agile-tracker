@@ -1,7 +1,7 @@
 import wretch from 'wretch';
 import type { OctopusRegion } from '../types';
 
-const AGILE_PREDICT_BASE = '/api/forecast';
+const AGILE_PREDICT_BASE = '/proxy/forecast';
 
 export interface ForecastPrice {
   date_time: string;
@@ -59,7 +59,7 @@ function groupByDay(prices: ForecastPrice[]): ForecastDay[] {
 }
 
 export async function fetchForecast(region: OctopusRegion): Promise<ForecastData> {
-  const data = await wretch(`${AGILE_PREDICT_BASE}?region=${region}`)
+  const data = await wretch(`${AGILE_PREDICT_BASE}/${region}`)
     .get()
     .json<AgilePredict[]>();
 

@@ -222,15 +222,22 @@ export const ForecastView = ({ forecast, region, lastUpdated, onRefresh, refresh
       {/* Day selector + region + refresh */}
       <Group justify="space-between" mb="xs" wrap="nowrap" align="flex-start">
         <div className={styles.daySelector}>
-          {forecast.days.map((d, i) => (
-            <button
-              key={d.date}
-              className={`${styles.dayChip} ${i === selectedDay ? styles.active : ''}`}
-              onClick={() => setSelectedDay(i)}
-            >
-              <Text size="xs" fw={600} lh={1.2}>{d.label}</Text>
-            </button>
-          ))}
+          {forecast.days.map((d, i) => {
+            const dateObj = new Date(d.date + 'T00:00:00');
+            const weekday = d.label === 'Tomorrow' ? 'Tomorrow' : dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
+            const dayNum = dateObj.getDate();
+            const month = dateObj.toLocaleDateString('en-GB', { month: 'short' });
+            return (
+              <button
+                key={d.date}
+                className={`${styles.dayChip} ${i === selectedDay ? styles.active : ''}`}
+                onClick={() => setSelectedDay(i)}
+              >
+                <span className={styles.dayChipWeekday}>{weekday}</span>
+                <span className={styles.dayChipDate}>{dayNum} {month}</span>
+              </button>
+            );
+          })}
         </div>
 
         <Tooltip label={lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}` : 'Refresh'} position="left">

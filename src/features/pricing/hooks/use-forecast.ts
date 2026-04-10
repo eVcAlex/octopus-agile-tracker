@@ -11,7 +11,7 @@ export interface UseForecastReturn {
   lastUpdated: Date | null;
 }
 
-export function useForecast(region: Region, hasTomorrowRates: boolean): UseForecastReturn {
+export function useForecast(region: Region, hasTomorrowRates: boolean, maxDays = 7): UseForecastReturn {
   const qc = useQueryClient();
 
   const { data, isLoading, error, dataUpdatedAt } = useQuery({
@@ -26,14 +26,17 @@ export function useForecast(region: Region, hasTomorrowRates: boolean): UseForec
     const minOffset = hasTomorrowRates ? 2 : 1;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const filtered = data.days.filter((day) => {
+      const d = new Date(day.date + 'T00:00:00');
+      return Math.round((d.getTime() - today.getTime()) / 86_400_000) >= minOffset;
+    });
+    // Drop the last day — API often returns incomplete data for it
+    const trimmed = filtered.length > 1 ? filtered.slice(0, -1) : filtered;
     return {
       ...data,
-      days: data.days.filter((day) => {
-        const d = new Date(day.date + 'T00:00:00');
-        return Math.round((d.getTime() - today.getTime()) / 86_400_000) >= minOffset;
-      }),
+      days: trimmed.slice(0, maxDays),
     };
-  }, [data, hasTomorrowRates]);
+  }, [data, hasTomorrowRates, maxDays]);
 
   const refresh = useCallback(
     () => qc.invalidateQueries({ queryKey: ['forecast', region] }),

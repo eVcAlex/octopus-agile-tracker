@@ -31,24 +31,48 @@
 }
 
 .dayChip {
-  padding: 6px 12px;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 10px;
+  min-width: 56px;
+  border-radius: 10px;
   border: 1px solid var(--surface-border);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.03);
   color: inherit;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
 
-  &:hover {
-    border-color: var(--price-current);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--price-current);
+      background: rgba(124, 58, 237, 0.08);
+    }
   }
 
   &.active {
     background: var(--price-current);
     border-color: var(--price-current);
     color: #fff;
+
+    .dayChipDate {
+      opacity: 0.85;
+    }
   }
+}
+
+.dayChipWeekday {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.dayChipDate {
+  font-size: 10px;
+  line-height: 1.2;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
 }
 
 // Chart

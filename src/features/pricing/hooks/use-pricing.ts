@@ -14,10 +14,12 @@ export interface UsePricingReturn {
   setRegion: (region: Region) => void;
   currentRegion: Region;
   needsRegion: boolean;
+  forecastDays: number;
+  setForecastDays: (days: number) => void;
 }
 
 export function usePricing(): UsePricingReturn {
-  const { region, setRegion: persistRegion, isFirstTime } = useRegion();
+  const { region, setRegion: persistRegion, isFirstTime, forecastDays, setForecastDays } = useRegion();
   const qc = useQueryClient();
 
   const { data, isLoading, error, dataUpdatedAt } = useQuery({
@@ -42,5 +44,7 @@ export function usePricing(): UsePricingReturn {
     setRegion: persistRegion,
     currentRegion: region,
     needsRegion: isFirstTime,
+    forecastDays,
+    setForecastDays,
   };
 }

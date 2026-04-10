@@ -17,7 +17,7 @@ import {
   Modal,
   Button,
 } from '@mantine/core';
-import { Lightning, GearSix, MapPin } from 'phosphor-react';
+import { Lightning, GearSix, MapPin, CalendarBlank } from 'phosphor-react';
 import { usePricing } from '../../hooks/use-pricing';
 import { useForecast } from '../../hooks/use-forecast';
 import { REGIONS, REGION_LABELS, type Region, type DailyPrices } from '../../schemas';
@@ -115,9 +115,9 @@ function RegionPickerModal({ opened, onSelect }: { opened: boolean; onSelect: (r
 // ─── Main dashboard ───
 
 export function PricingDashboard() {
-  const { todayData, tomorrowData, loading, error, lastUpdated, setRegion, currentRegion, needsRegion } = usePricing();
+  const { todayData, tomorrowData, loading, error, lastUpdated, setRegion, currentRegion, needsRegion, forecastDays, setForecastDays } = usePricing();
   const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
-  const { forecast, loading: forecastLoading, error: forecastError, refresh: refreshForecast, lastUpdated: forecastUpdated } = useForecast(currentRegion, hasTomorrow);
+  const { forecast, loading: forecastLoading, error: forecastError, refresh: refreshForecast, lastUpdated: forecastUpdated } = useForecast(currentRegion, hasTomorrow, forecastDays);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   if (needsRegion) {
@@ -162,6 +162,20 @@ export function PricingDashboard() {
             onChange={(val) => { if (val) { setRegion(val as Region); setSettingsOpen(false); } }}
             data={regionOptions}
             leftSection={<MapPin size={16} />}
+          />
+          <Select
+            label="Forecast days"
+            description="How many days of predictions to show"
+            value={String(forecastDays)}
+            onChange={(val) => { if (val) setForecastDays(parseInt(val, 10)); }}
+            data={[
+              { value: '3', label: '3 days' },
+              { value: '5', label: '5 days' },
+              { value: '7', label: '7 days' },
+              { value: '10', label: '10 days' },
+              { value: '14', label: '14 days' },
+            ]}
+            leftSection={<CalendarBlank size={16} />}
           />
         </Stack>
       </Drawer>

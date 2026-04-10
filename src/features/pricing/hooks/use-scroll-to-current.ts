@@ -12,23 +12,22 @@ export function useScrollToCurrent<
     const row = currentRef.current;
     if (!container || !row) return;
 
-    // Double rAF ensures the browser has completed layout and paint
-    // before we measure offsets — single rAF isn't enough on mobile Safari.
-    let outer: number;
-    let inner: number;
-    outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => {
-        const r = currentRef.current;
-        const c = containerRef.current;
-        if (!c || !r) return;
-        const rowCenter = r.offsetTop + r.offsetHeight / 2;
-        c.scrollTop = rowCenter - c.clientHeight / 2;
-      });
-    });
-    return () => {
-      cancelAnimationFrame(outer);
-      cancelAnimationFrame(inner);
-    };
+    // Use setTimeout to ensure iOS Safari has fully completed layout.
+    // rAF alone isn't reliable on mobile Safari for scroll measurements.
+    const timer = setTimeout(() => {
+      const c = containerRef.current;
+      const r = currentRef.current;
+      if (!c || !r) return;
+
+      // Use getBoundingClientRect for reliable cross-browser measurement
+      // instead of offsetTop which can be unreliable on iOS.
+      const containerRect = c.getBoundingClientRect();
+      const rowRect = r.getBoundingClientRect();
+      const rowCenterInContainer = rowRect.top - containerRect.top + c.scrollTop + rowRect.height / 2;
+      c.scrollTop = rowCenterInContainer - c.clientHeight / 2;
+    }, 100);
+
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 

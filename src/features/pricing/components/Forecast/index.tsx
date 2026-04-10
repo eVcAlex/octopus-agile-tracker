@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Text, Group, Loader, Stack, ActionIcon, Tooltip } from '@mantine/core';
 import { ArrowClockwise } from 'phosphor-react';
-import type { ForecastData, ForecastPrice } from '../../api/forecastApi';
+import type { ForecastData, ForecastPrice } from '../../schemas';
 import { getPriceColor, formatPrice } from '../../utils';
 import { CHART, PRICE_COLORS } from '../../constants';
 import styles from './Forecast.module.scss';

@@ -1,81 +1,46 @@
-import { useState, useEffect, useCallback } from "react";
-import { octopusApi } from "../api/octopusApi";
-import type { DailyPriceData } from "../types";
-import { OctopusRegion } from "../types";
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchDailyRates } from '../api/octopusApi';
+import type { Region, DailyPrices } from '../schemas';
+import { useRegion } from './use-region';
 
-interface UsePricingState {
-  todayData: DailyPriceData | null;
-  tomorrowData: DailyPriceData | null;
+export interface UsePricingReturn {
+  todayData: DailyPrices | null;
+  tomorrowData: DailyPrices | null;
   loading: boolean;
   error: string | null;
   lastUpdated: Date | null;
-}
-
-interface UsePricingReturn extends UsePricingState {
   refreshData: () => Promise<void>;
-  setRegion: (region: OctopusRegion) => void;
-  currentRegion: OctopusRegion;
+  setRegion: (region: Region) => void;
+  currentRegion: Region;
+  needsRegion: boolean;
 }
 
-export const usePricing = (initialRegion?: OctopusRegion): UsePricingReturn => {
-  const [state, setState] = useState<UsePricingState>({
-    todayData: null,
-    tomorrowData: null,
-    loading: true,
-    error: null,
-    lastUpdated: null,
+export function usePricing(): UsePricingReturn {
+  const { region, setRegion: persistRegion, isFirstTime } = useRegion();
+  const qc = useQueryClient();
+
+  const { data, isLoading, error, dataUpdatedAt } = useQuery({
+    queryKey: ['pricing', region] as const,
+    queryFn: () => fetchDailyRates(region),
+    refetchInterval: 30 * 60_000,
+    enabled: !!region,
   });
 
-  const [currentRegion, setCurrentRegion] = useState<OctopusRegion>(
-    initialRegion || octopusApi.getCurrentRegion()
+  const refreshData = useCallback(
+    () => qc.invalidateQueries({ queryKey: ['pricing', region] }),
+    [qc, region],
   );
-
-  const refreshData = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const { today, tomorrow } = await octopusApi.getTodayAndTomorrowRates();
-
-      setState({
-        todayData: today,
-        tomorrowData: tomorrow,
-        loading: false,
-        error: null,
-        lastUpdated: new Date(),
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: errorMessage,
-      }));
-    }
-  }, []);
-
-  const setRegion = useCallback(
-    (region: OctopusRegion) => {
-      setCurrentRegion(region);
-      octopusApi.setRegion(region);
-      refreshData();
-    },
-    [refreshData]
-  );
-
-  useEffect(() => {
-    refreshData();
-  }, [refreshData]);
-
-  useEffect(() => {
-    const interval = setInterval(refreshData, 30 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [refreshData]);
 
   return {
-    ...state,
+    todayData: data?.today ?? null,
+    tomorrowData: data?.tomorrow ?? null,
+    loading: !!region && isLoading,
+    error: error instanceof Error ? error.message : error ? String(error) : null,
+    lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
     refreshData,
-    setRegion,
-    currentRegion,
+    setRegion: persistRegion,
+    currentRegion: region,
+    needsRegion: isFirstTime,
   };
-};
+}

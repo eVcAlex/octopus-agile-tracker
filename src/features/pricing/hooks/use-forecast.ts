@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchForecast } from '../api/forecastApi';
-import type { ForecastData } from '../api/forecastApi';
-import type { OctopusRegion } from '../types';
+import type { Region, ForecastData } from '../schemas';
 
-interface UseForecastReturn {
+export interface UseForecastReturn {
   forecast: ForecastData | null;
   loading: boolean;
   error: string | null;
@@ -11,35 +11,40 @@ interface UseForecastReturn {
   lastUpdated: Date | null;
 }
 
-export const useForecast = (region: OctopusRegion): UseForecastReturn => {
-  const [forecast, setForecast] = useState<ForecastData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+export function useForecast(region: Region, hasTomorrowRates: boolean): UseForecastReturn {
+  const qc = useQueryClient();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchForecast(region);
-      setForecast(data);
-      setLastUpdated(new Date());
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load forecast');
-    } finally {
-      setLoading(false);
-    }
-  }, [region]);
+  const { data, isLoading, error, dataUpdatedAt } = useQuery({
+    queryKey: ['forecast', region] as const,
+    queryFn: () => fetchForecast(region),
+    refetchInterval: 30 * 60_000,
+    enabled: !!region,
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const forecast = useMemo<ForecastData | null>(() => {
+    if (!data) return null;
+    const minOffset = hasTomorrowRates ? 2 : 1;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      ...data,
+      days: data.days.filter((day) => {
+        const d = new Date(day.date + 'T00:00:00');
+        return Math.round((d.getTime() - today.getTime()) / 86_400_000) >= minOffset;
+      }),
+    };
+  }, [data, hasTomorrowRates]);
 
-  // Auto-refresh every 30 minutes
-  useEffect(() => {
-    const interval = setInterval(load, 30 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [load]);
+  const refresh = useCallback(
+    () => qc.invalidateQueries({ queryKey: ['forecast', region] }),
+    [qc, region],
+  );
 
-  return { forecast, loading, error, refresh: load, lastUpdated };
-};
+  return {
+    forecast,
+    loading: isLoading,
+    error: error instanceof Error ? error.message : error ? String(error) : null,
+    refresh,
+    lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
+  };
+}

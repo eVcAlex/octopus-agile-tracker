@@ -1,5 +1,5 @@
 import { PRICE_THRESHOLDS, PRICE_COLORS, MANTINE_COLORS } from './constants';
-import type { ProcessedPriceData } from './types';
+import type { ProcessedSlot } from './schemas';
 
 export type PriceLevel = 'free' | 'low' | 'normal' | 'high';
 
@@ -38,6 +38,6 @@ export function formatDuration(hours: number): string {
   return m > 0 ? `${h}h ${m | 0}m` : `${h}h`;
 }
 
-export function isPast(item: ProcessedPriceData): boolean {
+export function isPast(item: ProcessedSlot): boolean {
   return !item.isCurrentPeriod && item.validTo < new Date();
 }

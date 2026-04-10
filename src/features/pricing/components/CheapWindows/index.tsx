@@ -1,5 +1,5 @@
 import { Box, Text, Stack, Flex, Paper } from '@mantine/core';
-import type { ProcessedPriceData, PriceStats } from '../../types';
+import type { ProcessedSlot, PriceStats } from '../../schemas';
 import { formatDuration, formatPrice } from '../../utils';
 import { CHEAP_WINDOWS } from '../../constants';
 import styles from './CheapWindows.module.scss';
@@ -11,9 +11,9 @@ interface Window {
   durationHours: number;
 }
 
-function findCheapWindows(data: ProcessedPriceData[], threshold: number): Window[] {
+function findCheapWindows(data: ProcessedSlot[], threshold: number): Window[] {
   const windows: Window[] = [];
-  let group: ProcessedPriceData[] = [];
+  let group: ProcessedSlot[] = [];
 
   const flush = () => {
     if (group.length < CHEAP_WINDOWS.MIN_SLOTS) {
@@ -38,7 +38,7 @@ function findCheapWindows(data: ProcessedPriceData[], threshold: number): Window
 }
 
 interface CheapWindowsProps {
-  data: ProcessedPriceData[];
+  data: ProcessedSlot[];
   stats: PriceStats;
 }
 

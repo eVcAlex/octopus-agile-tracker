@@ -1,26 +1,19 @@
-import { useEffect, useRef } from 'react';
 import { Table, Badge, Text } from '@mantine/core';
-import type { ProcessedPriceData } from '../../types';
+import type { ProcessedSlot } from '../../schemas';
 import { getStatusBadge, getMantinePriceColor, formatPrice, isPast as checkPast } from '../../utils';
 import { TABLE } from '../../constants';
+import { useScrollToCurrent } from '../../hooks/use-scroll-to-current';
 import styles from './Table.module.scss';
 
 interface PricingTableProps {
-  data: ProcessedPriceData[];
+  data: ProcessedSlot[];
   loading?: boolean;
 }
 
-type Row = { type: 'divider' } | { type: 'slot'; item: ProcessedPriceData; isPast: boolean };
+type Row = { type: 'divider' } | { type: 'slot'; item: ProcessedSlot; isPast: boolean };
 
 export const PricingTable = ({ data, loading = false }: PricingTableProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const currentRowRef = useRef<HTMLTableRowElement>(null);
-
-  useEffect(() => {
-    if (containerRef.current && currentRowRef.current) {
-      containerRef.current.scrollTop = currentRowRef.current.offsetTop - TABLE.SCROLL_OFFSET;
-    }
-  }, [data]);
+  const { containerRef, currentRef: currentRowRef } = useScrollToCurrent<HTMLDivElement, HTMLTableRowElement>([data]);
 
   if (loading) return <Text ta="center" py="xl" c="dimmed" size="sm">Loading...</Text>;
   if (!data?.length) return <Text ta="center" c="dimmed" size="sm">No pricing data available</Text>;

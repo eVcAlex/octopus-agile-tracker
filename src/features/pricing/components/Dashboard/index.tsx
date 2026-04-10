@@ -14,12 +14,13 @@ import {
   Drawer,
   ActionIcon,
   Container,
+  Modal,
+  Button,
 } from '@mantine/core';
 import { Lightning, GearSix, MapPin } from 'phosphor-react';
 import { usePricing } from '../../hooks/use-pricing';
 import { useForecast } from '../../hooks/use-forecast';
-import { OctopusRegion } from '../../types';
-import type { DailyPriceData, OctopusRegion as OctopusRegionType } from '../../types';
+import { REGIONS, REGION_LABELS, type Region, type DailyPrices } from '../../schemas';
 import { PricingStats } from '../Stats';
 import { PricingTable } from '../Table';
 import { PriceChart } from '../Chart';
@@ -28,26 +29,20 @@ import { ForecastSection } from '../Forecast';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
 import styles from './Dashboard.module.scss';
 
-const REGION_LABELS: Record<string, string> = {
-  A: 'Eastern England', B: 'East Midlands', C: 'London',
-  D: 'Merseyside & N. Wales', E: 'West Midlands', F: 'North East England',
-  G: 'North West England', H: 'Southern England', J: 'South East England',
-  K: 'South West England', L: 'Yorkshire', M: 'South Wales',
-  N: 'Scotland', P: 'South Scotland',
-};
+const regionOptions = REGIONS.map((code) => ({
+  value: code,
+  label: REGION_LABELS[code],
+}));
 
 type View = 'grid' | 'chart' | 'table';
 
-interface DaySectionProps {
-  data: DailyPriceData;
-  loading: boolean;
-}
+// ─── Day section (grid / chart / table) ───
 
-const DaySection = ({ data, loading }: DaySectionProps) => {
+function DaySection({ data, loading }: { data: DailyPrices; loading: boolean }) {
   const [view, setView] = useState<View>('grid');
 
   return (
-    <Box>
+    <section aria-label="Price visualisation">
       <PricingStats stats={data.stats} />
 
       <SegmentedControl
@@ -59,6 +54,7 @@ const DaySection = ({ data, loading }: DaySectionProps) => {
         withItemsBorders={false}
         mt="md"
         mb="md"
+        aria-label="View type"
         data={[
           { value: 'grid', label: 'Grid' },
           { value: 'chart', label: 'Chart' },
@@ -69,25 +65,72 @@ const DaySection = ({ data, loading }: DaySectionProps) => {
       {view === 'grid' && <HeatmapView data={data.rates} />}
       {view === 'chart' && <PriceChart data={data.rates} />}
       {view === 'table' && <PricingTable data={data.rates} loading={loading} />}
-    </Box>
+    </section>
   );
-};
+}
 
-export const PricingDashboard = () => {
-  const { todayData, tomorrowData, loading, error, lastUpdated, setRegion, currentRegion } = usePricing();
-  const { forecast, loading: forecastLoading, error: forecastError, refresh: refreshForecast, lastUpdated: forecastUpdated } = useForecast(currentRegion);
+// ─── Region picker modal (first-time users) ───
+
+function RegionPickerModal({ opened, onSelect }: { opened: boolean; onSelect: (r: Region) => void }) {
+  const [selected, setSelected] = useState<string | null>(null);
+
+  return (
+    <Modal
+      opened={opened}
+      onClose={() => {}}
+      title="Welcome to Agile Tracker"
+      centered
+      withCloseButton={false}
+      closeOnClickOutside={false}
+      closeOnEscape={false}
+      aria-label="Select your electricity region"
+    >
+      <Stack gap="md">
+        <Text size="sm" c="dimmed">
+          Select your electricity region to see accurate Octopus Agile prices.
+        </Text>
+        <Select
+          label="Your region"
+          placeholder="Select your region..."
+          data={regionOptions}
+          value={selected}
+          onChange={setSelected}
+          leftSection={<MapPin size={16} />}
+          searchable
+          aria-required
+        />
+        <Button
+          color="violet"
+          fullWidth
+          disabled={!selected}
+          onClick={() => selected && onSelect(selected as Region)}
+        >
+          Get started
+        </Button>
+      </Stack>
+    </Modal>
+  );
+}
+
+// ─── Main dashboard ───
+
+export function PricingDashboard() {
+  const { todayData, tomorrowData, loading, error, lastUpdated, setRegion, currentRegion, needsRegion } = usePricing();
+  const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
+  const { forecast, loading: forecastLoading, error: forecastError, refresh: refreshForecast, lastUpdated: forecastUpdated } = useForecast(currentRegion, hasTomorrow);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const regionOptions = Object.entries(OctopusRegion).map(([, value]) => ({
-    value,
-    label: REGION_LABELS[value] || value,
-  }));
-
-  const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
+  if (needsRegion) {
+    return (
+      <Flex justify="center" align="center" style={{ minHeight: '100vh' }}>
+        <RegionPickerModal opened onSelect={setRegion} />
+      </Flex>
+    );
+  }
 
   if (loading && !todayData && !tomorrowData) {
     return (
-      <Flex justify="center" align="center" style={{ minHeight: '100vh' }}>
+      <Flex justify="center" align="center" style={{ minHeight: '100vh' }} role="status" aria-label="Loading pricing data">
         <Stack align="center" gap="lg">
           <div className={styles.loadingLogo}>
             <Lightning size={28} weight="fill" color="white" />
@@ -105,24 +148,18 @@ export const PricingDashboard = () => {
   const fmtDate = (d: Date) =>
     d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   const today = new Date();
-  const tomorrow = new Date(Date.now() + 86400000);
+  const tomorrow = new Date(Date.now() + 86_400_000);
 
   return (
-    <Container size="lg" py="md">
-      {/* Settings */}
-      <Drawer
-        opened={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        title="Settings"
-        position="right"
-        size="sm"
-      >
+    <Container size="lg" py="md" component="main">
+      {/* Settings drawer */}
+      <Drawer opened={settingsOpen} onClose={() => setSettingsOpen(false)} title="Settings" position="right" size="sm">
         <Stack gap="md" pt="xs">
           <Select
             label="Region"
             description="Your electricity network region"
             value={currentRegion}
-            onChange={(val) => { setRegion(val as OctopusRegionType); setSettingsOpen(false); }}
+            onChange={(val) => { if (val) { setRegion(val as Region); setSettingsOpen(false); } }}
             data={regionOptions}
             leftSection={<MapPin size={16} />}
           />
@@ -130,23 +167,32 @@ export const PricingDashboard = () => {
       </Drawer>
 
       {/* Header */}
-      <Paper px="md" py="sm" mb="md" radius="lg" withBorder className={styles.headerBar}>
+      <Paper px="md" py="sm" mb="md" radius="lg" withBorder className={styles.headerBar} component="header">
         <Flex justify="space-between" align="center">
           <Flex align="center" gap="sm">
-            <div className={styles.logoIcon}>
+            <div className={styles.logoIcon} aria-hidden>
               <Lightning size={17} weight="fill" color="white" />
             </div>
             <Box>
-              <Title order={4} fw={700} style={{ letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              <Title order={1} fw={700} size="h4" style={{ letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                 Agile Tracker
               </Title>
               {lastUpdated && (
-                <Text size="xs" c="dimmed">Updated {new Date(lastUpdated).toLocaleTimeString()}</Text>
+                <Text size="xs" c="dimmed">
+                  Updated <time dateTime={lastUpdated.toISOString()}>{lastUpdated.toLocaleTimeString()}</time>
+                </Text>
               )}
             </Box>
           </Flex>
           <Group gap="xs">
-            <ActionIcon variant="light" color="gray" size="lg" radius="md" onClick={() => setSettingsOpen(true)}>
+            <ActionIcon
+              variant="light"
+              color="gray"
+              size="lg"
+              radius="md"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Open settings"
+            >
               <GearSix size={18} />
             </ActionIcon>
             <ColorModeButton />
@@ -154,17 +200,17 @@ export const PricingDashboard = () => {
         </Flex>
       </Paper>
 
-      {/* Error */}
+      {/* Error banner */}
       {error && (
-        <Paper mb="md" p="sm" radius="md" className={styles.errorBar}>
+        <Paper mb="md" p="sm" radius="md" className={styles.errorBar} role="alert">
           <Text size="sm" c="red">{error}</Text>
         </Paper>
       )}
 
-      {/* Tabs */}
+      {/* Day / Forecast tabs */}
       <Tabs defaultValue="today" color="violet">
         <Paper mb="md" radius="lg" withBorder className={styles.tabBar}>
-          <Tabs.List grow style={{ borderBottom: '1px solid var(--surface-border)' }}>
+          <Tabs.List grow style={{ borderBottom: '1px solid var(--surface-border)' }} aria-label="Day selector">
             <Tabs.Tab value="today" py="md">
               <Box>
                 <Text fw={600} size="sm">Today</Text>
@@ -220,4 +266,4 @@ export const PricingDashboard = () => {
       </Tabs>
     </Container>
   );
-};
+}

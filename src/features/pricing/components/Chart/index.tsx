@@ -1,49 +1,26 @@
-import { useState } from 'react';
 import { Box, Text, Group } from '@mantine/core';
-import type { ProcessedPriceData } from '../../types';
+import type { ProcessedSlot } from '../../schemas';
 import { getPriceColor, getMantinePriceColor, isPast, formatPrice } from '../../utils';
 import { CHART, CHART_LEGEND } from '../../constants';
+import { useChartData } from '../../hooks/use-chart-data';
 import styles from './Chart.module.scss';
 
 interface PriceChartProps {
-  data: ProcessedPriceData[];
+  data: ProcessedSlot[];
 }
 
 export const PriceChart = ({ data }: PriceChartProps) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const {
+    maxPrice, minPrice, range: totalRange, avg: average, priceToY,
+    gridPrices, timeLabels, currentIndex, bars,
+    hoveredIndex, setHoveredIndex, hoveredSlot: hoveredItem,
+  } = useChartData(data);
 
   if (!data.length) return null;
-
-  const prices = data.map((d) => d.priceIncVat);
-  const maxPrice = Math.max(...prices, 0.1);
-  const minPrice = Math.min(...prices, 0);
-  const totalRange = maxPrice - minPrice;
-  const average = prices.reduce((a, b) => a + b, 0) / prices.length;
 
   const positiveHeight = totalRange > 0 ? (maxPrice / totalRange) * CHART.HEIGHT : CHART.HEIGHT;
   const negativeHeight = CHART.HEIGHT - positiveHeight;
   const hasNegative = minPrice < 0;
-
-  const priceToY = (p: number) => Math.round(((maxPrice - p) / totalRange) * CHART.HEIGHT);
-
-  // Gridlines at 0 and every 10p
-  const gridPrices = new Set<number>();
-  if (hasNegative) gridPrices.add(0);
-  for (let p = 0; p <= maxPrice + CHART.GRID_INTERVAL; p += CHART.GRID_INTERVAL) {
-    if (p >= minPrice && p <= maxPrice + 1) gridPrices.add(p);
-  }
-
-  // Time labels every 4 hours
-  const timeLabels: { index: number; label: string }[] = [];
-  data.forEach((d, i) => {
-    const [h, m] = d.time.split(':').map(Number);
-    if (m === 0 && h % CHART.TIME_LABEL_INTERVAL === 0) {
-      timeLabels.push({ index: i, label: d.time });
-    }
-  });
-
-  const hoveredItem = hoveredIndex !== null ? data[hoveredIndex] : null;
-  const currentIndex = data.findIndex((d) => d.isCurrentPeriod);
 
   return (
     <Box>

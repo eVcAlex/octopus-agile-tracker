@@ -1,26 +1,19 @@
-import { useEffect, useRef } from 'react';
 import { Text } from '@mantine/core';
-import type { ProcessedPriceData } from '../../types';
+import type { ProcessedSlot } from '../../schemas';
 import { getPriceColor } from '../../utils';
 import { HEATMAP } from '../../constants';
+import { useScrollToCurrent } from '../../hooks/use-scroll-to-current';
 import styles from './Heatmap.module.scss';
 
 interface HeatmapViewProps {
-  data: ProcessedPriceData[];
+  data: ProcessedSlot[];
 }
 
 export const HeatmapView = ({ data }: HeatmapViewProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const currentRowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (containerRef.current && currentRowRef.current) {
-      containerRef.current.scrollTop = currentRowRef.current.offsetTop - 48;
-    }
-  }, [data]);
+  const { containerRef, currentRef: currentRowRef } = useScrollToCurrent([data]);
 
   // Index slots by hour
-  const slotsByHour = new Map<number, [ProcessedPriceData | null, ProcessedPriceData | null]>();
+  const slotsByHour = new Map<number, [ProcessedSlot | null, ProcessedSlot | null]>();
   for (let h = 0; h < HEATMAP.HOURS; h++) slotsByHour.set(h, [null, null]);
   for (const slot of data) {
     const [h, m] = slot.time.split(':').map(Number);

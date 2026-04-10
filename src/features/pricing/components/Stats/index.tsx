@@ -1,6 +1,6 @@
 import { SimpleGrid, Text, Paper, Box } from '@mantine/core';
 import { ArrowDown, ArrowUp, ChartBar, Lightning } from 'phosphor-react';
-import type { PriceStats } from '../../types';
+import type { PriceStats } from '../../schemas';
 import { formatPrice } from '../../utils';
 import { PRICE_THRESHOLDS, STAT_GRADIENTS } from '../../constants';
 import styles from './Stats.module.scss';

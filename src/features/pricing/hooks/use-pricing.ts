@@ -16,10 +16,16 @@ export interface UsePricingReturn {
   needsRegion: boolean;
   forecastDays: number;
   setForecastDays: (days: number) => void;
+  gasProduct: string;
+  setGasProduct: (code: string) => void;
+  apiKey: string;
+  setApiKey: (key: string) => void;
+  accountNo: string;
+  setAccountNo: (no: string) => void;
 }
 
 export function usePricing(): UsePricingReturn {
-  const { region, setRegion: persistRegion, isFirstTime, forecastDays, setForecastDays } = useRegion();
+  const { region, setRegion: persistRegion, isFirstTime, forecastDays, setForecastDays, gasProduct, setGasProduct, apiKey, setApiKey, accountNo, setAccountNo } = useRegion();
   const qc = useQueryClient();
 
   const { data, isLoading, error, dataUpdatedAt } = useQuery({
@@ -46,5 +52,11 @@ export function usePricing(): UsePricingReturn {
     needsRegion: isFirstTime,
     forecastDays,
     setForecastDays,
+    gasProduct,
+    setGasProduct,
+    apiKey,
+    setApiKey,
+    accountNo,
+    setAccountNo,
   };
 }

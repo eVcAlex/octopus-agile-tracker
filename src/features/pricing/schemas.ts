@@ -90,6 +90,17 @@ export interface DailyPrices {
   stats: PriceStats;
 }
 
+// ─── Gas ───
+
+export interface GasRate {
+  date: string;
+  unitRateIncVat: number;
+  unitRateExcVat: number;
+  validFrom: Date;
+  validTo: Date | null;
+  isCurrent: boolean;
+}
+
 export interface ForecastDay {
   date: string;
   label: string;

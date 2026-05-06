@@ -1,0 +1,73 @@
+.setupCard {
+  border-color: var(--surface-border);
+  background: var(--surface-bg);
+}
+
+.currentCard {
+  background: rgba(249, 115, 22, 0.06);
+  border-color: rgba(249, 115, 22, 0.25);
+}
+
+.tomorrowCard {
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+.rateValue {
+  font-variant-numeric: tabular-nums;
+}
+
+// History chart
+.historyChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+  margin-top: 8px;
+}
+
+.historyBar {
+  flex: 1;
+  min-width: 0;
+  border-radius: 3px 3px 0 0;
+  background: rgba(249, 115, 22, 0.5);
+  transition: background 0.1s;
+  cursor: default;
+  position: relative;
+
+  &.current {
+    background: rgb(249, 115, 22);
+  }
+
+  &:hover {
+    background: rgb(249, 115, 22);
+  }
+}
+
+.historyLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--callout-bg);
+  border: 1px solid var(--callout-border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.noteBar {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(124, 58, 237, 0.05);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+}

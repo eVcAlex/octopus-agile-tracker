@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Box, Text, Paper, Stack, Group, Loader, TextInput, Button, SimpleGrid } from '@mantine/core';
-import { Drop, ArrowClockwise } from 'phosphor-react';
+import { Box, Text, Paper, Stack, Group, Loader, TextInput, Button, SimpleGrid, Badge } from '@mantine/core';
+import { Drop, ArrowClockwise, TrendUp, TrendDown } from 'phosphor-react';
 import type { GasRate } from '../../schemas';
 import styles from './Gas.module.scss';
 
@@ -112,33 +112,41 @@ interface GasViewProps {
   refreshing: boolean;
 }
 
-function RateCard({ rate, label, dimmed }: { rate: GasRate | null; label: string; dimmed?: boolean }) {
+function ChangeChip({ rate, compareRate }: { rate: GasRate; compareRate: GasRate | null }) {
+  if (!compareRate) return null;
+  const pct = ((rate.unitRateIncVat - compareRate.unitRateIncVat) / compareRate.unitRateIncVat) * 100;
+  if (Math.abs(pct) < 0.01) return <Badge color="gray" variant="light" size="xs">0%</Badge>;
+  const up = pct > 0;
+  return (
+    <Badge
+      color={up ? 'red' : 'green'}
+      variant="light"
+      size="xs"
+      leftSection={up ? <TrendUp size={10} weight="bold" /> : <TrendDown size={10} weight="bold" />}
+    >
+      {up ? '+' : ''}{pct.toFixed(1)}%
+    </Badge>
+  );
+}
+
+function RateCard({ rate, label, dimmed, compareRate }: { rate: GasRate | null; label: string; dimmed?: boolean; compareRate?: GasRate | null }) {
   return (
     <Paper p="md" radius="lg" withBorder className={dimmed ? styles.tomorrowCard : styles.currentCard}>
       <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5} mb={4}>{label}</Text>
       {rate ? (
         <>
-          <Text fw={800} size="xl" ff="monospace" lh={1.1} className={styles.rateValue} c={dimmed ? 'dimmed' : 'orange'}>
-            {rate.unitRateIncVat.toFixed(4)}p
-          </Text>
-          <Text size="xs" c="dimmed">per kWh · inc. VAT</Text>
-          <SimpleGrid cols={2} mt="xs" spacing="xs">
-            <Box>
-              <Text size="xs" c="dimmed">Exc. VAT</Text>
-              <Text size="xs" fw={600} ff="monospace">{rate.unitRateExcVat.toFixed(4)}p</Text>
-            </Box>
-            <Box>
-              <Text size="xs" c="dimmed">From</Text>
-              <Text size="xs" fw={600} ff="monospace">
-                {rate.validFrom.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-              </Text>
-            </Box>
-          </SimpleGrid>
+          <Group gap={6} align="baseline" wrap="nowrap">
+            <Text fw={800} size="xl" ff="monospace" lh={1.1} className={styles.rateValue} c={dimmed ? 'dimmed' : 'orange'}>
+              {rate.unitRateIncVat.toFixed(2)}p
+            </Text>
+          </Group>
+          <Text size="xs" c="dimmed" mb={6}>per kWh</Text>
+          {compareRate !== undefined && <ChangeChip rate={rate} compareRate={compareRate ?? null} />}
         </>
       ) : (
         <>
-          <Text fw={600} size="sm" c="dimmed">Not yet published</Text>
-          <Text size="xs" c="dimmed" mt={2}>Check back later today</Text>
+          <Text fw={600} size="sm" c="dimmed">Not yet</Text>
+          <Text size="xs" c="dimmed" mt={2}>published</Text>
         </>
       )}
     </Paper>
@@ -167,8 +175,8 @@ function GasView({ currentRate, tomorrowRate, rates, lastUpdated, onRefresh, ref
 
       {/* Today + Tomorrow side by side */}
       <SimpleGrid cols={2} spacing="sm">
-        <RateCard rate={currentRate} label="Today" />
-        <RateCard rate={tomorrowRate} label="Tomorrow" dimmed />
+        <RateCard rate={currentRate} label="Today" compareRate={rates[1] ?? null} />
+        <RateCard rate={tomorrowRate} label="Tomorrow" dimmed compareRate={currentRate} />
       </SimpleGrid>
 
       {/* History chart */}

@@ -49,6 +49,15 @@ async function fetchRates(
   );
 }
 
+/** Raw Agile rates for an arbitrary period (used by Usage spend calc) */
+export async function fetchRawRates(
+  region: Region,
+  from: Date,
+  to: Date
+): Promise<OctopusRate[]> {
+  return fetchRates(region, from, to);
+}
+
 export function processRates(
   rates: OctopusRate[],
   dayType: 'today' | 'tomorrow'

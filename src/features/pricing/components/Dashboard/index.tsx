@@ -32,6 +32,7 @@ import { useForecast } from '../../hooks/use-forecast';
 import { useGas } from '../../hooks/use-gas';
 import { useStandingCharges } from '../../hooks/use-standing-charges';
 import { useHistory } from '../../hooks/use-history';
+import { useUsage } from '../../hooks/use-usage';
 import {
   REGIONS,
   REGION_LABELS,
@@ -46,6 +47,7 @@ import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
 import { CheapWindows } from '../CheapWindows';
 import { TrendsSection } from '../Trends';
+import { UsageSection } from '../Usage';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
 import styles from './Dashboard.module.scss';
 
@@ -195,6 +197,7 @@ export function PricingDashboard() {
     error: historyError,
     refresh: refreshHistory,
   } = useHistory(currentRegion);
+  const usage = useUsage(currentRegion, apiKey, accountNo);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [energyType, setEnergyType] = useState<EnergyType>('electricity');
   const [gasProductDraft, setGasProductDraft] = useState(gasProduct);
@@ -593,6 +596,16 @@ export function PricingDashboard() {
                     </Text>
                   </Box>
                 </Tabs.Tab>
+                <Tabs.Tab value="usage" py="md">
+                  <Box>
+                    <Text fw={600} size="sm">
+                      Usage
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Your spend
+                    </Text>
+                  </Box>
+                </Tabs.Tab>
               </Tabs.List>
             </Paper>
 
@@ -643,6 +656,18 @@ export function PricingDashboard() {
                 loading={historyLoading}
                 error={historyError}
                 onRefresh={refreshHistory}
+              />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="usage">
+              <UsageSection
+                spend={usage.spend}
+                flexibleRate={usage.flexibleRate}
+                loading={usage.loading}
+                error={usage.error}
+                needsCredentials={usage.needsCredentials}
+                noData={usage.noData}
+                onOpenSettings={() => setSettingsOpen(true)}
               />
             </Tabs.Panel>
           </Tabs>

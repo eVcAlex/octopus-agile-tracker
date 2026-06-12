@@ -11,6 +11,10 @@ const agreementSchema = z.object({
   valid_to: z.string().nullable(),
 });
 
+const meterSchema = z.object({
+  serial_number: z.string(),
+});
+
 const gasMeterPointSchema = z.object({
   mprn: z.string(),
   agreements: z.array(agreementSchema),
@@ -18,6 +22,8 @@ const gasMeterPointSchema = z.object({
 
 const elecMeterPointSchema = z.object({
   mpan: z.string(),
+  is_export: z.boolean().optional(),
+  meters: z.array(meterSchema).optional(),
   agreements: z.array(agreementSchema),
 });
 
@@ -35,6 +41,8 @@ export interface AccountDetails {
   gasProductCode: string | null; // e.g. "SILVER-24-07-01"
   gasTariffCode: string | null; // e.g. "G-1R-SILVER-24-07-01-A"
   electricityTariffCode: string | null;
+  electricityMpan: string | null;
+  electricityMeterSerial: string | null;
 }
 
 // Extract product code from a tariff code like "G-1R-SILVER-24-07-01-A"
@@ -71,13 +79,18 @@ export async function fetchAccountDetails(
     ? activeTariff(property.gas_meter_points[0].agreements)
     : null;
 
-  const elecTariff = property?.electricity_meter_points[0]
-    ? activeTariff(property.electricity_meter_points[0].agreements)
-    : null;
+  // Prefer the import meter point (is_export false/undefined)
+  const importPoint =
+    property?.electricity_meter_points.find((p) => !p.is_export) ??
+    property?.electricity_meter_points[0];
+
+  const elecTariff = importPoint ? activeTariff(importPoint.agreements) : null;
 
   return {
     gasTariffCode: gasTariff,
     gasProductCode: gasTariff ? extractProductCode(gasTariff) : null,
     electricityTariffCode: elecTariff,
+    electricityMpan: importPoint?.mpan ?? null,
+    electricityMeterSerial: importPoint?.meters?.[0]?.serial_number ?? null,
   };
 }

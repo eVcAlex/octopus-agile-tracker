@@ -30,6 +30,7 @@ import { usePricing } from '../../hooks/use-pricing';
 import { fetchAccountDetails } from '../../api/accountApi';
 import { useForecast } from '../../hooks/use-forecast';
 import { useGas } from '../../hooks/use-gas';
+import { useStandingCharges } from '../../hooks/use-standing-charges';
 import {
   REGIONS,
   REGION_LABELS,
@@ -179,6 +180,10 @@ export function PricingDashboard() {
     lastUpdated: gasUpdated,
     refresh: refreshGas,
   } = useGas(currentRegion, gasProduct);
+  const { elecStandingCharge, gasStandingCharge } = useStandingCharges(
+    currentRegion,
+    gasProduct
+  );
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [energyType, setEnergyType] = useState<EnergyType>('electricity');
   const [gasProductDraft, setGasProductDraft] = useState(gasProduct);
@@ -361,6 +366,25 @@ export function PricingDashboard() {
                 {detectError}
               </Text>
             )}
+            <Text size="xs" c="dimmed">
+              Your API key and account number are stored only in this browser
+              and sent only to the Octopus Energy API.
+            </Text>
+            {(apiKey || accountNo) && (
+              <Button
+                variant="subtle"
+                color="red"
+                size="xs"
+                onClick={() => {
+                  setApiKey('');
+                  setAccountNo('');
+                  setApiKeyDraft('');
+                  setAccountNoDraft('');
+                }}
+              >
+                Clear stored credentials
+              </Button>
+            )}
           </Stack>
 
           {/* Gas */}
@@ -488,6 +512,7 @@ export function PricingDashboard() {
             setGasProduct(code);
             setGasProductDraft(code);
           }}
+          standingCharge={gasStandingCharge}
         />
       )}
 
@@ -591,6 +616,12 @@ export function PricingDashboard() {
               />
             </Tabs.Panel>
           </Tabs>
+
+          {elecStandingCharge != null && (
+            <Text size="xs" c="dimmed" mt="md">
+              Standing charge: {elecStandingCharge.toFixed(2)}p/day (inc VAT)
+            </Text>
+          )}
         </>
       )}
     </Container>

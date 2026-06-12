@@ -2,10 +2,12 @@ import wretch from 'wretch';
 import dayjs from 'dayjs';
 import {
   octopusResponseSchema,
+  standingChargeResponseSchema,
   type OctopusRate,
   type Region,
   type GasRate,
 } from '../schemas';
+import { currentStandingCharge } from './octopusApi';
 
 const API_BASE = 'https://api.octopus.energy/v1/products';
 
@@ -64,4 +66,15 @@ export async function fetchGasRates(
       };
     })
     .sort((a, b) => b.validFrom.getTime() - a.validFrom.getTime());
+}
+
+export async function fetchGasStandingCharge(
+  region: Region,
+  productCode: string
+): Promise<number | null> {
+  const tariff = gasTariffCode(region, productCode);
+  const url = `${API_BASE}/${productCode}/gas-tariffs/${tariff}/standing-charges/?page_size=10`;
+  const raw = await wretch(url).get().json();
+  const page = standingChargeResponseSchema.parse(raw);
+  return currentStandingCharge(page.results);
 }

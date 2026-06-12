@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import {
   octopusResponseSchema,
+  standingChargeResponseSchema,
+  type StandingCharge,
   type OctopusRate,
   type Region,
   type ProcessedSlot,
@@ -115,4 +117,30 @@ export async function fetchDailyRates(region: Region) {
     today: buildDailyPrices(todayRates, today.toDate(), 'today'),
     tomorrow: buildDailyPrices(tomorrowRates, tomorrow.toDate(), 'tomorrow'),
   };
+}
+
+export function currentStandingCharge(
+  results: StandingCharge[]
+): number | null {
+  const now = new Date();
+  const current = results
+    .filter(
+      (r) => r.payment_method === 'DIRECT_DEBIT' || r.payment_method == null
+    )
+    .find(
+      (r) =>
+        new Date(r.valid_from) <= now &&
+        (r.valid_to === null || new Date(r.valid_to) > now)
+    );
+  return current?.value_inc_vat ?? null;
+}
+
+export async function fetchElecStandingCharge(
+  region: Region
+): Promise<number | null> {
+  const tariff = tariffCode(region);
+  const url = `${API_BASE}/${PRODUCT}/electricity-tariffs/${tariff}/standing-charges/?page_size=10`;
+  const raw = await wretch(url).get().json();
+  const page = standingChargeResponseSchema.parse(raw);
+  return currentStandingCharge(page.results);
 }

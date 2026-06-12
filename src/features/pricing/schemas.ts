@@ -20,6 +20,24 @@ export const octopusResponseSchema = z.object({
 export type OctopusRate = z.infer<typeof octopusRateSchema>;
 export type OctopusResponse = z.infer<typeof octopusResponseSchema>;
 
+// Standing charges share the rate shape but valid_to is null when open-ended
+export const standingChargeSchema = z.object({
+  value_exc_vat: z.number(),
+  value_inc_vat: z.number(),
+  valid_from: z.string(),
+  valid_to: z.string().nullable(),
+  payment_method: z.string().nullable().optional(),
+});
+
+export const standingChargeResponseSchema = z.object({
+  count: z.number(),
+  next: z.string().nullable(),
+  previous: z.string().nullable(),
+  results: z.array(standingChargeSchema),
+});
+
+export type StandingCharge = z.infer<typeof standingChargeSchema>;
+
 // ─── AgilePredict Forecast API ───
 
 export const forecastPriceSchema = z.object({

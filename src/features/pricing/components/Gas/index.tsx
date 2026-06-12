@@ -144,6 +144,7 @@ interface GasViewProps {
   lastUpdated: Date | null;
   onRefresh: () => void;
   refreshing: boolean;
+  standingCharge?: number | null;
 }
 
 function ChangeChip({
@@ -247,6 +248,7 @@ function GasView({
   lastUpdated,
   onRefresh,
   refreshing,
+  standingCharge,
 }: GasViewProps) {
   return (
     <Stack gap="md">
@@ -297,6 +299,12 @@ function GasView({
         />
       </SimpleGrid>
 
+      {standingCharge != null && (
+        <Text size="xs" c="dimmed">
+          Standing charge: {standingCharge.toFixed(2)}p/day (inc VAT)
+        </Text>
+      )}
+
       {/* History chart */}
       {rates.length > 1 && <GasHistoryChart rates={rates} />}
     </Stack>
@@ -314,6 +322,7 @@ interface GasSectionProps {
   gasProduct: string;
   onRefresh: () => void;
   onSetProduct: (code: string) => void;
+  standingCharge?: number | null;
 }
 
 export function GasSection({
@@ -325,6 +334,7 @@ export function GasSection({
   gasProduct,
   onRefresh,
   onSetProduct,
+  standingCharge,
 }: GasSectionProps) {
   if (!gasProduct) {
     return <GasSetup onSave={onSetProduct} />;
@@ -387,6 +397,7 @@ export function GasSection({
       lastUpdated={lastUpdated}
       onRefresh={onRefresh}
       refreshing={loading}
+      standingCharge={standingCharge}
     />
   );
 }

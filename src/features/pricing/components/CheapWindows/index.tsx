@@ -1,56 +1,15 @@
-import { Box, Text, Stack, Flex, Paper } from '@mantine/core';
-import type { ProcessedSlot, PriceStats } from '../../schemas';
-import { formatDuration, formatPrice } from '../../utils';
-import { CHEAP_WINDOWS } from '../../constants';
+import { Box, Text, Flex, Paper, SimpleGrid, Badge } from '@mantine/core';
+import type { ProcessedSlot } from '../../schemas';
+import { formatPrice, getMantinePriceColor } from '../../utils';
+import { findCheapestWindows } from '../../cheap-windows';
 import styles from './CheapWindows.module.scss';
-
-interface Window {
-  start: string;
-  end: string;
-  avgPrice: number;
-  durationHours: number;
-}
-
-function findCheapWindows(data: ProcessedSlot[], threshold: number): Window[] {
-  const windows: Window[] = [];
-  let group: ProcessedSlot[] = [];
-
-  const flush = () => {
-    if (group.length < CHEAP_WINDOWS.MIN_SLOTS) {
-      group = [];
-      return;
-    }
-    const avg = group.reduce((s, r) => s + r.priceIncVat, 0) / group.length;
-    const last = group[group.length - 1];
-    const [h, m] = last.time.split(':').map(Number);
-    const endMin = h * 60 + m + 30;
-    const end = `${String(Math.floor(endMin / 60) % 24).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`;
-    windows.push({
-      start: group[0].time,
-      end,
-      avgPrice: avg,
-      durationHours: group.length * 0.5,
-    });
-    group = [];
-  };
-
-  for (const slot of data) {
-    if (slot.priceIncVat <= threshold) group.push(slot);
-    else flush();
-  }
-  flush();
-
-  return windows.sort((a, b) => a.avgPrice - b.avgPrice);
-}
 
 interface CheapWindowsProps {
   data: ProcessedSlot[];
-  stats: PriceStats;
 }
 
-export const CheapWindows = ({ data, stats }: CheapWindowsProps) => {
-  const threshold = Math.min(stats.average, CHEAP_WINDOWS.THRESHOLD_CAP);
-  const windows = findCheapWindows(data, threshold);
+export const CheapWindows = ({ data }: CheapWindowsProps) => {
+  const windows = findCheapestWindows(data);
 
   if (!windows.length) return null;
 
@@ -58,46 +17,50 @@ export const CheapWindows = ({ data, stats }: CheapWindowsProps) => {
     <Box mt="md">
       <Flex align="baseline" gap="xs" mb="xs">
         <Text size="xs" tt="uppercase" fw={600} c="dimmed" lts={0.8}>
-          Cheap windows
+          Cheapest windows
         </Text>
         <Text size="xs" c="dimmed">
-          &middot; below {threshold.toFixed(1)}p avg
+          &middot; best time to run appliances
         </Text>
       </Flex>
-      <Stack gap="xs">
-        {windows.slice(0, CHEAP_WINDOWS.MAX_DISPLAY).map((w, i) => {
-          const color =
-            w.avgPrice < 0 ? 'teal' : w.avgPrice < 5 ? 'green' : 'blue';
-          return (
-            <Paper
-              key={i}
-              px="md"
-              py="sm"
-              radius="md"
-              className={styles.windowCard}
+      <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
+        {windows.map((w) => (
+          <Paper
+            key={w.durationHours}
+            px="md"
+            py="sm"
+            radius="md"
+            className={styles.windowCard}
+          >
+            <Flex justify="space-between" align="center" mb={4}>
+              <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
+                {w.durationHours}h
+              </Text>
+              {w.isActive && (
+                <Badge color="violet" variant="light" size="xs">
+                  now
+                </Badge>
+              )}
+            </Flex>
+            <Text ff="monospace" fw={700} size="sm" lh={1.2}>
+              {w.startLabel}&ndash;{w.endLabel}
+            </Text>
+            <Text
+              fw={700}
+              ff="monospace"
+              size="sm"
+              mt={2}
+              c={getMantinePriceColor(w.avgPrice) ?? undefined}
             >
-              <Flex justify="space-between" align="center">
-                <Box>
-                  <Text ff="monospace" fw={700} size="sm" lh={1.2}>
-                    {w.start} &ndash; {w.end}
-                  </Text>
-                  <Text size="xs" c="dimmed" mt={2}>
-                    {formatDuration(w.durationHours)}
-                  </Text>
-                </Box>
-                <Box ta="right">
-                  <Text fw={800} ff="monospace" size="md" c={color} lh={1.2}>
-                    {formatPrice(w.avgPrice)}
-                  </Text>
-                  <Text size="xs" c="dimmed" mt={2}>
-                    avg/slot
-                  </Text>
-                </Box>
-              </Flex>
-            </Paper>
-          );
-        })}
-      </Stack>
+              {formatPrice(w.avgPrice)}
+              <Text span size="xs" c="dimmed" fw={500}>
+                {' '}
+                avg
+              </Text>
+            </Text>
+          </Paper>
+        ))}
+      </SimpleGrid>
     </Box>
   );
 };

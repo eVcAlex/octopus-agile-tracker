@@ -43,6 +43,7 @@ import { PriceChart } from '../Chart';
 import { HeatmapView } from '../Heatmap';
 import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
+import { CheapWindows } from '../CheapWindows';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
 import styles from './Dashboard.module.scss';
 
@@ -67,6 +68,8 @@ function DaySection({
   return (
     <section aria-label="Price visualisation">
       <PricingStats stats={data.stats} />
+
+      <CheapWindows data={data.rates} />
 
       <SegmentedControl
         value={view}

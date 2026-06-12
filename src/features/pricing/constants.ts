@@ -39,12 +39,6 @@ export const TABLE = {
   PAST_OPACITY: 0.35,
 } as const;
 
-export const CHEAP_WINDOWS = {
-  MAX_DISPLAY: 5,
-  THRESHOLD_CAP: 15,
-  MIN_SLOTS: 2,
-} as const;
-
 export const CHART_LEGEND = [
   { color: PRICE_COLORS.free, label: 'Free (\u22640p)' },
   { color: PRICE_COLORS.low, label: 'Low (<10p)' },

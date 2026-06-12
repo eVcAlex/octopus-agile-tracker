@@ -19,7 +19,11 @@ function tariffCode(region: Region) {
   return `E-1R-${PRODUCT}-${region}`;
 }
 
-async function fetchRates(region: Region, from: Date, to: Date): Promise<OctopusRate[]> {
+async function fetchRates(
+  region: Region,
+  from: Date,
+  to: Date
+): Promise<OctopusRate[]> {
   const tariff = tariffCode(region);
   const url = `${API_BASE}/${PRODUCT}/electricity-tariffs/${tariff}/standard-unit-rates/`;
   const params = new URLSearchParams({
@@ -39,13 +43,13 @@ async function fetchRates(region: Region, from: Date, to: Date): Promise<Octopus
   }
 
   return allRates.sort(
-    (a, b) => dayjs(a.valid_from).unix() - dayjs(b.valid_from).unix(),
+    (a, b) => dayjs(a.valid_from).unix() - dayjs(b.valid_from).unix()
   );
 }
 
 function processRates(
   rates: OctopusRate[],
-  dayType: 'today' | 'tomorrow',
+  dayType: 'today' | 'tomorrow'
 ): ProcessedSlot[] {
   const now = dayjs();
   return rates.map((rate, i) => {
@@ -70,12 +74,18 @@ function calcStats(rates: ProcessedSlot[]): PriceStats {
   return {
     min: prices.length ? Math.min(...prices) : 0,
     max: prices.length ? Math.max(...prices) : 0,
-    average: prices.length ? prices.reduce((s, p) => s + p, 0) / prices.length : 0,
+    average: prices.length
+      ? prices.reduce((s, p) => s + p, 0) / prices.length
+      : 0,
     current: rates.find((r) => r.isCurrentPeriod)?.priceIncVat,
   };
 }
 
-function buildDailyPrices(rates: OctopusRate[], date: Date, dayType: 'today' | 'tomorrow'): DailyPrices {
+function buildDailyPrices(
+  rates: OctopusRate[],
+  date: Date,
+  dayType: 'today' | 'tomorrow'
+): DailyPrices {
   const processed = processRates(rates, dayType);
   return {
     date: dayjs(date).format('YYYY-MM-DD'),
@@ -89,8 +99,16 @@ export async function fetchDailyRates(region: Region) {
   const tomorrow = today.add(1, 'day');
 
   const [todayRates, tomorrowRates] = await Promise.all([
-    fetchRates(region, today.startOf('day').toDate(), today.endOf('day').toDate()),
-    fetchRates(region, tomorrow.startOf('day').toDate(), tomorrow.endOf('day').toDate()),
+    fetchRates(
+      region,
+      today.startOf('day').toDate(),
+      today.endOf('day').toDate()
+    ),
+    fetchRates(
+      region,
+      tomorrow.startOf('day').toDate(),
+      tomorrow.endOf('day').toDate()
+    ),
   ]);
 
   return {

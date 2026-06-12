@@ -6,7 +6,6 @@ import {
   formatPrice,
   isPast as checkPast,
 } from '../../utils';
-import { TABLE } from '../../constants';
 import { useScrollToCurrent } from '../../hooks/use-scroll-to-current';
 import styles from './Table.module.scss';
 

@@ -37,8 +37,14 @@ function buildCards(stats: PriceStats): StatCard[] {
       icon: ArrowUp,
       iconWeight: 'bold',
       value: stats.max,
-      bg: stats.max > PRICE_THRESHOLDS.HIGH ? 'rgba(239,68,68,0.07)' : 'rgba(249,115,22,0.07)',
-      iconBg: stats.max > PRICE_THRESHOLDS.HIGH ? STAT_GRADIENTS.red : STAT_GRADIENTS.orange,
+      bg:
+        stats.max > PRICE_THRESHOLDS.HIGH
+          ? 'rgba(239,68,68,0.07)'
+          : 'rgba(249,115,22,0.07)',
+      iconBg:
+        stats.max > PRICE_THRESHOLDS.HIGH
+          ? STAT_GRADIENTS.red
+          : STAT_GRADIENTS.orange,
     },
     {
       key: 'average',
@@ -75,14 +81,27 @@ export const PricingStats = ({ stats }: PricingStatsProps) => {
       {cards.map((card) => {
         const Icon = card.icon;
         return (
-          <Paper key={card.key} p="md" radius="md" className={styles.card} style={{ background: card.bg }}>
+          <Paper
+            key={card.key}
+            p="md"
+            radius="md"
+            className={styles.card}
+            style={{ background: card.bg }}
+          >
             <div className={styles.cardInner}>
-              <div className={styles.iconBox} style={{ background: card.iconBg }}>
+              <div
+                className={styles.iconBox}
+                style={{ background: card.iconBg }}
+              >
                 <Icon size={18} weight={card.iconWeight} color="white" />
               </div>
               <Box>
-                <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5}>{card.label}</Text>
-                <Text fw={700} size="lg" ff="monospace" lh={1.2}>{formatPrice(card.value)}</Text>
+                <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5}>
+                  {card.label}
+                </Text>
+                <Text fw={700} size="lg" ff="monospace" lh={1.2}>
+                  {formatPrice(card.value)}
+                </Text>
               </Box>
             </div>
           </Paper>

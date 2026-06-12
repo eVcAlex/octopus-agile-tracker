@@ -1,5 +1,16 @@
 import { useState } from 'react';
-import { Box, Text, Paper, Stack, Group, Loader, TextInput, Button, SimpleGrid, Badge } from '@mantine/core';
+import {
+  Box,
+  Text,
+  Paper,
+  Stack,
+  Group,
+  Loader,
+  TextInput,
+  Button,
+  SimpleGrid,
+  Badge,
+} from '@mantine/core';
 import { Drop, ArrowClockwise, TrendUp, TrendDown } from 'phosphor-react';
 import type { GasRate } from '../../schemas';
 import styles from './Gas.module.scss';
@@ -18,11 +29,17 @@ function GasHistoryChart({ rates }: { rates: GasRate[] }) {
   const range = maxRate - minRate || 1;
 
   // Label first, middle, and last
-  const labelIndices = new Set([0, Math.floor(display.length / 2), display.length - 1]);
+  const labelIndices = new Set([
+    0,
+    Math.floor(display.length / 2),
+    display.length - 1,
+  ]);
 
   return (
     <Box mt="md">
-      <Text size="xs" c="dimmed" tt="uppercase" fw={600} lts={0.5} mb={6}>30-day history</Text>
+      <Text size="xs" c="dimmed" tt="uppercase" fw={600} lts={0.5} mb={6}>
+        30-day history
+      </Text>
       <div className={styles.historyChart}>
         {display.map((rate, i) => {
           const heightPct = ((rate.unitRateIncVat - minRate) / range) * 60 + 20; // 20%–80%
@@ -36,8 +53,15 @@ function GasHistoryChart({ rates }: { rates: GasRate[] }) {
             >
               {hoveredIndex === i && (
                 <div className={styles.tooltip}>
-                  <Text size="xs" fw={700} ff="monospace">{rate.unitRateIncVat.toFixed(4)}p</Text>
-                  <Text size="xs" c="dimmed">{new Date(rate.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</Text>
+                  <Text size="xs" fw={700} ff="monospace">
+                    {rate.unitRateIncVat.toFixed(4)}p
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    {new Date(rate.date).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                    })}
+                  </Text>
                 </div>
               )}
             </div>
@@ -48,9 +72,12 @@ function GasHistoryChart({ rates }: { rates: GasRate[] }) {
         {display.map((rate, i) =>
           labelIndices.has(i) ? (
             <Text key={rate.date} size="xs" c="dimmed" ff="monospace">
-              {new Date(rate.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+              {new Date(rate.date).toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'short',
+              })}
             </Text>
-          ) : null,
+          ) : null
         )}
       </div>
     </Box>
@@ -71,17 +98,22 @@ function GasSetup({ onSave }: GasSetupProps) {
       <Stack gap="md" align="center" ta="center">
         <div style={{ fontSize: 40 }}>🔥</div>
         <Box>
-          <Text fw={600} size="lg">Set up Gas Tracker</Text>
+          <Text fw={600} size="lg">
+            Set up Gas Tracker
+          </Text>
           <Text size="sm" c="dimmed" mt={4}>
-            Enter your Octopus gas product code to track your daily gas unit rate.
-            Find it on your Octopus dashboard under <strong>Tariff</strong>.
+            Enter your Octopus gas product code to track your daily gas unit
+            rate. Find it on your Octopus dashboard under{' '}
+            <strong>Tariff</strong>.
           </Text>
         </Box>
         <Stack gap="xs" w="100%" maw={340}>
           <TextInput
             placeholder="e.g. SILVER-24-07-01"
             value={value}
-            onChange={(e) => setValue(e.currentTarget.value.trim().toUpperCase())}
+            onChange={(e) =>
+              setValue(e.currentTarget.value.trim().toUpperCase())
+            }
             label="Gas product code"
             description="From your Octopus account → Tariff details"
             ff="monospace"
@@ -95,7 +127,9 @@ function GasSetup({ onSave }: GasSetupProps) {
             Track gas prices
           </Button>
         </Stack>
-        <Text size="xs" c="dimmed">Common codes: SILVER-24-07-01, TRACKER-23-04-27</Text>
+        <Text size="xs" c="dimmed">
+          Common codes: SILVER-24-07-01, TRACKER-23-04-27
+        </Text>
       </Stack>
     </Paper>
   );
@@ -112,71 +146,155 @@ interface GasViewProps {
   refreshing: boolean;
 }
 
-function ChangeChip({ rate, compareRate }: { rate: GasRate; compareRate: GasRate | null }) {
+function ChangeChip({
+  rate,
+  compareRate,
+}: {
+  rate: GasRate;
+  compareRate: GasRate | null;
+}) {
   if (!compareRate) return null;
-  const pct = ((rate.unitRateIncVat - compareRate.unitRateIncVat) / compareRate.unitRateIncVat) * 100;
-  if (Math.abs(pct) < 0.01) return <Badge color="gray" variant="light" size="xs">0%</Badge>;
+  const pct =
+    ((rate.unitRateIncVat - compareRate.unitRateIncVat) /
+      compareRate.unitRateIncVat) *
+    100;
+  if (Math.abs(pct) < 0.01)
+    return (
+      <Badge color="gray" variant="light" size="xs">
+        0%
+      </Badge>
+    );
   const up = pct > 0;
   return (
     <Badge
       color={up ? 'red' : 'green'}
       variant="light"
       size="xs"
-      leftSection={up ? <TrendUp size={10} weight="bold" /> : <TrendDown size={10} weight="bold" />}
+      leftSection={
+        up ? (
+          <TrendUp size={10} weight="bold" />
+        ) : (
+          <TrendDown size={10} weight="bold" />
+        )
+      }
     >
-      {up ? '+' : ''}{pct.toFixed(1)}%
+      {up ? '+' : ''}
+      {pct.toFixed(1)}%
     </Badge>
   );
 }
 
-function RateCard({ rate, label, dimmed, compareRate }: { rate: GasRate | null; label: string; dimmed?: boolean; compareRate?: GasRate | null }) {
+function RateCard({
+  rate,
+  label,
+  dimmed,
+  compareRate,
+}: {
+  rate: GasRate | null;
+  label: string;
+  dimmed?: boolean;
+  compareRate?: GasRate | null;
+}) {
   return (
-    <Paper p="md" radius="lg" withBorder className={dimmed ? styles.tomorrowCard : styles.currentCard}>
-      <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5} mb={4}>{label}</Text>
+    <Paper
+      p="md"
+      radius="lg"
+      withBorder
+      className={dimmed ? styles.tomorrowCard : styles.currentCard}
+    >
+      <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5} mb={4}>
+        {label}
+      </Text>
       {rate ? (
         <>
           <Group gap={6} align="baseline" wrap="nowrap">
-            <Text fw={800} size="xl" ff="monospace" lh={1.1} className={styles.rateValue} c={dimmed ? 'dimmed' : 'orange'}>
+            <Text
+              fw={800}
+              size="xl"
+              ff="monospace"
+              lh={1.1}
+              className={styles.rateValue}
+              c={dimmed ? 'dimmed' : 'orange'}
+            >
               {rate.unitRateIncVat.toFixed(2)}p
             </Text>
           </Group>
-          <Text size="xs" c="dimmed" mb={6}>per kWh</Text>
-          {compareRate !== undefined && <ChangeChip rate={rate} compareRate={compareRate ?? null} />}
+          <Text size="xs" c="dimmed" mb={6}>
+            per kWh
+          </Text>
+          {compareRate !== undefined && (
+            <ChangeChip rate={rate} compareRate={compareRate ?? null} />
+          )}
         </>
       ) : (
         <>
-          <Text fw={600} size="sm" c="dimmed">Not yet</Text>
-          <Text size="xs" c="dimmed" mt={2}>published</Text>
+          <Text fw={600} size="sm" c="dimmed">
+            Not yet
+          </Text>
+          <Text size="xs" c="dimmed" mt={2}>
+            published
+          </Text>
         </>
       )}
     </Paper>
   );
 }
 
-function GasView({ currentRate, tomorrowRate, rates, lastUpdated, onRefresh, refreshing }: GasViewProps) {
+function GasView({
+  currentRate,
+  tomorrowRate,
+  rates,
+  lastUpdated,
+  onRefresh,
+  refreshing,
+}: GasViewProps) {
   return (
     <Stack gap="md">
       {/* Header row with refresh */}
       <Group justify="space-between" align="center">
         <Group gap="sm">
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Drop size={18} weight="fill" color="white" />
           </div>
           <Text fw={600}>Gas unit rates</Text>
         </Group>
-        <Button variant="subtle" color="orange" size="xs" onClick={onRefresh} loading={refreshing} leftSection={<ArrowClockwise size={14} />}>
-          {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}` : 'Refresh'}
+        <Button
+          variant="subtle"
+          color="orange"
+          size="xs"
+          onClick={onRefresh}
+          loading={refreshing}
+          leftSection={<ArrowClockwise size={14} />}
+        >
+          {lastUpdated
+            ? `Updated ${lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
+            : 'Refresh'}
         </Button>
       </Group>
 
       {/* Today + Tomorrow side by side */}
       <SimpleGrid cols={2} spacing="sm">
-        <RateCard rate={currentRate} label="Today" compareRate={rates[1] ?? null} />
-        <RateCard rate={tomorrowRate} label="Tomorrow" dimmed compareRate={currentRate} />
+        <RateCard
+          rate={currentRate}
+          label="Today"
+          compareRate={rates[1] ?? null}
+        />
+        <RateCard
+          rate={tomorrowRate}
+          label="Tomorrow"
+          dimmed
+          compareRate={currentRate}
+        />
       </SimpleGrid>
 
       {/* History chart */}
@@ -199,7 +317,14 @@ interface GasSectionProps {
 }
 
 export function GasSection({
-  rates, currentRate, loading, error, lastUpdated, gasProduct, onRefresh, onSetProduct,
+  rates,
+  currentRate,
+  loading,
+  error,
+  lastUpdated,
+  gasProduct,
+  onRefresh,
+  onSetProduct,
 }: GasSectionProps) {
   if (!gasProduct) {
     return <GasSetup onSave={onSetProduct} />;
@@ -209,7 +334,9 @@ export function GasSection({
     return (
       <Stack align="center" py="xl" gap="sm">
         <Loader size="sm" color="orange" type="dots" />
-        <Text size="sm" c="dimmed">Loading gas rates…</Text>
+        <Text size="sm" c="dimmed">
+          Loading gas rates…
+        </Text>
       </Stack>
     );
   }
@@ -217,11 +344,20 @@ export function GasSection({
   if (error) {
     return (
       <Stack align="center" py="xl" gap="xs">
-        <Text size="sm" c="red">{error}</Text>
+        <Text size="sm" c="red">
+          {error}
+        </Text>
         <Text size="xs" c="dimmed">
           Check your product code in Settings — it may have changed.
         </Text>
-        <Button variant="light" color="orange" size="xs" onClick={onRefresh} mt="xs" leftSection={<ArrowClockwise size={14} />}>
+        <Button
+          variant="light"
+          color="orange"
+          size="xs"
+          onClick={onRefresh}
+          mt="xs"
+          leftSection={<ArrowClockwise size={14} />}
+        >
           Retry
         </Button>
       </Stack>
@@ -231,7 +367,9 @@ export function GasSection({
   if (!currentRate) {
     return (
       <Stack align="center" py="xl" gap="xs">
-        <Text size="sm" c="dimmed">No gas rate data found for this product code.</Text>
+        <Text size="sm" c="dimmed">
+          No gas rate data found for this product code.
+        </Text>
       </Stack>
     );
   }

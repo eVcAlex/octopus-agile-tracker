@@ -34,7 +34,11 @@ function groupByDay(prices: ForecastPrice[]): ForecastDay[] {
       const label =
         diff === 1
           ? 'Tomorrow'
-          : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+          : d.toLocaleDateString('en-GB', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+            });
       return { date, label, slots };
     });
 }

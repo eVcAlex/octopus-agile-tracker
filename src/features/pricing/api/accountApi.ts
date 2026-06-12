@@ -32,8 +32,8 @@ const accountSchema = z.object({
 });
 
 export interface AccountDetails {
-  gasProductCode: string | null;   // e.g. "SILVER-24-07-01"
-  gasTariffCode: string | null;    // e.g. "G-1R-SILVER-24-07-01-A"
+  gasProductCode: string | null; // e.g. "SILVER-24-07-01"
+  gasTariffCode: string | null; // e.g. "G-1R-SILVER-24-07-01-A"
   electricityTariffCode: string | null;
 }
 
@@ -45,15 +45,20 @@ function extractProductCode(tariffCode: string): string | null {
 }
 
 // Find the currently active agreement (valid_to is null or in the future)
-function activeTariff(agreements: { tariff_code: string; valid_to: string | null }[]): string | null {
+function activeTariff(
+  agreements: { tariff_code: string; valid_to: string | null }[]
+): string | null {
   const now = new Date();
   const active = agreements.find(
-    (a) => a.valid_to === null || new Date(a.valid_to) > now,
+    (a) => a.valid_to === null || new Date(a.valid_to) > now
   );
   return active?.tariff_code ?? agreements[0]?.tariff_code ?? null;
 }
 
-export async function fetchAccountDetails(apiKey: string, accountNo: string): Promise<AccountDetails> {
+export async function fetchAccountDetails(
+  apiKey: string,
+  accountNo: string
+): Promise<AccountDetails> {
   const raw = await wretch(`${API_BASE}/accounts/${accountNo}/`)
     .auth(`Basic ${btoa(apiKey + ':')}`)
     .get()

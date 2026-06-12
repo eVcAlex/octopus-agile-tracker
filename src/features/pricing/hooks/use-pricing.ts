@@ -25,7 +25,19 @@ export interface UsePricingReturn {
 }
 
 export function usePricing(): UsePricingReturn {
-  const { region, setRegion: persistRegion, isFirstTime, forecastDays, setForecastDays, gasProduct, setGasProduct, apiKey, setApiKey, accountNo, setAccountNo } = useRegion();
+  const {
+    region,
+    setRegion: persistRegion,
+    isFirstTime,
+    forecastDays,
+    setForecastDays,
+    gasProduct,
+    setGasProduct,
+    apiKey,
+    setApiKey,
+    accountNo,
+    setAccountNo,
+  } = useRegion();
   const qc = useQueryClient();
 
   const { data, isLoading, error, dataUpdatedAt } = useQuery({
@@ -37,14 +49,15 @@ export function usePricing(): UsePricingReturn {
 
   const refreshData = useCallback(
     () => qc.invalidateQueries({ queryKey: ['pricing', region] }),
-    [qc, region],
+    [qc, region]
   );
 
   return {
     todayData: data?.today ?? null,
     tomorrowData: data?.tomorrow ?? null,
     loading: !!region && isLoading,
-    error: error instanceof Error ? error.message : error ? String(error) : null,
+    error:
+      error instanceof Error ? error.message : error ? String(error) : null,
     lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
     refreshData,
     setRegion: persistRegion,

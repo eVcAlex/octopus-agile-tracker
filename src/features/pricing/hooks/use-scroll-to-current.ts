@@ -23,7 +23,8 @@ export function useScrollToCurrent<
       // instead of offsetTop which can be unreliable on iOS.
       const containerRect = c.getBoundingClientRect();
       const rowRect = r.getBoundingClientRect();
-      const rowCenterInContainer = rowRect.top - containerRect.top + c.scrollTop + rowRect.height / 2;
+      const rowCenterInContainer =
+        rowRect.top - containerRect.top + c.scrollTop + rowRect.height / 2;
       c.scrollTop = rowCenterInContainer - c.clientHeight / 2;
     }, 100);
 

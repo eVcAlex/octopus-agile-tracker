@@ -42,7 +42,22 @@ export type AgilePredict = z.infer<typeof agilePredictSchema>;
 
 // ─── Region ───
 
-export const REGIONS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P'] as const;
+export const REGIONS = [
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'P',
+] as const;
 export const regionSchema = z.enum(REGIONS);
 export type Region = z.infer<typeof regionSchema>;
 

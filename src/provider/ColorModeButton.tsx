@@ -1,8 +1,4 @@
-import {
-  ActionIcon,
-  useMantineColorScheme,
-  Tooltip,
-} from '@mantine/core';
+import { ActionIcon, useMantineColorScheme, Tooltip } from '@mantine/core';
 import { Moon, Sun } from 'phosphor-react';
 
 export const ColorModeButton = () => {
@@ -21,7 +17,11 @@ export const ColorModeButton = () => {
         size="lg"
         radius="md"
       >
-        {dark ? <Sun size={18} weight="bold" /> : <Moon size={18} weight="bold" />}
+        {dark ? (
+          <Sun size={18} weight="bold" />
+        ) : (
+          <Moon size={18} weight="bold" />
+        )}
       </ActionIcon>
     </Tooltip>
   );

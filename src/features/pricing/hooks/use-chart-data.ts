@@ -11,14 +11,20 @@ export function useChartData(data: ProcessedSlot[]) {
     const maxPrice = Math.max(...prices, 0.1);
     const minPrice = Math.min(...prices, 0);
     const range = maxPrice - minPrice;
-    const avg = prices.length ? prices.reduce((s, p) => s + p, 0) / prices.length : 0;
+    const avg = prices.length
+      ? prices.reduce((s, p) => s + p, 0) / prices.length
+      : 0;
 
     const priceToY = (p: number) =>
       Math.round(((maxPrice - p) / range) * CHART.HEIGHT);
 
     const gridPrices: number[] = [];
     if (minPrice < 0) gridPrices.push(0);
-    for (let p = 0; p <= maxPrice + CHART.GRID_INTERVAL; p += CHART.GRID_INTERVAL) {
+    for (
+      let p = 0;
+      p <= maxPrice + CHART.GRID_INTERVAL;
+      p += CHART.GRID_INTERVAL
+    ) {
       if (p >= minPrice && p <= maxPrice + 1) gridPrices.push(p);
     }
 
@@ -26,16 +32,20 @@ export function useChartData(data: ProcessedSlot[]) {
     data.forEach((slot, i) => {
       const [h, m] = slot.time.split(':').map(Number);
       if (m === 0 && h % CHART.TIME_LABEL_INTERVAL === 0) {
-        timeLabels.push({ index: i, label: `${String(h).padStart(2, '0')}:00` });
+        timeLabels.push({
+          index: i,
+          label: `${String(h).padStart(2, '0')}:00`,
+        });
       }
     });
 
     const currentIndex = data.findIndex((d) => d.isCurrentPeriod);
 
-    const bars = data.map((slot, i) => {
+    const bars = data.map((slot) => {
       const height = Math.max(
-        (Math.abs(slot.priceIncVat - Math.min(minPrice, 0)) / range) * CHART.HEIGHT,
-        1,
+        (Math.abs(slot.priceIncVat - Math.min(minPrice, 0)) / range) *
+          CHART.HEIGHT,
+        1
       );
       return {
         height,
@@ -45,7 +55,17 @@ export function useChartData(data: ProcessedSlot[]) {
       };
     });
 
-    return { maxPrice, minPrice, range, avg, priceToY, gridPrices, timeLabels, currentIndex, bars };
+    return {
+      maxPrice,
+      minPrice,
+      range,
+      avg,
+      priceToY,
+      gridPrices,
+      timeLabels,
+      currentIndex,
+      bars,
+    };
   }, [data]);
 
   return {

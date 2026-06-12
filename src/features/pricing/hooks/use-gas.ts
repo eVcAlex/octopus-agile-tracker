@@ -25,7 +25,7 @@ export function useGas(region: Region, productCode: string): UseGasReturn {
 
   const refresh = useCallback(
     () => qc.invalidateQueries({ queryKey: ['gas', region, productCode] }),
-    [qc, region, productCode],
+    [qc, region, productCode]
   );
 
   const currentRate = data?.find((r) => r.isCurrent) ?? data?.[0] ?? null;
@@ -34,7 +34,8 @@ export function useGas(region: Region, productCode: string): UseGasReturn {
     rates: data ?? [],
     currentRate,
     loading: !!region && !!productCode && isLoading,
-    error: error instanceof Error ? error.message : error ? String(error) : null,
+    error:
+      error instanceof Error ? error.message : error ? String(error) : null,
     lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
     refresh,
   };

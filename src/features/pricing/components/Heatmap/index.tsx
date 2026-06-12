@@ -10,10 +10,15 @@ interface HeatmapViewProps {
 }
 
 export const HeatmapView = ({ data }: HeatmapViewProps) => {
-  const { containerRef, currentRef: currentRowRef } = useScrollToCurrent([data]);
+  const { containerRef, currentRef: currentRowRef } = useScrollToCurrent([
+    data,
+  ]);
 
   // Index slots by hour
-  const slotsByHour = new Map<number, [ProcessedSlot | null, ProcessedSlot | null]>();
+  const slotsByHour = new Map<
+    number,
+    [ProcessedSlot | null, ProcessedSlot | null]
+  >();
   for (let h = 0; h < HEATMAP.HOURS; h++) slotsByHour.set(h, [null, null]);
   for (const slot of data) {
     const [h, m] = slot.time.split(':').map(Number);
@@ -25,10 +30,26 @@ export const HeatmapView = ({ data }: HeatmapViewProps) => {
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <div />
-        <Text size="xs" c="dimmed" ta="center" ff="monospace" fw={600} tt="uppercase" style={{ letterSpacing: 0.5 }}>
+        <Text
+          size="xs"
+          c="dimmed"
+          ta="center"
+          ff="monospace"
+          fw={600}
+          tt="uppercase"
+          style={{ letterSpacing: 0.5 }}
+        >
           :00
         </Text>
-        <Text size="xs" c="dimmed" ta="center" ff="monospace" fw={600} tt="uppercase" style={{ letterSpacing: 0.5 }}>
+        <Text
+          size="xs"
+          c="dimmed"
+          ta="center"
+          ff="monospace"
+          fw={600}
+          tt="uppercase"
+          style={{ letterSpacing: 0.5 }}
+        >
           :30
         </Text>
       </div>
@@ -39,7 +60,11 @@ export const HeatmapView = ({ data }: HeatmapViewProps) => {
           const isCurrent = s0?.isCurrentPeriod || s1?.isCurrentPeriod;
 
           return (
-            <div key={hour} ref={isCurrent ? currentRowRef : undefined} className={styles.row}>
+            <div
+              key={hour}
+              ref={isCurrent ? currentRowRef : undefined}
+              className={styles.row}
+            >
               <div className={styles.hourLabel}>
                 <Text size="xs" c="dimmed" ff="monospace" lh={1}>
                   {String(hour).padStart(2, '0')}
@@ -51,7 +76,12 @@ export const HeatmapView = ({ data }: HeatmapViewProps) => {
                   <div
                     key={col}
                     className={`${styles.cell} ${slot.isCurrentPeriod ? styles.current : ''}`}
-                    style={{ background: getPriceColor(slot.priceIncVat, slot.isCurrentPeriod) }}
+                    style={{
+                      background: getPriceColor(
+                        slot.priceIncVat,
+                        slot.isCurrentPeriod
+                      ),
+                    }}
                   >
                     <Text fw={700} ff="monospace" className={styles.cellPrice}>
                       {slot.priceIncVat.toFixed(1)}p
@@ -59,7 +89,7 @@ export const HeatmapView = ({ data }: HeatmapViewProps) => {
                   </div>
                 ) : (
                   <div key={col} className={styles.cellEmpty} />
-                ),
+                )
               )}
             </div>
           );

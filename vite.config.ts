@@ -11,7 +11,8 @@ export default defineConfig({
       '/proxy/forecast': {
         target: 'https://prices.fly.dev',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/proxy\/forecast/, '/api') + '/?format=json',
+        rewrite: (path) =>
+          path.replace(/^\/proxy\/forecast/, '/api') + '/?format=json',
       },
     },
   },

@@ -25,12 +25,18 @@ function findCheapWindows(data: ProcessedSlot[], threshold: number): Window[] {
     const [h, m] = last.time.split(':').map(Number);
     const endMin = h * 60 + m + 30;
     const end = `${String(Math.floor(endMin / 60) % 24).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`;
-    windows.push({ start: group[0].time, end, avgPrice: avg, durationHours: group.length * 0.5 });
+    windows.push({
+      start: group[0].time,
+      end,
+      avgPrice: avg,
+      durationHours: group.length * 0.5,
+    });
     group = [];
   };
 
   for (const slot of data) {
-    slot.priceIncVat <= threshold ? group.push(slot) : flush();
+    if (slot.priceIncVat <= threshold) group.push(slot);
+    else flush();
   }
   flush();
 
@@ -51,26 +57,41 @@ export const CheapWindows = ({ data, stats }: CheapWindowsProps) => {
   return (
     <Box mt="md">
       <Flex align="baseline" gap="xs" mb="xs">
-        <Text size="xs" tt="uppercase" fw={600} c="dimmed" lts={0.8}>Cheap windows</Text>
-        <Text size="xs" c="dimmed">&middot; below {threshold.toFixed(1)}p avg</Text>
+        <Text size="xs" tt="uppercase" fw={600} c="dimmed" lts={0.8}>
+          Cheap windows
+        </Text>
+        <Text size="xs" c="dimmed">
+          &middot; below {threshold.toFixed(1)}p avg
+        </Text>
       </Flex>
       <Stack gap="xs">
         {windows.slice(0, CHEAP_WINDOWS.MAX_DISPLAY).map((w, i) => {
-          const color = w.avgPrice < 0 ? 'teal' : w.avgPrice < 5 ? 'green' : 'blue';
+          const color =
+            w.avgPrice < 0 ? 'teal' : w.avgPrice < 5 ? 'green' : 'blue';
           return (
-            <Paper key={i} px="md" py="sm" radius="md" className={styles.windowCard}>
+            <Paper
+              key={i}
+              px="md"
+              py="sm"
+              radius="md"
+              className={styles.windowCard}
+            >
               <Flex justify="space-between" align="center">
                 <Box>
                   <Text ff="monospace" fw={700} size="sm" lh={1.2}>
                     {w.start} &ndash; {w.end}
                   </Text>
-                  <Text size="xs" c="dimmed" mt={2}>{formatDuration(w.durationHours)}</Text>
+                  <Text size="xs" c="dimmed" mt={2}>
+                    {formatDuration(w.durationHours)}
+                  </Text>
                 </Box>
                 <Box ta="right">
                   <Text fw={800} ff="monospace" size="md" c={color} lh={1.2}>
                     {formatPrice(w.avgPrice)}
                   </Text>
-                  <Text size="xs" c="dimmed" mt={2}>avg/slot</Text>
+                  <Text size="xs" c="dimmed" mt={2}>
+                    avg/slot
+                  </Text>
                 </Box>
               </Flex>
             </Paper>

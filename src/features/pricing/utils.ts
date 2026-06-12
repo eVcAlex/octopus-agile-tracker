@@ -19,7 +19,9 @@ export function getMantinePriceColor(price: number): string | undefined {
   return MANTINE_COLORS[getPriceLevel(price)];
 }
 
-export function getStatusBadge(price: number): { label: string; color: string } | null {
+export function getStatusBadge(
+  price: number
+): { label: string; color: string } | null {
   const level = getPriceLevel(price);
   if (level === 'free') return { label: 'FREE', color: 'teal' };
   if (level === 'low') return { label: 'LOW', color: 'green' };

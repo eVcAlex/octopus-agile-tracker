@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Box, Text, Group, Loader, Stack, ActionIcon, Tooltip } from '@mantine/core';
+import {
+  Box,
+  Text,
+  Group,
+  Loader,
+  Stack,
+  ActionIcon,
+  Tooltip,
+} from '@mantine/core';
 import { ArrowClockwise } from 'phosphor-react';
 import type { ForecastData, ForecastPrice } from '../../schemas';
 import { getPriceColor, formatPrice } from '../../utils';
@@ -27,7 +35,8 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
   const minPrice = Math.min(...lows, 0);
   const range = maxPrice - minPrice;
 
-  const priceToY = (p: number) => Math.round(((maxPrice - p) / range) * CHART_HEIGHT);
+  const priceToY = (p: number) =>
+    Math.round(((maxPrice - p) / range) * CHART_HEIGHT);
   const gridPrices = getGridPrices(minPrice, maxPrice);
 
   const timeLabels: { index: number; label: string }[] = [];
@@ -42,7 +51,7 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
   const hoveredSlot = hoveredIndex !== null ? slots[hoveredIndex] : null;
   const cheapestIndex = slots.reduce(
     (best, s, i) => (s.agile_pred < slots[best].agile_pred ? i : best),
-    0,
+    0
   );
   const cheapestSlot = slots[cheapestIndex];
 
@@ -50,30 +59,57 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
     <Box p="md">
       {/* Cheapest period callout */}
       <div className={styles.cheapestBar}>
-        <Text size="xs" c="dimmed">Cheapest period:</Text>
-        <Text size="xs" fw={700} style={{ color: getPriceColor(cheapestSlot.agile_pred) }}>
-          {new Date(cheapestSlot.date_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+        <Text size="xs" c="dimmed">
+          Cheapest period:
+        </Text>
+        <Text
+          size="xs"
+          fw={700}
+          style={{ color: getPriceColor(cheapestSlot.agile_pred) }}
+        >
+          {new Date(cheapestSlot.date_time).toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
           {' · '}
           {formatPrice(cheapestSlot.agile_pred)}
         </Text>
       </div>
 
       {/* Hover info */}
-      <div style={{ height: 26, display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+      <div
+        style={{
+          height: 26,
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: 4,
+        }}
+      >
         {hoveredSlot ? (
           <Group gap="sm">
             <Text size="sm" c="dimmed" ff="monospace">
-              {new Date(hoveredSlot.date_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+              {new Date(hoveredSlot.date_time).toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </Text>
-            <Text size="sm" fw={700} ff="monospace" style={{ color: getPriceColor(hoveredSlot.agile_pred) }}>
+            <Text
+              size="sm"
+              fw={700}
+              ff="monospace"
+              style={{ color: getPriceColor(hoveredSlot.agile_pred) }}
+            >
               {formatPrice(hoveredSlot.agile_pred)}
             </Text>
             <Text size="xs" c="dimmed">
-              range: {formatPrice(hoveredSlot.agile_low)} – {formatPrice(hoveredSlot.agile_high)}
+              range: {formatPrice(hoveredSlot.agile_low)} –{' '}
+              {formatPrice(hoveredSlot.agile_high)}
             </Text>
           </Group>
         ) : (
-          <Text size="xs" c="dimmed">Tap or hover a bar to inspect prices</Text>
+          <Text size="xs" c="dimmed">
+            Tap or hover a bar to inspect prices
+          </Text>
         )}
       </div>
 
@@ -81,7 +117,13 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
       <div className={styles.chartArea}>
         <div className={styles.yAxis} style={{ height: CHART_HEIGHT }}>
           {gridPrices.map((p) => (
-            <Text key={p} c="dimmed" ff="monospace" className={styles.yLabel} style={{ top: priceToY(p) - 7 }}>
+            <Text
+              key={p}
+              c="dimmed"
+              ff="monospace"
+              className={styles.yLabel}
+              style={{ top: priceToY(p) - 7 }}
+            >
               {p}p
             </Text>
           ))}
@@ -90,7 +132,11 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
         <div className={styles.chartContainer} style={{ height: CHART_HEIGHT }}>
           {/* Gridlines */}
           {gridPrices.map((p) => (
-            <div key={p} className={`${styles.gridline} ${p === 0 ? styles.zero : ''}`} style={{ top: priceToY(p) }} />
+            <div
+              key={p}
+              className={`${styles.gridline} ${p === 0 ? styles.zero : ''}`}
+              style={{ top: priceToY(p) }}
+            />
           ))}
 
           {/* Confidence band */}
@@ -114,7 +160,11 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
           {/* Bars */}
           <div className={styles.bars}>
             {slots.map((s, i) => {
-              const barH = Math.max((Math.abs(s.agile_pred - Math.min(minPrice, 0)) / range) * CHART_HEIGHT, 1);
+              const barH = Math.max(
+                (Math.abs(s.agile_pred - Math.min(minPrice, 0)) / range) *
+                  CHART_HEIGHT,
+                1
+              );
               const color = getPriceColor(s.agile_pred);
               const isHovered = hoveredIndex === i;
               const isCheapest = i === cheapestIndex;
@@ -130,7 +180,11 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
                 >
                   <div
                     className={styles.bar}
-                    style={{ height: barH, background: color, opacity: isHovered ? 1 : 0.75 }}
+                    style={{
+                      height: barH,
+                      background: color,
+                      opacity: isHovered ? 1 : 0.75,
+                    }}
                   />
                   {isCheapest && <div className={styles.cheapestMarker} />}
                 </div>
@@ -139,20 +193,35 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
           </div>
 
           {/* Callout */}
-          {hoveredIndex !== null && (() => {
-            const s = slots[hoveredIndex];
-            const leftPct = Math.min(Math.max(((hoveredIndex + 0.5) / slots.length) * 100, 8), 92);
-            return (
-              <div className={styles.callout} style={{ top: Math.max(0, priceToY(s.agile_pred) - 52), left: `${leftPct}%` }}>
-                <Text size="xs" fw={700} ff="monospace" style={{ color: getPriceColor(s.agile_pred) }}>
-                  {formatPrice(s.agile_pred)}
-                </Text>
-                <Text size="xs" c="dimmed" ff="monospace">
-                  {formatPrice(s.agile_low)} – {formatPrice(s.agile_high)}
-                </Text>
-              </div>
-            );
-          })()}
+          {hoveredIndex !== null &&
+            (() => {
+              const s = slots[hoveredIndex];
+              const leftPct = Math.min(
+                Math.max(((hoveredIndex + 0.5) / slots.length) * 100, 8),
+                92
+              );
+              return (
+                <div
+                  className={styles.callout}
+                  style={{
+                    top: Math.max(0, priceToY(s.agile_pred) - 52),
+                    left: `${leftPct}%`,
+                  }}
+                >
+                  <Text
+                    size="xs"
+                    fw={700}
+                    ff="monospace"
+                    style={{ color: getPriceColor(s.agile_pred) }}
+                  >
+                    {formatPrice(s.agile_pred)}
+                  </Text>
+                  <Text size="xs" c="dimmed" ff="monospace">
+                    {formatPrice(s.agile_low)} – {formatPrice(s.agile_high)}
+                  </Text>
+                </div>
+              );
+            })()}
         </div>
       </div>
 
@@ -167,7 +236,9 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
               c="dimmed"
               ff="monospace"
               className={styles.timeLabel}
-              style={{ left: `${slots.length > 1 ? (index / (slots.length - 1)) * 100 : 0}%` }}
+              style={{
+                left: `${slots.length > 1 ? (index / (slots.length - 1)) * 100 : 0}%`,
+              }}
             >
               {label}
             </Text>
@@ -178,16 +249,27 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
       {/* Legend */}
       <div className={styles.legend}>
         <div className={styles.legendItem}>
-          <div className={styles.legendBar} style={{ background: `linear-gradient(to right, ${PRICE_COLORS.low}, ${PRICE_COLORS.normal}, ${PRICE_COLORS.high})` }} />
-          <Text size="xs" c="dimmed">Predicted price</Text>
+          <div
+            className={styles.legendBar}
+            style={{
+              background: `linear-gradient(to right, ${PRICE_COLORS.low}, ${PRICE_COLORS.normal}, ${PRICE_COLORS.high})`,
+            }}
+          />
+          <Text size="xs" c="dimmed">
+            Predicted price
+          </Text>
         </div>
         <div className={styles.legendItem}>
           <div className={styles.legendBand} />
-          <Text size="xs" c="dimmed">Uncertainty range</Text>
+          <Text size="xs" c="dimmed">
+            Uncertainty range
+          </Text>
         </div>
         <div className={styles.legendItem}>
           <div className={styles.legendCheapest} />
-          <Text size="xs" c="dimmed">Cheapest slot</Text>
+          <Text size="xs" c="dimmed">
+            Cheapest slot
+          </Text>
         </div>
       </div>
     </Box>
@@ -203,14 +285,22 @@ interface ForecastViewProps {
   refreshing: boolean;
 }
 
-export const ForecastView = ({ forecast, region, lastUpdated, onRefresh, refreshing }: ForecastViewProps) => {
+export const ForecastView = ({
+  forecast,
+  region,
+  lastUpdated,
+  onRefresh,
+  refreshing,
+}: ForecastViewProps) => {
   const [selectedDay, setSelectedDay] = useState(0);
 
   if (forecast.days.length === 0) {
     return (
       <Stack align="center" py="xl" gap="xs">
         <Text fw={600}>No forecast days available</Text>
-        <Text size="sm" c="dimmed">Future predictions will appear here once published by AgilePredict</Text>
+        <Text size="sm" c="dimmed">
+          Future predictions will appear here once published by AgilePredict
+        </Text>
       </Stack>
     );
   }
@@ -224,9 +314,14 @@ export const ForecastView = ({ forecast, region, lastUpdated, onRefresh, refresh
         <div className={styles.daySelector}>
           {forecast.days.map((d, i) => {
             const dateObj = new Date(d.date + 'T00:00:00');
-            const weekday = d.label === 'Tomorrow' ? 'Tomorrow' : dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
+            const weekday =
+              d.label === 'Tomorrow'
+                ? 'Tomorrow'
+                : dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
             const dayNum = dateObj.getDate();
-            const month = dateObj.toLocaleDateString('en-GB', { month: 'short' });
+            const month = dateObj.toLocaleDateString('en-GB', {
+              month: 'short',
+            });
             return (
               <button
                 key={d.date}
@@ -234,13 +329,22 @@ export const ForecastView = ({ forecast, region, lastUpdated, onRefresh, refresh
                 onClick={() => setSelectedDay(i)}
               >
                 <span className={styles.dayChipWeekday}>{weekday}</span>
-                <span className={styles.dayChipDate}>{dayNum} {month}</span>
+                <span className={styles.dayChipDate}>
+                  {dayNum} {month}
+                </span>
               </button>
             );
           })}
         </div>
 
-        <Tooltip label={lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}` : 'Refresh'} position="left">
+        <Tooltip
+          label={
+            lastUpdated
+              ? `Updated ${lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
+              : 'Refresh'
+          }
+          position="left"
+        >
           <ActionIcon
             variant="light"
             color="violet"
@@ -259,7 +363,8 @@ export const ForecastView = ({ forecast, region, lastUpdated, onRefresh, refresh
         {/* Disclaimer with region */}
         <div className={styles.disclaimer}>
           <Text size="xs" c="dimmed">
-            Predictions for <strong>{region}</strong> via AgilePredict · not confirmed rates
+            Predictions for <strong>{region}</strong> via AgilePredict · not
+            confirmed rates
           </Text>
         </div>
 
@@ -279,12 +384,21 @@ interface ForecastSectionProps {
   onRefresh: () => void;
 }
 
-export const ForecastSection = ({ forecast, loading, error, region, lastUpdated, onRefresh }: ForecastSectionProps) => {
+export const ForecastSection = ({
+  forecast,
+  loading,
+  error,
+  region,
+  lastUpdated,
+  onRefresh,
+}: ForecastSectionProps) => {
   if (loading && !forecast) {
     return (
       <Stack align="center" py="xl" gap="sm">
         <Loader size="sm" color="violet" type="dots" />
-        <Text size="sm" c="dimmed">Loading forecast...</Text>
+        <Text size="sm" c="dimmed">
+          Loading forecast...
+        </Text>
       </Stack>
     );
   }
@@ -292,9 +406,20 @@ export const ForecastSection = ({ forecast, loading, error, region, lastUpdated,
   if (error && !forecast) {
     return (
       <Stack align="center" py="xl" gap="xs">
-        <Text size="sm" c="red">{error}</Text>
-        <Text size="xs" c="dimmed">Forecast data from AgilePredict may be temporarily unavailable</Text>
-        <ActionIcon variant="light" color="violet" size="md" radius="md" onClick={onRefresh} mt="xs">
+        <Text size="sm" c="red">
+          {error}
+        </Text>
+        <Text size="xs" c="dimmed">
+          Forecast data from AgilePredict may be temporarily unavailable
+        </Text>
+        <ActionIcon
+          variant="light"
+          color="violet"
+          size="md"
+          radius="md"
+          onClick={onRefresh}
+          mt="xs"
+        >
           <ArrowClockwise size={16} />
         </ActionIcon>
       </Stack>

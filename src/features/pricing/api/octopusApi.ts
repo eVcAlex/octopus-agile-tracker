@@ -47,7 +47,7 @@ async function fetchRates(
   );
 }
 
-function processRates(
+export function processRates(
   rates: OctopusRate[],
   dayType: 'today' | 'tomorrow'
 ): ProcessedSlot[] {
@@ -69,7 +69,7 @@ function processRates(
   });
 }
 
-function calcStats(rates: ProcessedSlot[]): PriceStats {
+export function calcStats(rates: ProcessedSlot[]): PriceStats {
   const prices = rates.map((r) => r.priceIncVat).filter((p) => !isNaN(p));
   return {
     min: prices.length ? Math.min(...prices) : 0,

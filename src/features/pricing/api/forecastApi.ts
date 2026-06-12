@@ -9,7 +9,7 @@ import {
 
 const PROXY_BASE = '/proxy/forecast';
 
-function groupByDay(prices: ForecastPrice[]): ForecastDay[] {
+export function groupByDay(prices: ForecastPrice[]): ForecastDay[] {
   const byDate = new Map<string, ForecastPrice[]>();
 
   for (const p of prices) {

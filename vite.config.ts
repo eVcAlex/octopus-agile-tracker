@@ -61,6 +61,10 @@ export default defineConfig({
     port: 5174,
     open: true,
     proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
       '/proxy/forecast': {
         target: 'https://prices.fly.dev',
         changeOrigin: true,

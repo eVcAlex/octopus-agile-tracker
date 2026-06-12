@@ -5,8 +5,22 @@
       "destination": "https://prices.fly.dev/api/:region/?format=json"
     },
     {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/rates-published",
+      "schedule": "10 15,16,17 * * *"
+    },
+    {
+      "path": "/api/cron/cheap-window",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

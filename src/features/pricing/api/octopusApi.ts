@@ -119,6 +119,44 @@ export async function fetchDailyRates(region: Region) {
   };
 }
 
+export interface DailyAverage {
+  date: string;
+  min: number;
+  max: number;
+  average: number;
+}
+
+export function aggregateDailyAverages(rates: OctopusRate[]): DailyAverage[] {
+  const byDate = new Map<string, number[]>();
+  for (const r of rates) {
+    const date = dayjs(r.valid_from).format('YYYY-MM-DD');
+    const bucket = byDate.get(date);
+    if (bucket) bucket.push(r.value_inc_vat);
+    else byDate.set(date, [r.value_inc_vat]);
+  }
+
+  return [...byDate.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, prices]) => ({
+      date,
+      min: Math.min(...prices),
+      max: Math.max(...prices),
+      average: prices.reduce((s, p) => s + p, 0) / prices.length,
+    }));
+}
+
+export async function fetchHistory(
+  region: Region,
+  days = 30
+): Promise<DailyAverage[]> {
+  const to = dayjs().endOf('day');
+  const from = to.subtract(days, 'day').startOf('day');
+  const rates = await fetchRates(region, from.toDate(), to.toDate());
+  // Exclude today: it is incomplete and already shown on the Today tab
+  const todayStr = dayjs().format('YYYY-MM-DD');
+  return aggregateDailyAverages(rates).filter((d) => d.date < todayStr);
+}
+
 export function currentStandingCharge(
   results: StandingCharge[]
 ): number | null {

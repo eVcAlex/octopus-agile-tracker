@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { processRates, calcStats } from './octopusApi';
+import { processRates, calcStats, aggregateDailyAverages } from './octopusApi';
 import type { OctopusRate, ProcessedSlot } from '../schemas';
 
 function rate(
@@ -134,5 +134,23 @@ describe('calcStats', () => {
     expect(stats.min).toBe(10);
     expect(stats.max).toBe(10);
     expect(stats.average).toBe(10);
+  });
+});
+
+describe('aggregateDailyAverages', () => {
+  it('groups rates by day with min/max/average, sorted ascending', () => {
+    const days = aggregateDailyAverages([
+      rate('2026-06-11T10:00:00Z', '2026-06-11T10:30:00Z', 20),
+      rate('2026-06-10T10:00:00Z', '2026-06-10T10:30:00Z', 10),
+      rate('2026-06-10T10:30:00Z', '2026-06-10T11:00:00Z', 30),
+    ]);
+
+    expect(days.map((d) => d.date)).toEqual(['2026-06-10', '2026-06-11']);
+    expect(days[0]).toMatchObject({ min: 10, max: 30, average: 20 });
+    expect(days[1]).toMatchObject({ min: 20, max: 20, average: 20 });
+  });
+
+  it('returns empty for no rates', () => {
+    expect(aggregateDailyAverages([])).toEqual([]);
   });
 });

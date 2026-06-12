@@ -31,6 +31,7 @@ import { fetchAccountDetails } from '../../api/accountApi';
 import { useForecast } from '../../hooks/use-forecast';
 import { useGas } from '../../hooks/use-gas';
 import { useStandingCharges } from '../../hooks/use-standing-charges';
+import { useHistory } from '../../hooks/use-history';
 import {
   REGIONS,
   REGION_LABELS,
@@ -44,6 +45,7 @@ import { HeatmapView } from '../Heatmap';
 import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
 import { CheapWindows } from '../CheapWindows';
+import { TrendsSection } from '../Trends';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
 import styles from './Dashboard.module.scss';
 
@@ -187,6 +189,12 @@ export function PricingDashboard() {
     currentRegion,
     gasProduct
   );
+  const {
+    history,
+    loading: historyLoading,
+    error: historyError,
+    refresh: refreshHistory,
+  } = useHistory(currentRegion);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [energyType, setEnergyType] = useState<EnergyType>('electricity');
   const [gasProductDraft, setGasProductDraft] = useState(gasProduct);
@@ -575,6 +583,16 @@ export function PricingDashboard() {
                     </Text>
                   </Box>
                 </Tabs.Tab>
+                <Tabs.Tab value="trends" py="md">
+                  <Box>
+                    <Text fw={600} size="sm">
+                      Trends
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Past 30 days
+                    </Text>
+                  </Box>
+                </Tabs.Tab>
               </Tabs.List>
             </Paper>
 
@@ -616,6 +634,15 @@ export function PricingDashboard() {
                 region={REGION_LABELS[currentRegion] ?? currentRegion}
                 lastUpdated={forecastUpdated}
                 onRefresh={refreshForecast}
+              />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="trends">
+              <TrendsSection
+                history={history}
+                loading={historyLoading}
+                error={historyError}
+                onRefresh={refreshHistory}
               />
             </Tabs.Panel>
           </Tabs>

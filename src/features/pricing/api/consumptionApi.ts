@@ -25,7 +25,13 @@ export type ConsumptionEntry = z.infer<typeof consumptionEntrySchema>;
 const productsResponseSchema = z.object({
   count: z.number(),
   next: z.string().nullable(),
-  results: z.array(z.object({ code: z.string() })),
+  results: z.array(
+    z.object({
+      code: z.string(),
+      display_name: z.string().optional(),
+      full_name: z.string().optional(),
+    })
+  ),
 });
 
 const unitRatesResponseSchema = z.object({
@@ -52,7 +58,12 @@ export async function fetchFlexibleRate(
     .get()
     .json();
   const products = productsResponseSchema.parse(raw);
-  const flexible = products.results.find((p) => p.code.startsWith('FLEXIBLE'));
+  const flexible = products.results.find(
+    (p) =>
+      p.code.startsWith('FLEXIBLE') ||
+      p.display_name?.toLowerCase().includes('flexible') ||
+      p.full_name?.toLowerCase().includes('flexible')
+  );
   if (!flexible) return null;
 
   const tariff = `E-1R-${flexible.code}-${region}`;

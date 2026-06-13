@@ -1,21 +1,21 @@
-import type { Region, StoredSubscription } from '../schemas.js';
-import { fetchTodayRates, fetchTomorrowRates } from './octopus.js';
-import { findCheapestWindow } from './cheapWindow.js';
-import { listSubscriptions, claimOnce } from './store.js';
-import { sendPush } from './push.js';
+import type { Region, StoredSubscription } from "../schemas.js";
+import { fetchTodayRates, fetchTomorrowRates } from "./octopus.js";
+import { findCheapestWindow } from "./cheapWindow.js";
+import { listSubscriptions, claimOnce } from "./store.js";
+import { sendPush } from "./push.js";
 
 const DAY_TTL = 60 * 60 * 36; // 36h dedupe window
 
 function fmtTime(d: Date): string {
-  return d.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'Europe/London',
+  return d.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/London",
   });
 }
 
 function byRegion(
-  subs: StoredSubscription[]
+  subs: StoredSubscription[],
 ): Map<Region, StoredSubscription[]> {
   const map = new Map<Region, StoredSubscription[]>();
   for (const s of subs) {
@@ -37,7 +37,7 @@ export interface AlertRunResult {
  */
 export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
   const subs = (await listSubscriptions()).filter(
-    (s) => s.prefs.ratesPublished || s.prefs.plunge
+    (s) => s.prefs.ratesPublished || s.prefs.plunge,
   );
   const regions = byRegion(subs);
   let sent = 0;
@@ -55,10 +55,10 @@ export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
 
     if (await claimOnce(`rates:${region}:${date}`, DAY_TTL)) {
       const payload = {
-        title: "Tomorrow's Agile rates are out",
+        title: "Tomorrow's rates ⚡",
         body: `Average ${avg.toFixed(1)}p/kWh · cheapest ${min.toFixed(1)}p at ${fmtTime(new Date(minSlot.valid_from))}`,
         tag: `rates-${date}`,
-        url: '/',
+        url: "/",
       };
       for (const sub of regionSubs.filter((s) => s.prefs.ratesPublished)) {
         if (await sendPush(sub, payload)) sent++;
@@ -67,10 +67,10 @@ export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
 
     if (min < 0 && (await claimOnce(`plunge:${region}:${date}`, DAY_TTL))) {
       const payload = {
-        title: 'Plunge pricing tomorrow ⚡',
-        body: `Prices go negative — down to ${min.toFixed(1)}p/kWh at ${fmtTime(new Date(minSlot.valid_from))}. You get paid to use power.`,
+        title: "Plunge tomorrow ⚡",
+        body: `Prices go negative — down to ${min.toFixed(1)}p/kWh at ${fmtTime(new Date(minSlot.valid_from))}.`,
         tag: `plunge-${date}`,
-        url: '/',
+        url: "/",
       };
       for (const sub of regionSubs.filter((s) => s.prefs.plunge)) {
         if (await sendPush(sub, payload)) sent++;
@@ -88,7 +88,7 @@ const WINDOW_LOOKAHEAD_MS = 30 * 60_000;
  * subscriber once per window start.
  */
 export async function runCheapWindowAlerts(
-  now: Date = new Date()
+  now: Date = new Date(),
 ): Promise<AlertRunResult> {
   const subs = (await listSubscriptions()).filter((s) => s.prefs.cheapWindow);
   const regions = byRegion(subs);
@@ -101,7 +101,7 @@ export async function runCheapWindowAlerts(
       const win = findCheapestWindow(
         rates,
         sub.prefs.cheapWindowHours * 2,
-        now
+        now,
       );
       if (!win) continue;
 
@@ -113,10 +113,10 @@ export async function runCheapWindowAlerts(
 
       const mins = Math.round(startsInMs / 60_000);
       const ok = await sendPush(sub, {
-        title: `Cheap ${sub.prefs.cheapWindowHours}h window in ${mins} min`,
-        body: `${fmtTime(win.start)}–${fmtTime(win.end)} · avg ${win.avgPrice.toFixed(1)}p/kWh — today's cheapest ${sub.prefs.cheapWindowHours}h run.`,
+        title: "Cheap window soon",
+        body: `${sub.prefs.cheapWindowHours}h from ${fmtTime(win.start)} (in ${mins} min) · avg ${win.avgPrice.toFixed(1)}p/kWh`,
         tag: `window-${win.start.toISOString()}`,
-        url: '/',
+        url: "/",
       });
       if (ok) sent++;
     }

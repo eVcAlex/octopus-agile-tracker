@@ -13,10 +13,5 @@
       "destination": "/index.html"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/cron/rates-published",
-      "schedule": "0 16 * * *"
-    }
-  ]
+  "crons": []
 }

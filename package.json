@@ -15,6 +15,9 @@
     "dev:server": "tsx watch server/src/index.ts",
     "typecheck:server": "tsc -p server"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp"]
+  },
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@hono/node-server": "^2.0.4",
@@ -44,6 +47,7 @@
     "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
     "@types/web-push": "^3.6.4",
+    "@vite-pwa/assets-generator": "^1.0.2",
     "@vitejs/plugin-react": "5.0.0",
     "oxfmt": "0.54.0",
     "oxlint": "1.69.0",

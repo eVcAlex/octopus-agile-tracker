@@ -659,52 +659,52 @@ export function PricingDashboard() {
                 style={{ borderBottom: '1px solid var(--surface-border)' }}
                 aria-label="Day selector"
               >
-                <Tabs.Tab value="today" py="md">
+                <Tabs.Tab value="today" py="sm">
                   <Box>
                     <Text fw={600} size="sm">
                       Today
                     </Text>
-                    <Text size="xs" c="dimmed">
+                    <Text size="xs" c="dimmed" visibleFrom="xs">
                       {fmtDate(today)}
                     </Text>
                   </Box>
                 </Tabs.Tab>
-                <Tabs.Tab value="tomorrow" py="md">
+                <Tabs.Tab value="tomorrow" py="sm">
                   <Box>
                     <Text fw={600} size="sm">
                       Tomorrow
                     </Text>
-                    <Text size="xs" c="dimmed">
+                    <Text size="xs" c="dimmed" visibleFrom="xs">
                       {fmtDate(tomorrow)}
                     </Text>
                   </Box>
                 </Tabs.Tab>
-                <Tabs.Tab value="forecast" py="md">
+                <Tabs.Tab value="forecast" py="sm">
                   <Box>
                     <Text fw={600} size="sm">
                       Forecast
                     </Text>
-                    <Text size="xs" c="dimmed">
+                    <Text size="xs" c="dimmed" visibleFrom="xs">
                       Predictions
                     </Text>
                   </Box>
                 </Tabs.Tab>
-                <Tabs.Tab value="trends" py="md">
+                <Tabs.Tab value="trends" py="sm">
                   <Box>
                     <Text fw={600} size="sm">
                       Trends
                     </Text>
-                    <Text size="xs" c="dimmed">
+                    <Text size="xs" c="dimmed" visibleFrom="xs">
                       Past 30 days
                     </Text>
                   </Box>
                 </Tabs.Tab>
-                <Tabs.Tab value="usage" py="md">
+                <Tabs.Tab value="usage" py="sm">
                   <Box>
                     <Text fw={600} size="sm">
                       Usage
                     </Text>
-                    <Text size="xs" c="dimmed">
+                    <Text size="xs" c="dimmed" visibleFrom="xs">
                       Your spend
                     </Text>
                   </Box>

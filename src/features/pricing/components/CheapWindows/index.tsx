@@ -23,12 +23,12 @@ export const CheapWindows = ({ data }: CheapWindowsProps) => {
           &middot; best time to run appliances
         </Text>
       </Flex>
-      <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
+      <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
         {windows.map((w) => (
           <Paper
             key={w.durationHours}
-            px="md"
-            py="sm"
+            px="sm"
+            py="xs"
             radius="md"
             className={styles.windowCard}
           >

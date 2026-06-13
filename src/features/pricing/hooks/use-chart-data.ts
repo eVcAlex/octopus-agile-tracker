@@ -18,8 +18,8 @@ export function useChartData(data: ProcessedSlot[]) {
     const priceToY = (p: number) =>
       Math.round(((maxPrice - p) / range) * CHART.HEIGHT);
 
+    // minPrice is always ≤ 0, so the loop from p=0 already includes the 0 line
     const gridPrices: number[] = [];
-    if (minPrice < 0) gridPrices.push(0);
     for (
       let p = 0;
       p <= maxPrice + CHART.GRID_INTERVAL;

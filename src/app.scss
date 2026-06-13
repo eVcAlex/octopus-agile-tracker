@@ -97,3 +97,16 @@ body,
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* iOS Safari auto-zooms when a focused input's font-size is below 16px,
+   and standalone PWAs never zoom back out. Keep inputs at 16px on touch
+   screens so the zoom never triggers. */
+@media (max-width: 48em) {
+  input,
+  select,
+  textarea,
+  .mantine-Select-input,
+  .mantine-TextInput-input {
+    font-size: 16px !important;
+  }
+}

@@ -37,6 +37,7 @@ import { useStandingCharges } from '../../hooks/use-standing-charges';
 import { useHistory } from '../../hooks/use-history';
 import { useUsage } from '../../hooks/use-usage';
 import { useNotifications } from '../../hooks/use-notifications';
+import { sendTestNotification } from '../../../../lib/push';
 import {
   REGIONS,
   REGION_LABELS,
@@ -204,6 +205,7 @@ export function PricingDashboard() {
   const usage = useUsage(currentRegion, apiKey, accountNo);
   const notifications = useNotifications(currentRegion);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [testNotifState, setTestNotifState] = useState<'idle' | 'sending' | 'ok' | 'err'>('idle');
   const [energyType, setEnergyType] = useState<EnergyType>('electricity');
   const [gasProductDraft, setGasProductDraft] = useState(gasProduct);
   const [apiKeyDraft, setApiKeyDraft] = useState(apiKey);
@@ -433,6 +435,31 @@ export function PricingDashboard() {
                   <Text size="xs" c="red">
                     {notifications.error}
                   </Text>
+                )}
+                {notifications.enabled && (
+                  <>
+                    <Button
+                      size="xs"
+                      variant="light"
+                      color="violet"
+                      loading={testNotifState === 'sending'}
+                      onClick={async () => {
+                        setTestNotifState('sending');
+                        try {
+                          await sendTestNotification();
+                          setTestNotifState('ok');
+                        } catch {
+                          setTestNotifState('err');
+                        } finally {
+                          setTimeout(() => setTestNotifState('idle'), 4000);
+                        }
+                      }}
+                    >
+                      Send test notification
+                    </Button>
+                    {testNotifState === 'ok' && <Text size="xs" c="green">✓ Sent — check your notifications</Text>}
+                    {testNotifState === 'err' && <Text size="xs" c="red">Failed to send — check the console</Text>}
+                  </>
                 )}
               </>
             )}

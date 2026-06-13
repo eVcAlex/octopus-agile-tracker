@@ -1,19 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "mcp__Claude_Preview__preview_start",
-      "WebFetch(domain:prices.fly.dev)",
-      "Bash(npx tsc:*)",
-      "Bash(npm install:*)",
-      "Bash(npm -v)",
-      "Bash(npm cache:*)",
-      "Read(//c/Users/Administrator/Documents/GitHub/**)",
-      "Bash(npx oxfmt *)",
-      "Bash(rm .prettierrc eslint.config.js)",
       "Bash(pnpm lint *)",
-      "Bash(sed -n '1,20p' src/features/pricing/components/Table/index.tsx)",
-      "Bash(sed -n '10,40p' src/features/pricing/components/Chart/index.tsx)",
-      "Bash(sed -n '30,40p' src/features/pricing/hooks/use-chart-data.ts)"
+      "Bash(pnpm test *)",
+      "Bash(pnpm format *)",
+      "Bash(pnpm build *)"
     ]
   }
 }

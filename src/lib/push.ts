@@ -58,6 +58,16 @@ export async function subscribeToPush(prefs: NotificationPrefs): Promise<void> {
     .json();
 }
 
+export async function sendTestNotification(): Promise<void> {
+  if (!isPushSupported()) throw new Error('Push is not supported here');
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  if (!subscription) throw new Error('Not subscribed — enable notifications first');
+  await wretch('/api/push/test')
+    .post({ subscription: subscription.toJSON() })
+    .json();
+}
+
 export async function unsubscribeFromPush(): Promise<void> {
   if (!isPushSupported()) return;
   const registration = await navigator.serviceWorker.ready;

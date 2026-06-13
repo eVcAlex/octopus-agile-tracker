@@ -26,6 +26,7 @@ import {
   Drop,
   MagicWand,
   Clock,
+  ChartBar,
 } from 'phosphor-react';
 import { Switch } from '@mantine/core';
 import { usePricing } from '../../hooks/use-pricing';
@@ -153,7 +154,7 @@ function RegionPickerModal({
 
 // ─── Main dashboard ───
 
-type EnergyType = 'electricity' | 'gas';
+type EnergyType = 'electricity' | 'gas' | 'insights';
 
 export function PricingDashboard() {
   const {
@@ -612,8 +613,62 @@ export function PricingDashboard() {
               </Group>
             ),
           },
+          {
+            value: 'insights',
+            label: (
+              <Group gap={6} justify="center">
+                <ChartBar size={14} weight="fill" />
+                <span>Insights</span>
+              </Group>
+            ),
+          },
         ]}
       />
+
+      {/* Insights view: usage spend + price trends */}
+      {energyType === 'insights' && (
+        <Stack gap="lg">
+          <section aria-label="Your usage and spend">
+            <Text
+              size="xs"
+              tt="uppercase"
+              fw={700}
+              c="dimmed"
+              lts={0.8}
+              mb="xs"
+            >
+              Your usage
+            </Text>
+            <UsageSection
+              spend={usage.spend}
+              flexibleRate={usage.flexibleRate}
+              loading={usage.loading}
+              error={usage.error}
+              needsCredentials={usage.needsCredentials}
+              noData={usage.noData}
+              onOpenSettings={() => setSettingsOpen(true)}
+            />
+          </section>
+          <section aria-label="Price trends">
+            <Text
+              size="xs"
+              tt="uppercase"
+              fw={700}
+              c="dimmed"
+              lts={0.8}
+              mb="xs"
+            >
+              Price trends
+            </Text>
+            <TrendsSection
+              history={history}
+              loading={historyLoading}
+              error={historyError}
+              onRefresh={refreshHistory}
+            />
+          </section>
+        </Stack>
+      )}
 
       {/* Gas view */}
       {energyType === 'gas' && (
@@ -659,53 +714,33 @@ export function PricingDashboard() {
                 style={{ borderBottom: '1px solid var(--surface-border)' }}
                 aria-label="Day selector"
               >
-                <Tabs.Tab value="today" py="sm">
+                <Tabs.Tab value="today" py="md">
                   <Box>
                     <Text fw={600} size="sm">
                       Today
                     </Text>
-                    <Text size="xs" c="dimmed" visibleFrom="xs">
+                    <Text size="xs" c="dimmed">
                       {fmtDate(today)}
                     </Text>
                   </Box>
                 </Tabs.Tab>
-                <Tabs.Tab value="tomorrow" py="sm">
+                <Tabs.Tab value="tomorrow" py="md">
                   <Box>
                     <Text fw={600} size="sm">
                       Tomorrow
                     </Text>
-                    <Text size="xs" c="dimmed" visibleFrom="xs">
+                    <Text size="xs" c="dimmed">
                       {fmtDate(tomorrow)}
                     </Text>
                   </Box>
                 </Tabs.Tab>
-                <Tabs.Tab value="forecast" py="sm">
+                <Tabs.Tab value="forecast" py="md">
                   <Box>
                     <Text fw={600} size="sm">
                       Forecast
                     </Text>
-                    <Text size="xs" c="dimmed" visibleFrom="xs">
+                    <Text size="xs" c="dimmed">
                       Predictions
-                    </Text>
-                  </Box>
-                </Tabs.Tab>
-                <Tabs.Tab value="trends" py="sm">
-                  <Box>
-                    <Text fw={600} size="sm">
-                      Trends
-                    </Text>
-                    <Text size="xs" c="dimmed" visibleFrom="xs">
-                      Past 30 days
-                    </Text>
-                  </Box>
-                </Tabs.Tab>
-                <Tabs.Tab value="usage" py="sm">
-                  <Box>
-                    <Text fw={600} size="sm">
-                      Usage
-                    </Text>
-                    <Text size="xs" c="dimmed" visibleFrom="xs">
-                      Your spend
                     </Text>
                   </Box>
                 </Tabs.Tab>
@@ -750,27 +785,6 @@ export function PricingDashboard() {
                 region={REGION_LABELS[currentRegion] ?? currentRegion}
                 lastUpdated={forecastUpdated}
                 onRefresh={refreshForecast}
-              />
-            </Tabs.Panel>
-
-            <Tabs.Panel value="trends">
-              <TrendsSection
-                history={history}
-                loading={historyLoading}
-                error={historyError}
-                onRefresh={refreshHistory}
-              />
-            </Tabs.Panel>
-
-            <Tabs.Panel value="usage">
-              <UsageSection
-                spend={usage.spend}
-                flexibleRate={usage.flexibleRate}
-                loading={usage.loading}
-                error={usage.error}
-                needsCredentials={usage.needsCredentials}
-                noData={usage.noData}
-                onOpenSettings={() => setSettingsOpen(true)}
               />
             </Tabs.Panel>
           </Tabs>

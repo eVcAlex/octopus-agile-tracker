@@ -16,11 +16,7 @@
   "crons": [
     {
       "path": "/api/cron/rates-published",
-      "schedule": "10 15,16,17 * * *"
-    },
-    {
-      "path": "/api/cron/cheap-window",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 16 * * *"
     }
   ]
 }

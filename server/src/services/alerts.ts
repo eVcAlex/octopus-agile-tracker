@@ -1,4 +1,4 @@
-import type { OctopusRate, Region, StoredSubscription } from '../schemas.js';
+import type { Region, StoredSubscription } from '../schemas.js';
 import { fetchTodayRates, fetchTomorrowRates } from './octopus.js';
 import { findCheapestWindow } from './cheapWindow.js';
 import { listSubscriptions, claimOnce } from './store.js';

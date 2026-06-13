@@ -25,7 +25,9 @@ import {
   CalendarBlank,
   Drop,
   MagicWand,
+  Clock,
 } from 'phosphor-react';
+import { Switch } from '@mantine/core';
 import { usePricing } from '../../hooks/use-pricing';
 import { fetchAccountDetails } from '../../api/accountApi';
 import { useForecast } from '../../hooks/use-forecast';
@@ -33,6 +35,7 @@ import { useGas } from '../../hooks/use-gas';
 import { useStandingCharges } from '../../hooks/use-standing-charges';
 import { useHistory } from '../../hooks/use-history';
 import { useUsage } from '../../hooks/use-usage';
+import { useNotifications } from '../../hooks/use-notifications';
 import {
   REGIONS,
   REGION_LABELS,
@@ -198,6 +201,7 @@ export function PricingDashboard() {
     refresh: refreshHistory,
   } = useHistory(currentRegion);
   const usage = useUsage(currentRegion, apiKey, accountNo);
+  const notifications = useNotifications(currentRegion);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [energyType, setEnergyType] = useState<EnergyType>('electricity');
   const [gasProductDraft, setGasProductDraft] = useState(gasProduct);
@@ -332,6 +336,105 @@ export function PricingDashboard() {
               ]}
               leftSection={<CalendarBlank size={16} />}
             />
+          </Stack>
+
+          {/* Notifications */}
+          <Stack gap="xs">
+            <Text size="xs" tt="uppercase" fw={700} c="dimmed" lts={0.8}>
+              🔔 Notifications
+            </Text>
+            {!notifications.supported ? (
+              <Text size="xs" c="dimmed">
+                Push notifications aren't supported in this browser. On iOS, add
+                the app to your home screen first.
+              </Text>
+            ) : (
+              <>
+                <Switch
+                  label="Enable push notifications"
+                  description="Alerts even when the app is closed"
+                  color="violet"
+                  checked={notifications.enabled}
+                  disabled={notifications.busy}
+                  onChange={(e) =>
+                    notifications.setEnabled(e.currentTarget.checked)
+                  }
+                />
+                {notifications.enabled && (
+                  <>
+                    <Switch
+                      label="Tomorrow's rates published"
+                      description="Daily summary when prices land (~4pm)"
+                      size="xs"
+                      color="violet"
+                      checked={notifications.prefs.ratesPublished}
+                      disabled={notifications.busy}
+                      onChange={(e) =>
+                        notifications.updatePref(
+                          'ratesPublished',
+                          e.currentTarget.checked
+                        )
+                      }
+                    />
+                    <Switch
+                      label="Plunge pricing"
+                      description="When prices go negative"
+                      size="xs"
+                      color="violet"
+                      checked={notifications.prefs.plunge}
+                      disabled={notifications.busy}
+                      onChange={(e) =>
+                        notifications.updatePref(
+                          'plunge',
+                          e.currentTarget.checked
+                        )
+                      }
+                    />
+                    <Switch
+                      label="Cheap window starting soon"
+                      description="Heads-up before today's cheapest run"
+                      size="xs"
+                      color="violet"
+                      checked={notifications.prefs.cheapWindow}
+                      disabled={notifications.busy}
+                      onChange={(e) =>
+                        notifications.updatePref(
+                          'cheapWindow',
+                          e.currentTarget.checked
+                        )
+                      }
+                    />
+                    {notifications.prefs.cheapWindow && (
+                      <Select
+                        label="Window length"
+                        description="How long you need cheap power for"
+                        value={String(notifications.prefs.cheapWindowHours)}
+                        disabled={notifications.busy}
+                        onChange={(val) => {
+                          if (val)
+                            notifications.updatePref(
+                              'cheapWindowHours',
+                              parseInt(val, 10) as 1 | 2 | 3 | 4
+                            );
+                        }}
+                        data={[
+                          { value: '1', label: '1 hour' },
+                          { value: '2', label: '2 hours' },
+                          { value: '3', label: '3 hours' },
+                          { value: '4', label: '4 hours' },
+                        ]}
+                        leftSection={<Clock size={16} />}
+                      />
+                    )}
+                  </>
+                )}
+                {notifications.error && (
+                  <Text size="xs" c="red">
+                    {notifications.error}
+                  </Text>
+                )}
+              </>
+            )}
           </Stack>
 
           {/* Account auto-detect */}

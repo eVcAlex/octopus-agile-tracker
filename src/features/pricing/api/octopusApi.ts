@@ -4,58 +4,44 @@ import isBetween from 'dayjs/plugin/isBetween';
 import {
   octopusResponseSchema,
   standingChargeResponseSchema,
-  type StandingCharge,
   type OctopusRate,
   type Region,
   type ProcessedSlot,
   type PriceStats,
   type DailyPrices,
 } from '../schemas';
+import {
+  PRODUCTS_BASE,
+  fetchAllPages,
+  currentStandingCharge,
+} from './octopusClient';
 
 dayjs.extend(isBetween);
 
-const API_BASE = 'https://api.octopus.energy/v1/products';
 const PRODUCT = 'AGILE-24-10-01';
 
 function tariffCode(region: Region) {
   return `E-1R-${PRODUCT}-${region}`;
 }
 
-async function fetchRates(
+/** Agile half-hourly unit rates for an arbitrary period, sorted ascending. */
+export async function fetchRates(
   region: Region,
   from: Date,
   to: Date
 ): Promise<OctopusRate[]> {
   const tariff = tariffCode(region);
-  const url = `${API_BASE}/${PRODUCT}/electricity-tariffs/${tariff}/standard-unit-rates/`;
   const params = new URLSearchParams({
     period_from: from.toISOString(),
     period_to: to.toISOString(),
     page_size: '100',
   });
+  const url = `${PRODUCTS_BASE}/${PRODUCT}/electricity-tariffs/${tariff}/standard-unit-rates/?${params}`;
 
-  let allRates: OctopusRate[] = [];
-  let nextUrl: string | null = `${url}?${params}`;
-
-  while (nextUrl) {
-    const raw = await wretch(nextUrl).get().json();
-    const page = octopusResponseSchema.parse(raw);
-    allRates = [...allRates, ...page.results];
-    nextUrl = page.next;
-  }
-
-  return allRates.sort(
+  const rates = await fetchAllPages(url, octopusResponseSchema);
+  return rates.sort(
     (a, b) => dayjs(a.valid_from).unix() - dayjs(b.valid_from).unix()
   );
-}
-
-/** Raw Agile rates for an arbitrary period (used by Usage spend calc) */
-export async function fetchRawRates(
-  region: Region,
-  from: Date,
-  to: Date
-): Promise<OctopusRate[]> {
-  return fetchRates(region, from, to);
 }
 
 export function processRates(
@@ -166,27 +152,11 @@ export async function fetchHistory(
   return aggregateDailyAverages(rates).filter((d) => d.date < todayStr);
 }
 
-export function currentStandingCharge(
-  results: StandingCharge[]
-): number | null {
-  const now = new Date();
-  const current = results
-    .filter(
-      (r) => r.payment_method === 'DIRECT_DEBIT' || r.payment_method == null
-    )
-    .find(
-      (r) =>
-        new Date(r.valid_from) <= now &&
-        (r.valid_to === null || new Date(r.valid_to) > now)
-    );
-  return current?.value_inc_vat ?? null;
-}
-
 export async function fetchElecStandingCharge(
   region: Region
 ): Promise<number | null> {
   const tariff = tariffCode(region);
-  const url = `${API_BASE}/${PRODUCT}/electricity-tariffs/${tariff}/standing-charges/?page_size=10`;
+  const url = `${PRODUCTS_BASE}/${PRODUCT}/electricity-tariffs/${tariff}/standing-charges/?page_size=10`;
   const raw = await wretch(url).get().json();
   const page = standingChargeResponseSchema.parse(raw);
   return currentStandingCharge(page.results);

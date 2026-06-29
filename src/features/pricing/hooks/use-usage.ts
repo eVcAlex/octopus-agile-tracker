@@ -7,7 +7,8 @@ import {
   calcSpend,
   type SpendSummary,
 } from '../api/consumptionApi';
-import { fetchRawRates } from '../api/octopusApi';
+import { fetchRates } from '../api/octopusApi';
+import { errorMessage } from '../../../lib/errors';
 import type { Region } from '../schemas';
 
 const SIX_HOURS = 6 * 60 * 60_000;
@@ -53,7 +54,7 @@ export function useUsage(
           from,
           to
         ),
-        fetchRawRates(region, from, to),
+        fetchRates(region, from, to),
         fetchFlexibleRate(region),
       ]);
 
@@ -70,7 +71,7 @@ export function useUsage(
     spend: data?.spend ?? null,
     flexibleRate: data?.flexibleRate ?? null,
     loading: enabled && isLoading,
-    error: error instanceof Error ? error.message : null,
+    error: errorMessage(error),
     needsCredentials: !apiKey || !accountNo,
     noData: enabled && !isLoading && !error && !data?.spend,
   };

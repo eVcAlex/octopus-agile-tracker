@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchDailyRates } from '../api/octopusApi';
+import { errorMessage } from '../../../lib/errors';
 import type { Region, DailyPrices } from '../schemas';
 import { useRegion } from './use-region';
 
@@ -56,8 +57,7 @@ export function usePricing(): UsePricingReturn {
     todayData: data?.today ?? null,
     tomorrowData: data?.tomorrow ?? null,
     loading: !!region && isLoading,
-    error:
-      error instanceof Error ? error.message : error ? String(error) : null,
+    error: errorMessage(error),
     lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
     refreshData,
     setRegion: persistRegion,

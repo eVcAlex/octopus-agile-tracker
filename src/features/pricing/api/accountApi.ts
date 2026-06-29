@@ -1,7 +1,6 @@
 import wretch from 'wretch';
 import { z } from 'zod';
-
-const API_BASE = 'https://api.octopus.energy/v1';
+import { API_BASE, apiKeyAuth } from './octopusClient';
 
 // ─── Schema ───
 
@@ -68,7 +67,7 @@ export async function fetchAccountDetails(
   accountNo: string
 ): Promise<AccountDetails> {
   const raw = await wretch(`${API_BASE}/accounts/${accountNo}/`)
-    .auth(`Basic ${btoa(apiKey + ':')}`)
+    .auth(apiKeyAuth(apiKey))
     .get()
     .json();
 

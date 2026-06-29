@@ -5,6 +5,8 @@ import {
   unsubscribeFromPush,
   type NotificationPrefs,
 } from '../../../lib/push';
+import { getStoredJSON, setStoredJSON } from '../../../lib/storage';
+import { errorMessage } from '../../../lib/errors';
 import type { Region } from '../schemas';
 
 const PREFS_KEY = 'agile-tracker-notif-prefs';
@@ -26,21 +28,14 @@ const DEFAULTS: StoredNotifState = {
 };
 
 function loadState(): StoredNotifState {
-  try {
-    const raw = localStorage.getItem(PREFS_KEY);
-    if (!raw) return DEFAULTS;
-    return { ...DEFAULTS, ...(JSON.parse(raw) as Partial<StoredNotifState>) };
-  } catch {
-    return DEFAULTS;
-  }
+  return {
+    ...DEFAULTS,
+    ...getStoredJSON<Partial<StoredNotifState>>(PREFS_KEY, {}),
+  };
 }
 
 function saveState(state: StoredNotifState) {
-  try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify(state));
-  } catch {
-    /* noop */
-  }
+  setStoredJSON(PREFS_KEY, state);
 }
 
 export function useNotifications(region: Region) {
@@ -80,7 +75,7 @@ export function useNotifications(region: Region) {
         setState(next);
         saveState(next);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong');
+        setError(errorMessage(err) ?? 'Something went wrong');
       } finally {
         setBusy(false);
       }

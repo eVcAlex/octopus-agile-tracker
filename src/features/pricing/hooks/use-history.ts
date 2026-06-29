@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchHistory } from '../api/octopusApi';
+import { errorMessage } from '../../../lib/errors';
 import type { Region } from '../schemas';
 
 const SIX_HOURS = 6 * 60 * 60_000;
@@ -15,7 +16,7 @@ export function useHistory(region: Region) {
   return {
     history: data ?? [],
     loading: isLoading,
-    error: error instanceof Error ? error.message : null,
+    error: errorMessage(error),
     refresh: refetch,
     lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
   };

@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchGasRates } from '../api/gasApi';
+import { errorMessage } from '../../../lib/errors';
 import type { Region, GasRate } from '../schemas';
 
 export interface UseGasReturn {
@@ -34,8 +35,7 @@ export function useGas(region: Region, productCode: string): UseGasReturn {
     rates: data ?? [],
     currentRate,
     loading: !!region && !!productCode && isLoading,
-    error:
-      error instanceof Error ? error.message : error ? String(error) : null,
+    error: errorMessage(error),
     lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
     refresh,
   };

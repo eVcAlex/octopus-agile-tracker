@@ -73,7 +73,6 @@ export function PeriodList({ data }: { data: ProcessedSlot[] }) {
                     key={slot.id}
                     ref={slot.isCurrentPeriod ? currentRef : undefined}
                     className={`${styles.card} ${slot.isCurrentPeriod ? styles.current : ''} ${isPast(slot) ? styles.past : ''}`}
-                    style={{ borderBottomColor: color }}
                   >
                     <div className={styles.cardTop}>
                       <Text size="xs" c="dimmed" className={styles.mono}>

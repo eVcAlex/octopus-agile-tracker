@@ -3,7 +3,9 @@ import { getSlotStatus, getPriceColor, formatPrice } from '../../utils';
 import styles from './CurrentSlotBanner.module.scss';
 
 function endLabel(slot: ProcessedSlot): string {
-  return slot.validTo.toLocaleTimeString('en-GB', {
+  // validTo may be a string after the query cache is rehydrated from
+  // localStorage (JSON loses Date types), so normalise before formatting.
+  return new Date(slot.validTo).toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
   });

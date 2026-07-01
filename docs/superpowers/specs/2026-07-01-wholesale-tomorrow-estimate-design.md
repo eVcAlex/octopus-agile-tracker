@@ -1,7 +1,29 @@
 # Wholesale-derived "tomorrow" estimate — design
 
 **Date:** 2026-07-01
-**Status:** Approved (pending spec review)
+**Status:** Implemented — see Revision below
+
+## Revision (2026-07-01) — implementation findings
+
+Calibration against real data changed three decisions from the original design:
+
+1. **Data source: Nord Pool N2EX day-ahead, not Elexon.** The Elexon Market
+   Index (MID) is *not* the Agile formula input — identical MID values mapped to
+   confirmed rates differing by >10p. The N2EX day-ahead **hourly** auction
+   (Nord Pool data portal, free, no token) is the correct series. `N2EXMIDP` in
+   the Elexon MID feed also returns 0; only the day-ahead auction is usable.
+2. **Model gains a base term.** `agile = base + multiplier·wholesale + (peak ?
+   peakUplift : 0)`, per-region, fit over several settled days
+   (`scripts/calibrate-agile.ts`). The original `D·w + P` (no intercept) fit
+   poorly.
+3. **Peak window is Europe/London, not bare local hour.** Off-by-one BST errors
+   otherwise scramble the fit; `isPeak` uses `Intl` with `timeZone: 'Europe/London'`.
+
+**Accuracy:** a public-data reconstruction reproduces Agile to ~±3–6p on a
+typical day, occasionally ~±10p — a labelled *estimate*, not penny-accurate.
+Presented as a clearly-hedged 🔮 Estimate that is replaced by ✓ Confirmed rates
+at ~4pm. Everything below reflects the original Elexon plan; the shipped code
+follows this revision.
 
 ## Problem
 

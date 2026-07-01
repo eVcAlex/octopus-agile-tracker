@@ -72,20 +72,10 @@ export async function fetchTomorrowWholesale(): Promise<WholesaleSlot[]> {
     now.getMonth(),
     now.getDate() + 1
   );
-  const dayAfter = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() + 2
-  );
 
-  // Fetch tomorrow and the following day so every UTC hour of tomorrow's local
-  // day is covered regardless of the CET/UTC delivery-date offset.
-  const [a, b] = await Promise.all([
-    fetchDay(dayParam(tomorrow)),
-    fetchDay(dayParam(dayAfter)),
-  ]);
-  const hours = parseNordpoolHours(a);
-  for (const [k, v] of parseNordpoolHours(b)) hours.set(k, v);
-
+  // Only tomorrow's auction is published pre-4pm (the day after is not), so we
+  // fetch just tomorrow. A late-evening hour falling outside the CET delivery
+  // day may be absent — halfHourlySlots drops any uncovered half-hour.
+  const hours = parseNordpoolHours(await fetchDay(dayParam(tomorrow)));
   return halfHourlySlots(hours, tomorrow);
 }

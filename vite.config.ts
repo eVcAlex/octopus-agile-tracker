@@ -54,13 +54,10 @@ export default defineConfig({
           path.replace(/^\/proxy\/forecast/, '/api') + '/?format=json',
       },
       '/proxy/wholesale': {
-        target: 'https://data.elexon.co.uk',
+        target: 'https://dataportal-api.nordpoolgroup.com',
         changeOrigin: true,
         rewrite: (path) =>
-          path.replace(
-            /^\/proxy\/wholesale/,
-            '/bmrs/api/v1/balancing/pricing/market-index'
-          ),
+          path.replace(/^\/proxy\/wholesale/, '/api/DayAheadPrices'),
       },
     },
   },

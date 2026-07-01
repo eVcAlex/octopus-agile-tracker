@@ -2,37 +2,50 @@ import dayjs from 'dayjs';
 import type { Region, ProcessedSlot, WholesaleSlot } from './schemas';
 
 interface Coeff {
-  multiplier: number;
-  peakUplift: number; // p/kWh inc VAT, added 16:00–19:00 local
+  base: number; // p/kWh inc VAT, fixed regional offset
+  multiplier: number; // applied to the day-ahead price in p/kWh
+  peakUplift: number; // p/kWh inc VAT, added 16:00–19:00 Europe/London
 }
 
-// Inc-VAT p/kWh coefficients for AGILE-24-10-01: agile = D*wholesale + P(peak).
-// Seed values — the per-region table is calibrated against real data in Task 3.
-const SEED: Coeff = { multiplier: 0.94, peakUplift: 12 };
-
+// Inc-VAT model for AGILE-24-10-01:
+//   agile = base + multiplier * wholesale_pPerKwh + (peak ? peakUplift : 0)
+// Coefficients are a least-squares fit of the confirmed Octopus rates against
+// the N2EX day-ahead hourly auction, pooled over several settled days
+// (see scripts/calibrate-agile.ts). This reproduces Agile to a few p/kWh on a
+// typical day — it is a labelled estimate, not the confirmed rate.
 export const REGION_COEFFICIENTS: Record<Region, Coeff> = {
-  A: { ...SEED },
-  B: { ...SEED },
-  C: { ...SEED },
-  D: { ...SEED },
-  E: { ...SEED },
-  F: { ...SEED },
-  G: { ...SEED },
-  H: { ...SEED },
-  J: { ...SEED },
-  K: { ...SEED },
-  L: { ...SEED },
-  M: { ...SEED },
-  N: { ...SEED },
-  P: { ...SEED },
+  A: { base: -2.889, multiplier: 2.1235, peakUplift: 13.804 },
+  B: { base: -2.92, multiplier: 2.0225, peakUplift: 14.847 },
+  C: { base: -2.92, multiplier: 2.0225, peakUplift: 12.747 },
+  D: { base: -2.86, multiplier: 2.2247, peakUplift: 13.811 },
+  E: { base: -2.889, multiplier: 2.1235, peakUplift: 12.754 },
+  F: { base: -2.889, multiplier: 2.1235, peakUplift: 12.754 },
+  G: { base: -2.889, multiplier: 2.1235, peakUplift: 12.754 },
+  H: { base: -2.889, multiplier: 2.1235, peakUplift: 12.754 },
+  J: { base: -2.86, multiplier: 2.2247, peakUplift: 12.761 },
+  K: { base: -2.86, multiplier: 2.2247, peakUplift: 12.761 },
+  L: { base: -2.831, multiplier: 2.3258, peakUplift: 11.719 },
+  M: { base: -2.92, multiplier: 2.0225, peakUplift: 13.797 },
+  N: { base: -2.889, multiplier: 2.1235, peakUplift: 13.804 },
+  P: { base: -2.801, multiplier: 2.4269, peakUplift: 12.776 },
 };
 
 const PEAK_START_HOUR = 16;
 const PEAK_END_HOUR = 19;
 const CAP_INC_VAT = 100;
 
+/** Hour of `at` in Europe/London (handles GMT/BST regardless of runtime TZ). */
+function londonHour(at: Date): number {
+  const h = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    hour: '2-digit',
+    hour12: false,
+  }).format(at);
+  return h === '24' ? 0 : Number(h);
+}
+
 export function isPeak(at: Date): boolean {
-  const h = at.getHours();
+  const h = londonHour(at);
   return h >= PEAK_START_HOUR && h < PEAK_END_HOUR;
 }
 
@@ -41,8 +54,8 @@ export function wholesaleToAgile(
   at: Date,
   region: Region
 ): number {
-  const { multiplier, peakUplift } = REGION_COEFFICIENTS[region];
-  const raw = multiplier * pPerKwh + (isPeak(at) ? peakUplift : 0);
+  const { base, multiplier, peakUplift } = REGION_COEFFICIENTS[region];
+  const raw = base + multiplier * pPerKwh + (isPeak(at) ? peakUplift : 0);
   return Math.min(raw, CAP_INC_VAT);
 }
 

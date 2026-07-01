@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/proxy/wholesale",
-      "destination": "https://data.elexon.co.uk/bmrs/api/v1/balancing/pricing/market-index"
+      "destination": "https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices"
     },
     {
       "source": "/proxy/forecast/:region",

@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/proxy/wholesale",
+      "destination": "https://data.elexon.co.uk/bmrs/api/v1/balancing/pricing/market-index"
+    },
+    {
       "source": "/proxy/forecast/:region",
       "destination": "https://prices.fly.dev/api/:region/?format=json"
     },

@@ -53,6 +53,15 @@ export default defineConfig({
         rewrite: (path) =>
           path.replace(/^\/proxy\/forecast/, '/api') + '/?format=json',
       },
+      '/proxy/wholesale': {
+        target: 'https://data.elexon.co.uk',
+        changeOrigin: true,
+        rewrite: (path) =>
+          path.replace(
+            /^\/proxy\/wholesale/,
+            '/bmrs/api/v1/balancing/pricing/market-index'
+          ),
+      },
     },
   },
   base: '/',

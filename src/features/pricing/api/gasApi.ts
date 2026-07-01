@@ -3,68 +3,46 @@ import dayjs from 'dayjs';
 import {
   octopusResponseSchema,
   standingChargeResponseSchema,
-  type OctopusRate,
   type Region,
   type GasRate,
 } from '../schemas';
-import { currentStandingCharge } from './octopusApi';
-
-const API_BASE = 'https://api.octopus.energy/v1/products';
+import {
+  PRODUCTS_BASE,
+  fetchAllPages,
+  isDirectDebit,
+  isActiveNow,
+  currentStandingCharge,
+} from './octopusClient';
 
 function gasTariffCode(region: Region, productCode: string) {
   return `G-1R-${productCode}-${region}`;
-}
-
-async function fetchRates(
-  productCode: string,
-  region: Region,
-  from: Date
-): Promise<OctopusRate[]> {
-  const tariff = gasTariffCode(region, productCode);
-  const url = `${API_BASE}/${productCode}/gas-tariffs/${tariff}/standard-unit-rates/`;
-  const params = new URLSearchParams({
-    period_from: from.toISOString(),
-    page_size: '100',
-  });
-
-  let allRates: OctopusRate[] = [];
-  let nextUrl: string | null = `${url}?${params}`;
-
-  while (nextUrl) {
-    const raw = await wretch(nextUrl).get().json();
-    const page = octopusResponseSchema.parse(raw);
-    allRates = [...allRates, ...page.results];
-    nextUrl = page.next;
-  }
-
-  return allRates;
 }
 
 export async function fetchGasRates(
   region: Region,
   productCode: string
 ): Promise<GasRate[]> {
-  // Fetch 30 days back and 2 days ahead so tomorrow's rate shows when published
+  // Fetch 30 days back so today/tomorrow and the 30-day history both have data.
   const from = dayjs().subtract(30, 'day').startOf('day').toDate();
-  const raw = await fetchRates(productCode, region, from);
-  const now = new Date();
+  const tariff = gasTariffCode(region, productCode);
+  const params = new URLSearchParams({
+    period_from: from.toISOString(),
+    page_size: '100',
+  });
+  const url = `${PRODUCTS_BASE}/${productCode}/gas-tariffs/${tariff}/standard-unit-rates/?${params}`;
+
+  const raw = await fetchAllPages(url, octopusResponseSchema);
 
   return raw
-    .filter(
-      (r) => r.payment_method === 'DIRECT_DEBIT' || r.payment_method === null
-    )
-    .map((r) => {
-      const validFrom = new Date(r.valid_from);
-      const validTo = r.valid_to ? new Date(r.valid_to) : null;
-      return {
-        date: dayjs(r.valid_from).format('YYYY-MM-DD'),
-        unitRateIncVat: r.value_inc_vat,
-        unitRateExcVat: r.value_exc_vat,
-        validFrom,
-        validTo,
-        isCurrent: validFrom <= now && (validTo === null || validTo > now),
-      };
-    })
+    .filter(isDirectDebit)
+    .map((r) => ({
+      date: dayjs(r.valid_from).format('YYYY-MM-DD'),
+      unitRateIncVat: r.value_inc_vat,
+      unitRateExcVat: r.value_exc_vat,
+      validFrom: new Date(r.valid_from),
+      validTo: r.valid_to ? new Date(r.valid_to) : null,
+      isCurrent: isActiveNow(r),
+    }))
     .sort((a, b) => b.validFrom.getTime() - a.validFrom.getTime());
 }
 
@@ -73,7 +51,7 @@ export async function fetchGasStandingCharge(
   productCode: string
 ): Promise<number | null> {
   const tariff = gasTariffCode(region, productCode);
-  const url = `${API_BASE}/${productCode}/gas-tariffs/${tariff}/standing-charges/?page_size=10`;
+  const url = `${PRODUCTS_BASE}/${productCode}/gas-tariffs/${tariff}/standing-charges/?page_size=10`;
   const raw = await wretch(url).get().json();
   const page = standingChargeResponseSchema.parse(raw);
   return currentStandingCharge(page.results);

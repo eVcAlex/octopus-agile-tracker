@@ -2,8 +2,13 @@ import wretch from 'wretch';
 import dayjs from 'dayjs';
 import { z } from 'zod';
 import type { OctopusRate } from '../schemas';
-
-const API_BASE = 'https://api.octopus.energy/v1';
+import {
+  API_BASE,
+  PRODUCTS_BASE,
+  apiKeyAuth,
+  isDirectDebit,
+  isActiveNow,
+} from './octopusClient';
 
 // ─── Schema ───
 
@@ -53,7 +58,7 @@ export async function fetchFlexibleRate(
   region: string
 ): Promise<number | null> {
   const raw = await wretch(
-    `${API_BASE}/products/?is_variable=true&brand=OCTOPUS_ENERGY&page_size=100`
+    `${PRODUCTS_BASE}/?is_variable=true&brand=OCTOPUS_ENERGY&page_size=100`
   )
     .get()
     .json();
@@ -68,22 +73,15 @@ export async function fetchFlexibleRate(
 
   const tariff = `E-1R-${flexible.code}-${region}`;
   const ratesRaw = await wretch(
-    `${API_BASE}/products/${flexible.code}/electricity-tariffs/${tariff}/standard-unit-rates/?page_size=10`
+    `${PRODUCTS_BASE}/${flexible.code}/electricity-tariffs/${tariff}/standard-unit-rates/?page_size=10`
   )
     .get()
     .json();
   const rates = unitRatesResponseSchema.parse(ratesRaw);
 
-  const now = new Date();
   const current = rates.results
-    .filter(
-      (r) => r.payment_method === 'DIRECT_DEBIT' || r.payment_method == null
-    )
-    .find(
-      (r) =>
-        new Date(r.valid_from) <= now &&
-        (r.valid_to === null || new Date(r.valid_to) > now)
-    );
+    .filter(isDirectDebit)
+    .find((r) => isActiveNow(r));
   return current?.value_inc_vat ?? null;
 }
 
@@ -102,10 +100,7 @@ export async function fetchConsumption(
   });
   const url = `${API_BASE}/electricity-meter-points/${mpan}/meters/${serial}/consumption/?${params}`;
 
-  const raw = await wretch(url)
-    .auth(`Basic ${btoa(apiKey + ':')}`)
-    .get()
-    .json();
+  const raw = await wretch(url).auth(apiKeyAuth(apiKey)).get().json();
 
   return consumptionResponseSchema.parse(raw).results;
 }

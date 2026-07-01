@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchForecast } from '../api/forecastApi';
+import { errorMessage } from '../../../lib/errors';
 import type { Region, ForecastData } from '../schemas';
 
 export interface UseForecastReturn {
@@ -52,8 +53,7 @@ export function useForecast(
   return {
     forecast,
     loading: isLoading,
-    error:
-      error instanceof Error ? error.message : error ? String(error) : null,
+    error: errorMessage(error),
     refresh,
     lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
   };

@@ -34,7 +34,6 @@ import { SettingsDrawer } from '../SettingsDrawer';
 import { PricingStats } from '../Stats';
 import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
-import { PricingTable } from '../Table';
 import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
 import { CheapWindows } from '../CheapWindows';
@@ -49,17 +48,11 @@ const regionOptions = REGIONS.map((code) => ({
   label: REGION_LABELS[code],
 }));
 
-type View = 'grid' | 'chart' | 'table';
+type View = 'grid' | 'chart';
 
 // ─── Day section (grid / chart / table) ───
 
-function DaySection({
-  data,
-  loading,
-}: {
-  data: DailyPrices;
-  loading: boolean;
-}) {
+function DaySection({ data }: { data: DailyPrices }) {
   const [view, setView] = useState<View>('chart');
 
   return (
@@ -75,7 +68,6 @@ function DaySection({
         onChange={(v) => setView(v as View)}
         size="sm"
         radius="md"
-        fullWidth
         withItemsBorders={false}
         mt="md"
         mb="md"
@@ -83,13 +75,14 @@ function DaySection({
         data={[
           { value: 'chart', label: 'Chart' },
           { value: 'grid', label: 'Grid' },
-          { value: 'table', label: 'Table' },
         ]}
       />
 
-      {view === 'grid' && <PeriodList data={data.rates} />}
-      {view === 'chart' && <PriceChart data={data.rates} />}
-      {view === 'table' && <PricingTable data={data.rates} loading={loading} />}
+      {view === 'chart' ? (
+        <PriceChart data={data.rates} />
+      ) : (
+        <PeriodList data={data.rates} />
+      )}
     </section>
   );
 }
@@ -471,7 +464,7 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="today">
               {todayData ? (
-                <DaySection data={todayData} loading={loading} />
+                <DaySection data={todayData} />
               ) : (
                 <Text ta="center" c="dimmed" py="xl">
                   No data for today
@@ -481,7 +474,7 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="tomorrow">
               {hasTomorrow && tomorrowData ? (
-                <DaySection data={tomorrowData} loading={loading} />
+                <DaySection data={tomorrowData} />
               ) : (
                 <Paper
                   p="xl"

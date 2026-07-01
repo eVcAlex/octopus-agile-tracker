@@ -19,11 +19,7 @@ export function CurrentSlotBanner({ data }: { data: ProcessedSlot[] }) {
   const accent = getPriceColor(current.priceIncVat);
 
   return (
-    <div
-      className={styles.banner}
-      style={{ borderLeftColor: accent }}
-      role="status"
-    >
+    <div className={styles.banner} role="status">
       <span className={styles.dot} style={{ background: accent }} />
       <span className={styles.label}>
         Now{' '}

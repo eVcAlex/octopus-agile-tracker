@@ -42,7 +42,8 @@ export function PeriodList({ data }: { data: ProcessedSlot[] }) {
       {PERIODS.map((period) => {
         const slots = data.filter((s) => {
           const h = hourOf(s);
-          return h >= period.from && h < period.to;
+          // Current + upcoming only — elapsed slots aren't actionable.
+          return h >= period.from && h < period.to && !isPast(s);
         });
         if (!slots.length) return null;
 
@@ -72,7 +73,7 @@ export function PeriodList({ data }: { data: ProcessedSlot[] }) {
                   <div
                     key={slot.id}
                     ref={slot.isCurrentPeriod ? currentRef : undefined}
-                    className={`${styles.card} ${slot.isCurrentPeriod ? styles.current : ''} ${isPast(slot) ? styles.past : ''}`}
+                    className={`${styles.card} ${slot.isCurrentPeriod ? styles.current : ''}`}
                   >
                     <div className={styles.cardTop}>
                       <Text size="xs" c="dimmed" className={styles.mono}>

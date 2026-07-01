@@ -16,7 +16,14 @@ import {
   Modal,
   Button,
 } from '@mantine/core';
-import { Lightning, GearSix, MapPin, Drop, ChartBar } from 'phosphor-react';
+import {
+  Lightning,
+  GearSix,
+  MapPin,
+  Drop,
+  ChartBar,
+  SquaresFour,
+} from 'phosphor-react';
 import { usePricing } from '../../hooks/use-pricing';
 import { useForecast } from '../../hooks/use-forecast';
 import { useGas } from '../../hooks/use-gas';
@@ -63,20 +70,38 @@ function DaySection({ data }: { data: DailyPrices }) {
 
       <CheapWindows data={data.rates} />
 
-      <SegmentedControl
-        value={view}
-        onChange={(v) => setView(v as View)}
-        size="sm"
-        radius="md"
-        withItemsBorders={false}
-        mt="md"
-        mb="md"
-        aria-label="View type"
-        data={[
-          { value: 'chart', label: 'Chart' },
-          { value: 'grid', label: 'Grid' },
-        ]}
-      />
+      <Group justify="flex-end" mt="md" mb="md">
+        <SegmentedControl
+          value={view}
+          onChange={(v) => setView(v as View)}
+          size="sm"
+          radius="md"
+          withItemsBorders={false}
+          aria-label="View type"
+          data={[
+            {
+              value: 'chart',
+              label: (
+                <ChartBar
+                  size={17}
+                  weight={view === 'chart' ? 'fill' : 'regular'}
+                  aria-label="Chart"
+                />
+              ),
+            },
+            {
+              value: 'grid',
+              label: (
+                <SquaresFour
+                  size={17}
+                  weight={view === 'grid' ? 'fill' : 'regular'}
+                  aria-label="Grid"
+                />
+              ),
+            },
+          ]}
+        />
+      </Group>
 
       {view === 'chart' ? (
         <PriceChart data={data.rates} />

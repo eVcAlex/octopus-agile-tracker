@@ -1,19 +1,78 @@
 .card {
-  border: none;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 8px 24px -16px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+
+  // Soft top highlight so cards read as raised glass.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.14),
+      transparent
+    );
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.2),
+      0 16px 34px -18px rgba(0, 0, 0, 0.6);
+    border-color: color-mix(in srgb, var(--surface-border) 55%, white 12%);
+  }
 }
 
 .cardInner {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
 .iconBox {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow:
+    0 4px 12px -4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+// The live "right now" card gets a gentle breathing glow.
+.live {
+  animation: livePulse 3.4s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.18),
+      0 0 0 0 rgba(124, 58, 237, 0);
+  }
+  50% {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.18),
+      0 0 0 3px rgba(124, 58, 237, 0.16);
+  }
 }

@@ -1,3 +1,14 @@
 .windowCard {
   border: 1px solid var(--surface-border);
+  background: var(--surface-bg);
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--surface-border) 50%, white 14%);
+    box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.6);
+  }
 }

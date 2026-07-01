@@ -98,6 +98,11 @@ export const REGION_LABELS: Record<Region, string> = {
 
 // ─── Processed types ───
 
+export interface WholesaleSlot {
+  startTime: Date;
+  priceGbpMwh: number;
+}
+
 export interface ProcessedSlot {
   id: string;
   time: string;

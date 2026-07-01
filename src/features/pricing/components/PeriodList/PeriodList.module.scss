@@ -1,0 +1,114 @@
+.wrapper {
+  max-height: 62vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px 2px 4px;
+}
+
+.period {
+  margin-bottom: 18px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.periodHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.periodLabel {
+  color: var(--text-subtle);
+}
+
+.peakLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--price-high);
+}
+
+.peakDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--price-high);
+  box-shadow: 0 0 8px 1px var(--price-high);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.card {
+  position: relative;
+  padding: 8px 10px 9px;
+  border-radius: 10px;
+  border: 1px solid var(--surface-border);
+  border-bottom-width: 2px;
+  background: var(--surface-bg);
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    border-color 0.14s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px -16px rgba(0, 0, 0, 0.7);
+  }
+
+  &.current {
+    border-color: var(--price-current);
+    box-shadow:
+      0 0 0 1px var(--price-current),
+      0 0 16px -4px var(--price-current-alpha);
+  }
+
+  &.past {
+    opacity: 0.4;
+  }
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 16px;
+}
+
+.now {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #fff;
+  background: var(--price-current);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+.price {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.tier {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-size: 10px;
+  opacity: 0.85;
+}

@@ -43,3 +43,21 @@ export function formatDuration(hours: number): string {
 export function isPast(item: ProcessedSlot): boolean {
   return !item.isCurrentPeriod && item.validTo < new Date();
 }
+
+export interface SlotStatus {
+  current: ProcessedSlot;
+  /** Earliest upcoming slot cheaper than the current one, if any. */
+  nextCheaper: ProcessedSlot | null;
+}
+
+/** The live slot plus the next cheaper slot ahead of it (null if none live). */
+export function getSlotStatus(slots: ProcessedSlot[]): SlotStatus | null {
+  const current = slots.find((s) => s.isCurrentPeriod);
+  if (!current) return null;
+  const nextCheaper =
+    slots.find(
+      (s) =>
+        s.validFrom > current.validFrom && s.priceIncVat < current.priceIncVat
+    ) ?? null;
+  return { current, nextCheaper };
+}

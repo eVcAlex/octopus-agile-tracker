@@ -1,6 +1,6 @@
 import { Box, Text, Flex, Paper, SimpleGrid, Badge } from '@mantine/core';
 import type { ProcessedSlot } from '../../schemas';
-import { formatPrice, getMantinePriceColor } from '../../utils';
+import { formatPrice, getMantinePriceColor, getPriceColor } from '../../utils';
 import { findCheapestWindows } from '../../cheap-windows';
 import styles from './CheapWindows.module.scss';
 
@@ -31,6 +31,7 @@ export const CheapWindows = ({ data }: CheapWindowsProps) => {
             py="xs"
             radius="md"
             className={styles.windowCard}
+            style={{ borderBottom: `2px solid ${getPriceColor(w.avgPrice)}` }}
           >
             <Flex justify="space-between" align="center" mb={4}>
               <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>

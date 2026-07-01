@@ -1,0 +1,54 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-top: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--surface-border);
+  background: var(--surface-bg);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: bannerPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes bannerPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+  }
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.next {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.dim {
+  color: var(--text-subtle);
+}

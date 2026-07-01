@@ -32,12 +32,13 @@ import {
 } from '../../schemas';
 import { SettingsDrawer } from '../SettingsDrawer';
 import { PricingStats } from '../Stats';
-import { PricingTable } from '../Table';
+import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
-import { HeatmapView } from '../Heatmap';
+import { PricingTable } from '../Table';
 import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
 import { CheapWindows } from '../CheapWindows';
+import { CurrentSlotBanner } from '../CurrentSlotBanner';
 import { TrendsSection } from '../Trends';
 import { UsageSection } from '../Usage';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
@@ -65,6 +66,8 @@ function DaySection({
     <section aria-label="Price visualisation">
       <PricingStats stats={data.stats} />
 
+      <CurrentSlotBanner data={data.rates} />
+
       <CheapWindows data={data.rates} />
 
       <SegmentedControl
@@ -84,7 +87,7 @@ function DaySection({
         ]}
       />
 
-      {view === 'grid' && <HeatmapView data={data.rates} />}
+      {view === 'grid' && <PeriodList data={data.rates} />}
       {view === 'chart' && <PriceChart data={data.rates} />}
       {view === 'table' && <PricingTable data={data.rates} loading={loading} />}
     </section>

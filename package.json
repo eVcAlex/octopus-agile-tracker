@@ -1,5 +1,11 @@
 {
   "name": "octopus-agile-tracker",
+  "description": "Dashboard for Octopus Energy Agile electricity prices and gas unit rates — today/tomorrow rates, wholesale-derived estimates, forecasts, usage spend, and push alerts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eVcAlex/octopus-agile-tracker.git"
+  },
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -16,7 +22,9 @@
     "typecheck:server": "tsc -p server"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp"]
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

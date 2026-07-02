@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/proxy/wholesale",
+      "destination": "https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices"
+    },
+    {
       "source": "/proxy/forecast/:region",
       "destination": "https://prices.fly.dev/api/:region/?format=json"
     },

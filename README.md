@@ -12,6 +12,10 @@ unit rates across UK regions. Built with **React**, **TypeScript**,
 
 - **Today & Tomorrow** half-hourly rates with chart, heatmap grid, and table
   views (tomorrow's prices publish around 4pm).
+- **Tomorrow before 4pm**: a wholesale-derived _estimate_ of tomorrow's rates
+  (clearly labelled 🔮 Estimate), computed from the N2EX day-ahead auction and
+  the Agile formula. It's a rough guide — typically within a few p/kWh — and is
+  replaced automatically by Octopus's ✓ Confirmed rates when they publish.
 - **Stats cards**: lowest, highest, average, and the live "right now" price.
 - **Cheap windows**: the cheapest contiguous slots for running appliances.
 - **Forecast**: multi-day price predictions (3–14 days, configurable) via
@@ -91,3 +95,7 @@ at any time from Settings.
   charges, account/tariff detection.
 - [AgilePredict](https://agilepredict.com/) — price forecasts (proxied via a
   rewrite in `vercel.json`).
+- [Nord Pool](https://www.nordpoolgroup.com/) — N2EX GB day-ahead auction
+  prices, used to estimate tomorrow's Agile rates before Octopus publishes them
+  (proxied via `vercel.json`; free, no API key). Coefficients are calibrated by
+  `scripts/calibrate-agile.ts`.

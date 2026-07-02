@@ -53,6 +53,12 @@ export default defineConfig({
         rewrite: (path) =>
           path.replace(/^\/proxy\/forecast/, '/api') + '/?format=json',
       },
+      '/proxy/wholesale': {
+        target: 'https://dataportal-api.nordpoolgroup.com',
+        changeOrigin: true,
+        rewrite: (path) =>
+          path.replace(/^\/proxy\/wholesale/, '/api/DayAheadPrices'),
+      },
     },
   },
   base: '/',

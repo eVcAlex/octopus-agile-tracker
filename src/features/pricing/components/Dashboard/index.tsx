@@ -38,6 +38,8 @@ import {
   type DailyPrices,
 } from '../../schemas';
 import { SettingsDrawer } from '../SettingsDrawer';
+import { RateSourceBadge } from '../RateSourceBadge';
+import { useEstimate } from '../../hooks/use-estimate';
 import { PricingStats } from '../Stats';
 import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
@@ -185,6 +187,7 @@ export function PricingDashboard() {
     setAccountNo,
   } = usePricing();
   const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
+  const estimate = useEstimate(currentRegion, !hasTomorrow);
   const {
     forecast,
     loading: forecastLoading,
@@ -499,7 +502,28 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="tomorrow">
               {hasTomorrow && tomorrowData ? (
-                <DaySection data={tomorrowData} />
+                <>
+                  <Group justify="flex-end" mb="xs">
+                    <RateSourceBadge variant="confirmed" />
+                  </Group>
+                  <DaySection data={tomorrowData} />
+                </>
+              ) : estimate.estimate ? (
+                <>
+                  <Group
+                    justify="space-between"
+                    align="center"
+                    mb="xs"
+                    wrap="nowrap"
+                  >
+                    <Text size="xs" c="dimmed">
+                      Estimated from wholesale prices — may differ by a few
+                      p/kWh. Octopus confirms tomorrow's rates around 4pm.
+                    </Text>
+                    <RateSourceBadge variant="estimate" />
+                  </Group>
+                  <DaySection data={estimate.estimate} />
+                </>
               ) : (
                 <Paper
                   p="xl"

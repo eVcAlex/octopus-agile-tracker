@@ -1,8 +1,15 @@
 import wretch from 'wretch';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { z } from 'zod';
 import type { WholesaleSlot } from '../schemas';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const PROXY_BASE = '/proxy/wholesale';
+const LONDON = 'Europe/London';
 
 // Nord Pool N2EX day-ahead auction — hourly £/MWh prices per delivery area.
 const nordpoolSchema = z.object({
@@ -29,31 +36,23 @@ export function parseNordpoolHours(raw: Nordpool): Map<string, number> {
 }
 
 /**
- * Expand hourly prices into 48 half-hourly slots covering `day`'s local
- * calendar day. Each half-hour inherits its containing hour's day-ahead price;
- * slots whose hour is missing are dropped.
+ * Expand hourly prices into 48 half-hourly slots covering the 24 hours from
+ * `dayStart` (an exact instant, e.g. UK midnight). Each half-hour inherits its
+ * containing hour's day-ahead price; slots whose hour is missing are dropped.
  */
 export function halfHourlySlots(
   hours: Map<string, number>,
-  day: Date
+  dayStart: Date
 ): WholesaleSlot[] {
   const slots: WholesaleSlot[] = [];
   for (let i = 0; i < 48; i++) {
-    const from = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-    from.setMinutes(i * 30);
-    const hourStart = new Date(from);
-    hourStart.setMinutes(0, 0, 0);
+    const t = dayStart.getTime() + i * 30 * 60_000;
+    const hourStart = new Date(Math.floor(t / 3_600_000) * 3_600_000);
     const price = hours.get(hourStart.toISOString());
     if (price === undefined) continue;
-    slots.push({ startTime: from, priceGbpMwh: price });
+    slots.push({ startTime: new Date(t), priceGbpMwh: price });
   }
   return slots;
-}
-
-function dayParam(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-    d.getDate()
-  ).padStart(2, '0')}`;
 }
 
 async function fetchDay(date: string): Promise<Nordpool> {
@@ -66,16 +65,15 @@ async function fetchDay(date: string): Promise<Nordpool> {
 }
 
 export async function fetchTomorrowWholesale(): Promise<WholesaleSlot[]> {
-  const now = new Date();
-  const tomorrow = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() + 1
-  );
+  // Anchor "tomorrow" to the UK civil day so the estimate covers the same day
+  // as Octopus's confirmed rates, regardless of the client's timezone.
+  const ukTomorrow = dayjs().tz(LONDON).add(1, 'day').startOf('day');
 
   // Only tomorrow's auction is published pre-4pm (the day after is not), so we
   // fetch just tomorrow. A late-evening hour falling outside the CET delivery
   // day may be absent — halfHourlySlots drops any uncovered half-hour.
-  const hours = parseNordpoolHours(await fetchDay(dayParam(tomorrow)));
-  return halfHourlySlots(hours, tomorrow);
+  const hours = parseNordpoolHours(
+    await fetchDay(ukTomorrow.format('YYYY-MM-DD'))
+  );
+  return halfHourlySlots(hours, ukTomorrow.toDate());
 }

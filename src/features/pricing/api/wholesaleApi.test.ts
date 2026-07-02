@@ -28,20 +28,20 @@ describe('parseNordpoolHours', () => {
 describe('halfHourlySlots', () => {
   it('expands hourly prices into two half-hour slots per hour, dropping missing hours', () => {
     const hours = parseNordpoolHours(raw);
-    // Build the day from the first slot's local calendar date so the test is
-    // independent of the runner timezone.
-    const day = new Date('2026-07-16T00:00:00Z');
-    const localDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-    const slots = halfHourlySlots(hours, localDay);
+    // dayStart is an exact instant (UK midnight in production); a UTC hour
+    // boundary keeps the test independent of the runner timezone.
+    const dayStart = new Date('2026-07-16T00:00:00Z');
+    const slots = halfHourlySlots(hours, dayStart);
 
-    // Each half-hour inherits its hour's price; only hours present in the map appear.
-    for (const s of slots) {
-      const hourStart = new Date(s.startTime);
-      hourStart.setMinutes(0, 0, 0);
-      expect(s.priceGbpMwh).toBe(hours.get(hourStart.toISOString()));
-    }
-    // Two provided hours → at most 4 half-hour slots.
-    expect(slots.length).toBeLessThanOrEqual(4);
-    expect(slots.length).toBeGreaterThan(0);
+    // Two provided hours → exactly 4 half-hour slots at :00/:30 offsets.
+    expect(slots.length).toBe(4);
+    expect(slots.map((s) => s.startTime.toISOString())).toEqual([
+      '2026-07-16T00:00:00.000Z',
+      '2026-07-16T00:30:00.000Z',
+      '2026-07-16T01:00:00.000Z',
+      '2026-07-16T01:30:00.000Z',
+    ]);
+    // Each half-hour inherits its containing hour's price.
+    expect(slots.map((s) => s.priceGbpMwh)).toEqual([60, 60, 40, 40]);
   });
 });

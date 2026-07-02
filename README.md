@@ -10,8 +10,8 @@ unit rates across UK regions. Built with **React**, **TypeScript**,
 
 ### Electricity (Agile)
 
-- **Today & Tomorrow** half-hourly rates with chart, heatmap grid, and table
-  views (tomorrow's prices publish around 4pm).
+- **Today & Tomorrow** half-hourly rates as a chart or a time-of-day card
+  grid (tomorrow's prices publish around 4pm).
 - **Tomorrow before 4pm**: a wholesale-derived _estimate_ of tomorrow's rates
   (clearly labelled 🔮 Estimate), computed from the N2EX day-ahead auction and
   the Agile formula. It's a rough guide — typically within a few p/kWh — and is
@@ -41,8 +41,9 @@ unit rates across UK regions. Built with **React**, **TypeScript**,
 - Plunge pricing alerts when prices go negative.
 - "Cheap window starting soon" reminders (1–4h, configurable).
 - Powered by a small Hono backend on Vercel (`server/` + `api/index.ts`)
-  with subscriptions in Upstash Redis and Vercel crons. See `.env.example`
-  for the required env vars (VAPID keys, Redis, `CRON_SECRET`).
+  with subscriptions in Upstash Redis; alerts fire when the cron endpoints
+  are triggered (see Deployment notes). See `.env.example` for the required
+  env vars (VAPID keys, Redis, `CRON_SECRET`).
 
 ### General
 
@@ -78,10 +79,13 @@ pnpm dev:server   # notification API (Hono, port 3001) — optional
 - Set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`,
   `CRON_SECRET`, and the Upstash Redis env vars in Vercel
   (the Upstash Marketplace integration provides the Redis ones).
-- The 15-minute cheap-window cron in `vercel.json` requires a plan that
-  allows sub-daily crons; on Hobby, change it to a daily schedule or
-  trigger `/api/cron/cheap-window` from an external scheduler with the
-  `Authorization: Bearer $CRON_SECRET` header.
+- No cron is defined in `vercel.json` (`"crons": []`). To make notifications
+  fire, trigger the two endpoints in `server/src/routes/cron.ts` —
+  `/api/cron/rates-published` (daily, ~4pm UK) and `/api/cron/cheap-window`
+  (every 15 min for timely alerts) — with the
+  `Authorization: Bearer $CRON_SECRET` header, either from an external
+  scheduler or by adding Vercel crons (sub-daily schedules need a paid plan;
+  on Hobby, use a daily schedule or an external scheduler).
 
 ## Privacy
 

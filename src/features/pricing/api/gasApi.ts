@@ -27,7 +27,8 @@ export async function fetchGasRates(
   const tariff = gasTariffCode(region, productCode);
   const params = new URLSearchParams({
     period_from: from.toISOString(),
-    page_size: '100',
+    // Octopus accepts up to 1500/page — keeps 30 days to a single request.
+    page_size: '1500',
   });
   const url = `${PRODUCTS_BASE}/${productCode}/gas-tariffs/${tariff}/standard-unit-rates/?${params}`;
 

@@ -3,12 +3,11 @@ import { createTheme, rem } from '@mantine/core';
 export const theme = createTheme({
   primaryColor: 'violet',
   fontFamily:
-    'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    '"Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   fontFamilyMonospace:
     '"JetBrains Mono", "Fira Code", "SF Mono", Menlo, monospace',
   headings: {
-    fontFamily:
-      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: '"Bricolage Grotesque", "Hanken Grotesk", sans-serif',
     fontWeight: '700',
   },
   radius: {

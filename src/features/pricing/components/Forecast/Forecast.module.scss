@@ -129,9 +129,20 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   cursor: crosshair;
   position: relative;
+}
+
+.positiveZone {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.negativeZone {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .cheapestCol {
@@ -153,8 +164,15 @@
 }
 
 .bar {
-  border-radius: 2px 2px 0 0;
   transition: opacity 0.1s;
+
+  &.positive {
+    border-radius: 2px 2px 0 0;
+  }
+
+  &.negative {
+    border-radius: 0 0 2px 2px;
+  }
 }
 
 .callout {

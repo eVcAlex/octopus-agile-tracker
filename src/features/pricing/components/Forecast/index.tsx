@@ -35,6 +35,13 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
   const minPrice = Math.min(...lows, 0);
   const range = maxPrice - minPrice;
 
+  // Split around the zero line so negative predictions hang below it (matches
+  // the main price chart's handling of plunge pricing).
+  const positiveHeight =
+    range > 0 ? (maxPrice / range) * CHART_HEIGHT : CHART_HEIGHT;
+  const negativeHeight = CHART_HEIGHT - positiveHeight;
+  const hasNegative = minPrice < 0;
+
   const priceToY = (p: number) =>
     Math.round(((maxPrice - p) / range) * CHART_HEIGHT);
   const gridPrices = getGridPrices(minPrice, maxPrice);
@@ -160,14 +167,15 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
           {/* Bars */}
           <div className={styles.bars}>
             {slots.map((s, i) => {
+              const isPositive = s.agile_pred >= 0;
               const barH = Math.max(
-                (Math.abs(s.agile_pred - Math.min(minPrice, 0)) / range) *
-                  CHART_HEIGHT,
+                (Math.abs(s.agile_pred) / range) * CHART_HEIGHT,
                 1
               );
               const color = getPriceColor(s.agile_pred);
               const isHovered = hoveredIndex === i;
               const isCheapest = i === cheapestIndex;
+              const opacity = isHovered ? 1 : 0.75;
 
               return (
                 <div
@@ -179,13 +187,29 @@ function ForecastChart({ slots }: { slots: ForecastPrice[] }) {
                   onTouchEnd={() => setHoveredIndex(null)}
                 >
                   <div
-                    className={styles.bar}
-                    style={{
-                      height: barH,
-                      background: color,
-                      opacity: isHovered ? 1 : 0.75,
-                    }}
-                  />
+                    className={styles.positiveZone}
+                    style={{ height: positiveHeight }}
+                  >
+                    {isPositive && (
+                      <div
+                        className={`${styles.bar} ${styles.positive}`}
+                        style={{ height: barH, background: color, opacity }}
+                      />
+                    )}
+                  </div>
+                  {hasNegative && (
+                    <div
+                      className={styles.negativeZone}
+                      style={{ height: negativeHeight }}
+                    >
+                      {!isPositive && (
+                        <div
+                          className={`${styles.bar} ${styles.negative}`}
+                          style={{ height: barH, background: color, opacity }}
+                        />
+                      )}
+                    </div>
+                  )}
                   {isCheapest && <div className={styles.cheapestMarker} />}
                 </div>
               );

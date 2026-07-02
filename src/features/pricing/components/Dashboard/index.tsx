@@ -16,7 +16,14 @@ import {
   Modal,
   Button,
 } from '@mantine/core';
-import { Lightning, GearSix, MapPin, Drop, ChartBar } from 'phosphor-react';
+import {
+  Lightning,
+  GearSix,
+  MapPin,
+  Drop,
+  ChartBar,
+  SquaresFour,
+} from 'phosphor-react';
 import { usePricing } from '../../hooks/use-pricing';
 import { useForecast } from '../../hooks/use-forecast';
 import { useGas } from '../../hooks/use-gas';
@@ -32,12 +39,12 @@ import {
 } from '../../schemas';
 import { SettingsDrawer } from '../SettingsDrawer';
 import { PricingStats } from '../Stats';
-import { PricingTable } from '../Table';
+import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
-import { HeatmapView } from '../Heatmap';
 import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
 import { CheapWindows } from '../CheapWindows';
+import { CurrentSlotBanner } from '../CurrentSlotBanner';
 import { TrendsSection } from '../Trends';
 import { UsageSection } from '../Usage';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
@@ -48,45 +55,59 @@ const regionOptions = REGIONS.map((code) => ({
   label: REGION_LABELS[code],
 }));
 
-type View = 'grid' | 'chart' | 'table';
+type View = 'grid' | 'chart';
 
 // ─── Day section (grid / chart / table) ───
 
-function DaySection({
-  data,
-  loading,
-}: {
-  data: DailyPrices;
-  loading: boolean;
-}) {
+function DaySection({ data }: { data: DailyPrices }) {
   const [view, setView] = useState<View>('chart');
 
   return (
     <section aria-label="Price visualisation">
       <PricingStats stats={data.stats} />
 
+      <CurrentSlotBanner data={data.rates} />
+
       <CheapWindows data={data.rates} />
 
-      <SegmentedControl
-        value={view}
-        onChange={(v) => setView(v as View)}
-        size="sm"
-        radius="md"
-        fullWidth
-        withItemsBorders={false}
-        mt="md"
-        mb="md"
-        aria-label="View type"
-        data={[
-          { value: 'chart', label: 'Chart' },
-          { value: 'grid', label: 'Grid' },
-          { value: 'table', label: 'Table' },
-        ]}
-      />
+      <Group justify="flex-end" mt="md" mb="md">
+        <SegmentedControl
+          value={view}
+          onChange={(v) => setView(v as View)}
+          size="sm"
+          radius="md"
+          withItemsBorders={false}
+          aria-label="View type"
+          data={[
+            {
+              value: 'chart',
+              label: (
+                <ChartBar
+                  size={17}
+                  weight={view === 'chart' ? 'fill' : 'regular'}
+                  aria-label="Chart"
+                />
+              ),
+            },
+            {
+              value: 'grid',
+              label: (
+                <SquaresFour
+                  size={17}
+                  weight={view === 'grid' ? 'fill' : 'regular'}
+                  aria-label="Grid"
+                />
+              ),
+            },
+          ]}
+        />
+      </Group>
 
-      {view === 'grid' && <HeatmapView data={data.rates} />}
-      {view === 'chart' && <PriceChart data={data.rates} />}
-      {view === 'table' && <PricingTable data={data.rates} loading={loading} />}
+      {view === 'chart' ? (
+        <PriceChart data={data.rates} />
+      ) : (
+        <PeriodList data={data.rates} />
+      )}
     </section>
   );
 }
@@ -468,7 +489,7 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="today">
               {todayData ? (
-                <DaySection data={todayData} loading={loading} />
+                <DaySection data={todayData} />
               ) : (
                 <Text ta="center" c="dimmed" py="xl">
                   No data for today
@@ -478,7 +499,7 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="tomorrow">
               {hasTomorrow && tomorrowData ? (
-                <DaySection data={tomorrowData} loading={loading} />
+                <DaySection data={tomorrowData} />
               ) : (
                 <Paper
                   p="xl"

@@ -18,6 +18,7 @@ interface StatCard {
   value: number;
   bg: string;
   iconBg: string;
+  live?: boolean;
 }
 
 function buildCards(stats: PriceStats): StatCard[] {
@@ -67,6 +68,7 @@ function buildCards(stats: PriceStats): StatCard[] {
       value: stats.current,
       bg: cheap ? 'rgba(20,184,166,0.07)' : 'rgba(234,179,8,0.07)',
       iconBg: cheap ? STAT_GRADIENTS.teal : STAT_GRADIENTS.yellow,
+      live: true,
     });
   }
 
@@ -85,7 +87,7 @@ export const PricingStats = ({ stats }: PricingStatsProps) => {
             key={card.key}
             p="md"
             radius="md"
-            className={styles.card}
+            className={`${styles.card} ${card.live ? styles.live : ''}`}
             style={{ background: card.bg }}
           >
             <div className={styles.cardInner}>
@@ -96,10 +98,16 @@ export const PricingStats = ({ stats }: PricingStatsProps) => {
                 <Icon size={18} weight={card.iconWeight} color="white" />
               </div>
               <Box>
-                <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5}>
+                <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.6}>
                   {card.label}
                 </Text>
-                <Text fw={700} size="lg" ff="monospace" lh={1.2}>
+                <Text
+                  fw={700}
+                  size="xl"
+                  ff="monospace"
+                  lh={1.15}
+                  className={styles.value}
+                >
                   {formatPrice(card.value)}
                 </Text>
               </Box>

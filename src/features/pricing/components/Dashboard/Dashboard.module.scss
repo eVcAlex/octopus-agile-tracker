@@ -1,33 +1,57 @@
 .headerBar {
   border-color: var(--surface-border);
-  background: var(--surface-bg);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface-bg) 88%, transparent),
+    var(--surface-bg)
+  );
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 30px -22px rgba(0, 0, 0, 0.7);
 }
 
 .logoIcon {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow:
+    0 6px 16px -4px rgba(124, 58, 237, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .loadingLogo {
   width: 56px;
   height: 56px;
-  border-radius: 14px;
+  border-radius: 16px;
   background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 12px 40px -8px rgba(124, 58, 237, 0.6);
+  animation: logoBreath 2.6s ease-in-out infinite;
+}
+
+@keyframes logoBreath {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 12px 40px -8px rgba(124, 58, 237, 0.5);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 14px 48px -6px rgba(124, 58, 237, 0.75);
+  }
 }
 
 .tabBar {
   border-color: var(--surface-border);
   background: var(--surface-bg);
   overflow: hidden;
+  box-shadow: 0 6px 24px -20px rgba(0, 0, 0, 0.7);
 }
 
 .errorBar {

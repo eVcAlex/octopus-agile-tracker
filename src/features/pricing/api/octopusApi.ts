@@ -34,7 +34,9 @@ export async function fetchRates(
   const params = new URLSearchParams({
     period_from: from.toISOString(),
     period_to: to.toISOString(),
-    page_size: '100',
+    // Octopus accepts up to 1500/page — 30 days of half-hours (1440) fits in
+    // one request instead of 15 sequential pages.
+    page_size: '1500',
   });
   const url = `${PRODUCTS_BASE}/${PRODUCT}/electricity-tariffs/${tariff}/standard-unit-rates/?${params}`;
 

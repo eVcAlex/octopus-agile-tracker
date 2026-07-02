@@ -40,6 +40,7 @@ import {
 import { SettingsDrawer } from '../SettingsDrawer';
 import { RateSourceBadge } from '../RateSourceBadge';
 import { useEstimate } from '../../hooks/use-estimate';
+import { useEstimateAccuracy } from '../../hooks/use-estimate-accuracy';
 import { PricingStats } from '../Stats';
 import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
@@ -188,6 +189,7 @@ export function PricingDashboard() {
   } = usePricing();
   const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
   const estimate = useEstimate(currentRegion, !hasTomorrow);
+  const estimateAccuracy = useEstimateAccuracy(currentRegion, !hasTomorrow);
   const {
     forecast,
     loading: forecastLoading,
@@ -519,6 +521,8 @@ export function PricingDashboard() {
                     <Text size="xs" c="dimmed">
                       Estimated from wholesale prices — may differ by a few
                       p/kWh. Octopus confirms tomorrow's rates around 4pm.
+                      {estimateAccuracy &&
+                        ` Yesterday's estimate was within ±${estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
                     </Text>
                     <RateSourceBadge variant="estimate" />
                   </Group>

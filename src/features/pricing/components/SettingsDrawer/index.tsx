@@ -2,13 +2,25 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Drawer,
   Stack,
+  Group,
+  Divider,
   Text,
   Select,
   Switch,
   Button,
   TextInput,
 } from '@mantine/core';
-import { MapPin, CalendarBlank, Drop, MagicWand, Clock } from 'phosphor-react';
+import {
+  MapPin,
+  CalendarBlank,
+  Drop,
+  MagicWand,
+  Clock,
+  Lightning,
+  Bell,
+  Key,
+  Flame,
+} from 'phosphor-react';
 import { fetchAccountDetails } from '../../api/accountApi';
 import { sendTestNotification } from '../../../../lib/push';
 import { REGIONS, REGION_LABELS, type Region } from '../../schemas';
@@ -21,6 +33,24 @@ const regionOptions = REGIONS.map((code) => ({
 
 type Notifications = ReturnType<typeof useNotifications>;
 type TestState = 'idle' | 'sending' | 'ok' | 'err';
+
+function SectionHeader({
+  icon: Icon,
+  label,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: React.ComponentType<any>;
+  label: string;
+}) {
+  return (
+    <Group gap={6}>
+      <Icon size={14} weight="fill" color="var(--text-subtle)" />
+      <Text size="xs" tt="uppercase" fw={700} c="dimmed" lts={0.8}>
+        {label}
+      </Text>
+    </Group>
+  );
+}
 
 interface SettingsDrawerProps {
   opened: boolean;
@@ -129,9 +159,7 @@ export function SettingsDrawer({
       <Stack gap="lg" pt="xs">
         {/* Electricity */}
         <Stack gap="xs">
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed" lts={0.8}>
-            ⚡ Electricity
-          </Text>
+          <SectionHeader icon={Lightning} label="Electricity" />
           <Select
             label="Region"
             description="Your electricity network region"
@@ -160,11 +188,11 @@ export function SettingsDrawer({
           />
         </Stack>
 
+        <Divider />
+
         {/* Notifications */}
         <Stack gap="xs">
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed" lts={0.8}>
-            🔔 Notifications
-          </Text>
+          <SectionHeader icon={Bell} label="Notifications" />
           {!notifications.supported ? (
             <Text size="xs" c="dimmed">
               Push notifications aren't supported in this browser. On iOS, add
@@ -282,11 +310,11 @@ export function SettingsDrawer({
           )}
         </Stack>
 
+        <Divider />
+
         {/* Account auto-detect */}
         <Stack gap="xs">
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed" lts={0.8}>
-            🔑 Octopus Account
-          </Text>
+          <SectionHeader icon={Key} label="Octopus Account" />
           <Text size="xs" c="dimmed">
             Enter your API key and account number to auto-detect your gas
             tariff. Find them at <strong>octopus.energy → Account</strong>.
@@ -349,11 +377,11 @@ export function SettingsDrawer({
           )}
         </Stack>
 
+        <Divider />
+
         {/* Gas */}
         <Stack gap="xs">
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed" lts={0.8}>
-            🔥 Gas
-          </Text>
+          <SectionHeader icon={Flame} label="Gas" />
           <TextInput
             label="Gas product code"
             description="Auto-detected above, or enter manually"

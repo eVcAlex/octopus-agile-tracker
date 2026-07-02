@@ -38,7 +38,6 @@ import {
   type DailyPrices,
 } from '../../schemas';
 import { SettingsDrawer } from '../SettingsDrawer';
-import { RateSourceBadge } from '../RateSourceBadge';
 import { useEstimate } from '../../hooks/use-estimate';
 import { useEstimateAccuracy } from '../../hooks/use-estimate-accuracy';
 import { PricingStats } from '../Stats';
@@ -81,6 +80,14 @@ function DaySection({ data }: { data: DailyPrices }) {
           radius="md"
           withItemsBorders={false}
           aria-label="View type"
+          styles={{
+            // Inline SVG labels leave descender space below the icon.
+            label: {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          }}
           data={[
             {
               value: 'chart',
@@ -504,28 +511,15 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="tomorrow">
               {hasTomorrow && tomorrowData ? (
-                <>
-                  <Group justify="flex-end" mb="xs">
-                    <RateSourceBadge variant="confirmed" />
-                  </Group>
-                  <DaySection data={tomorrowData} />
-                </>
+                <DaySection data={tomorrowData} />
               ) : estimate.estimate ? (
                 <>
-                  <Group
-                    justify="space-between"
-                    align="center"
-                    mb="xs"
-                    wrap="nowrap"
-                  >
-                    <Text size="xs" c="dimmed">
-                      Estimated from wholesale prices — may differ by a few
-                      p/kWh. Octopus confirms tomorrow's rates around 4pm.
-                      {estimateAccuracy &&
-                        ` Yesterday's estimate was within ±${estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
-                    </Text>
-                    <RateSourceBadge variant="estimate" />
-                  </Group>
+                  <Text size="xs" c="dimmed" mb="xs">
+                    Estimated from wholesale prices — may differ by a few p/kWh.
+                    Octopus confirms tomorrow's rates around 4pm.
+                    {estimateAccuracy &&
+                      ` Yesterday's estimate was within ±${estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
+                  </Text>
                   <DaySection data={estimate.estimate} />
                 </>
               ) : (

@@ -483,6 +483,12 @@ export function PricingDashboard() {
                     </Text>
                     <Text size="xs" c="dimmed">
                       {fmtDate(tomorrow)}
+                      {!hasTomorrow && estimate.estimate && (
+                        <Text span size="xs" c="violet.4" fw={600}>
+                          {' '}
+                          · estimated
+                        </Text>
+                      )}
                     </Text>
                   </Box>
                 </Tabs.Tab>
@@ -514,12 +520,18 @@ export function PricingDashboard() {
                 <DaySection data={tomorrowData} />
               ) : estimate.estimate ? (
                 <>
-                  <Text size="xs" c="dimmed" mb="xs">
-                    Estimated from wholesale prices — may differ by a few p/kWh.
-                    Octopus confirms tomorrow's rates around 4pm.
-                    {estimateAccuracy &&
-                      ` Yesterday's estimate was within ±${estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
-                  </Text>
+                  <div className={styles.estimateNotice} role="status">
+                    <Text size="sm" fw={600}>
+                      These are estimated rates — Octopus confirms tomorrow's
+                      prices around 4pm.
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Derived from wholesale day-ahead prices; may differ by a
+                      few p/kWh.
+                      {estimateAccuracy &&
+                        ` Yesterday's estimate was within ±${estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
+                    </Text>
+                  </div>
                   <DaySection data={estimate.estimate} />
                 </>
               ) : (

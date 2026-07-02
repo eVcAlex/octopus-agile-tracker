@@ -80,3 +80,37 @@ export function estimateSlots(
     };
   });
 }
+
+export interface EstimateAccuracy {
+  meanAbsError: number; // p/kWh
+  maxAbsError: number; // p/kWh
+  n: number; // matched half-hours
+}
+
+/**
+ * How close an estimate came to Octopus's confirmed rates, matched on slot
+ * start time. Estimated slots without a confirmed counterpart are skipped.
+ */
+export function compareEstimateToConfirmed(
+  estimated: ProcessedSlot[],
+  confirmed: { valid_from: string; value_inc_vat: number }[]
+): EstimateAccuracy {
+  const confirmedByStart = new Map<number, number>();
+  for (const r of confirmed) {
+    confirmedByStart.set(new Date(r.valid_from).getTime(), r.value_inc_vat);
+  }
+
+  let sum = 0;
+  let max = 0;
+  let n = 0;
+  for (const s of estimated) {
+    const actual = confirmedByStart.get(new Date(s.validFrom).getTime());
+    if (actual === undefined) continue;
+    const err = Math.abs(s.priceIncVat - actual);
+    sum += err;
+    max = Math.max(max, err);
+    n++;
+  }
+
+  return { meanAbsError: n ? sum / n : 0, maxAbsError: max, n };
+}

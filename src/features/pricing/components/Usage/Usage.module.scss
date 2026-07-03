@@ -50,3 +50,10 @@
 .setupCard {
   border: 1px dashed var(--surface-border);
 }
+
+.compareRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}

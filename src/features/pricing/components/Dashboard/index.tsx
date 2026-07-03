@@ -404,6 +404,7 @@ export function PricingDashboard() {
             <UsageSection
               spend={usage.spend}
               flexibleRate={usage.flexibleRate}
+              comparison={usage.comparison}
               loading={usage.loading}
               error={usage.error}
               needsCredentials={usage.needsCredentials}

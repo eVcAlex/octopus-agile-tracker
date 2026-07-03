@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { GearSix, Wallet } from 'phosphor-react';
 import type { SpendSummary } from '../../api/consumptionApi';
+import type { TariffCost } from '../../api/tariffComparisonApi';
 import styles from './Usage.module.scss';
 
 function pounds(pence: number): string {
@@ -152,9 +153,62 @@ function Summary({
   );
 }
 
+function TariffComparison({ comparison }: { comparison: TariffCost[] }) {
+  const agile = comparison.find((t) => t.key === 'agile');
+  const cheapest = comparison[0];
+
+  return (
+    <Box>
+      <Text size="xs" c="dimmed" tt="uppercase" fw={600} lts={0.5} mb={6}>
+        Same usage on other tariffs · 30d
+      </Text>
+      <Paper p="md" radius="md" className={styles.summaryCard}>
+        <Stack gap={8}>
+          {comparison.map((t) => {
+            const delta = agile ? t.totalCost - agile.totalCost : 0;
+            return (
+              <Box key={t.key} className={styles.compareRow}>
+                <Text size="sm" fw={t.key === 'agile' ? 700 : 500}>
+                  {t.label}
+                  {t.key === cheapest.key && (
+                    <Badge color="teal" variant="light" size="xs" ml={8}>
+                      cheapest
+                    </Badge>
+                  )}
+                </Text>
+                <Text size="sm" fw={700} ff="monospace" ta="right">
+                  {pounds(t.totalCost)}
+                  {agile && t.key !== 'agile' && (
+                    <Text
+                      span
+                      size="xs"
+                      fw={600}
+                      c={delta >= 0 ? 'red' : 'teal'}
+                      ml={8}
+                    >
+                      {delta >= 0 ? '+' : '−'}
+                      {pounds(Math.abs(delta))}
+                    </Text>
+                  )}
+                </Text>
+              </Box>
+            );
+          })}
+          <Text size="xs" c="dimmed">
+            Your actual half-hourly usage priced on each tariff, including its
+            standing charge. Fixed tariffs (e.g. Go) use their current rates
+            applied retrospectively.
+          </Text>
+        </Stack>
+      </Paper>
+    </Box>
+  );
+}
+
 interface UsageSectionProps {
   spend: SpendSummary | null;
   flexibleRate: number | null;
+  comparison: TariffCost[] | null;
   loading: boolean;
   error: string | null;
   needsCredentials: boolean;
@@ -165,6 +219,7 @@ interface UsageSectionProps {
 export function UsageSection({
   spend,
   flexibleRate,
+  comparison,
   loading,
   error,
   needsCredentials,
@@ -242,6 +297,9 @@ export function UsageSection({
         </Text>
         <SpendChart spend={spend} />
       </Box>
+      {comparison && comparison.length > 1 && (
+        <TariffComparison comparison={comparison} />
+      )}
     </Stack>
   );
 }

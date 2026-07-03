@@ -13,6 +13,22 @@ import { calcStats } from './octopusApi';
 const PROXY_BASE = '/proxy/forecast';
 
 /**
+ * The forecast without tomorrow's day — the Tomorrow tab always covers
+ * tomorrow (estimate or forecast fallback), so the Forecast tab shouldn't
+ * duplicate it.
+ */
+export function withoutTomorrow(
+  forecast: ForecastData | null
+): ForecastData | null {
+  if (!forecast) return null;
+  const tomorrowStr = dayjs().add(1, 'day').format('YYYY-MM-DD');
+  return {
+    ...forecast,
+    days: forecast.days.filter((d) => d.date !== tomorrowStr),
+  };
+}
+
+/**
  * Tomorrow's AgilePredict day shaped as DailyPrices, so the Tomorrow tab can
  * fall back to the ML forecast before the day-ahead auction clears (~midday).
  * Returns null when the forecast doesn't cover tomorrow.

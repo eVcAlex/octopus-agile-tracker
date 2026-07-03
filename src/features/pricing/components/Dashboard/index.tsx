@@ -40,7 +40,10 @@ import {
 import { SettingsDrawer } from '../SettingsDrawer';
 import { useEstimate } from '../../hooks/use-estimate';
 import { useEstimateAccuracy } from '../../hooks/use-estimate-accuracy';
-import { tomorrowForecastAsDailyPrices } from '../../api/forecastApi';
+import {
+  tomorrowForecastAsDailyPrices,
+  withoutTomorrow,
+} from '../../api/forecastApi';
 import { PricingStats } from '../Stats';
 import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
@@ -82,8 +85,14 @@ function DaySection({ data }: { data: DailyPrices }) {
           withItemsBorders={false}
           aria-label="View type"
           styles={{
-            // Inline SVG labels leave descender space below the icon.
+            // Inline SVG labels leave descender space below the icon — flex
+            // both the label and its inner span so the icon sits centred.
             label: {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            innerLabel: {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -575,8 +584,9 @@ export function PricingDashboard() {
             </Tabs.Panel>
 
             <Tabs.Panel value="forecast">
+              {/* Tomorrow lives on its own tab; the Forecast tab starts at +2 days. */}
               <ForecastSection
-                forecast={forecast}
+                forecast={withoutTomorrow(forecast)}
                 loading={forecastLoading}
                 error={forecastError}
                 region={REGION_LABELS[currentRegion] ?? currentRegion}

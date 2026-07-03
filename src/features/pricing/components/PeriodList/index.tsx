@@ -6,7 +6,6 @@ import {
   formatPrice,
   isPast,
 } from '../../utils';
-import { useScrollToCurrent } from '../../hooks/use-scroll-to-current';
 import styles from './PeriodList.module.scss';
 
 interface Period {
@@ -35,10 +34,8 @@ function tierLabel(price: number): string {
 }
 
 export function PeriodList({ data }: { data: ProcessedSlot[] }) {
-  const { containerRef, currentRef } = useScrollToCurrent([data]);
-
   return (
-    <div ref={containerRef} className={styles.wrapper}>
+    <div className={styles.wrapper}>
       {PERIODS.map((period) => {
         const slots = data.filter((s) => {
           const h = hourOf(s);
@@ -72,7 +69,6 @@ export function PeriodList({ data }: { data: ProcessedSlot[] }) {
                 return (
                   <div
                     key={slot.id}
-                    ref={slot.isCurrentPeriod ? currentRef : undefined}
                     className={`${styles.card} ${slot.isCurrentPeriod ? styles.current : ''}`}
                   >
                     <div className={styles.cardTop}>

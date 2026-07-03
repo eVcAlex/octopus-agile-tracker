@@ -38,8 +38,12 @@ import {
   type DailyPrices,
 } from '../../schemas';
 import { SettingsDrawer } from '../SettingsDrawer';
-import { RateSourceBadge } from '../RateSourceBadge';
 import { useEstimate } from '../../hooks/use-estimate';
+import { useEstimateAccuracy } from '../../hooks/use-estimate-accuracy';
+import {
+  tomorrowForecastAsDailyPrices,
+  withoutTomorrow,
+} from '../../api/forecastApi';
 import { PricingStats } from '../Stats';
 import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
@@ -80,6 +84,20 @@ function DaySection({ data }: { data: DailyPrices }) {
           radius="md"
           withItemsBorders={false}
           aria-label="View type"
+          styles={{
+            // Inline SVG labels leave descender space below the icon — flex
+            // both the label and its inner span so the icon sits centred.
+            label: {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            innerLabel: {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          }}
           data={[
             {
               value: 'chart',
@@ -188,6 +206,7 @@ export function PricingDashboard() {
   } = usePricing();
   const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
   const estimate = useEstimate(currentRegion, !hasTomorrow);
+  const estimateAccuracy = useEstimateAccuracy(currentRegion, !hasTomorrow);
   const {
     forecast,
     loading: forecastLoading,
@@ -195,6 +214,12 @@ export function PricingDashboard() {
     refresh: refreshForecast,
     lastUpdated: forecastUpdated,
   } = useForecast(currentRegion, hasTomorrow, forecastDays);
+  // Pre-auction fallback: before the day-ahead auction clears (~midday) there
+  // is no wholesale estimate, so show AgilePredict's ML forecast instead.
+  const tomorrowForecast =
+    !hasTomorrow && !estimate.estimate
+      ? tomorrowForecastAsDailyPrices(forecast)
+      : null;
   const {
     rates: gasRates,
     currentRate: gasCurrentRate,
@@ -388,6 +413,7 @@ export function PricingDashboard() {
             <UsageSection
               spend={usage.spend}
               flexibleRate={usage.flexibleRate}
+              comparison={usage.comparison}
               loading={usage.loading}
               error={usage.error}
               needsCredentials={usage.needsCredentials}
@@ -474,6 +500,13 @@ export function PricingDashboard() {
                     </Text>
                     <Text size="xs" c="dimmed">
                       {fmtDate(tomorrow)}
+                      {!hasTomorrow &&
+                        (estimate.estimate || tomorrowForecast) && (
+                          <Text span size="xs" c="violet.4" fw={600}>
+                            {' '}
+                            {estimate.estimate ? '· estimated' : '· forecast'}
+                          </Text>
+                        )}
                     </Text>
                   </Box>
                 </Tabs.Tab>
@@ -502,27 +535,36 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="tomorrow">
               {hasTomorrow && tomorrowData ? (
-                <>
-                  <Group justify="flex-end" mb="xs">
-                    <RateSourceBadge variant="confirmed" />
-                  </Group>
-                  <DaySection data={tomorrowData} />
-                </>
+                <DaySection data={tomorrowData} />
               ) : estimate.estimate ? (
                 <>
-                  <Group
-                    justify="space-between"
-                    align="center"
-                    mb="xs"
-                    wrap="nowrap"
-                  >
-                    <Text size="xs" c="dimmed">
-                      Estimated from wholesale prices — may differ by a few
-                      p/kWh. Octopus confirms tomorrow's rates around 4pm.
+                  <div className={styles.estimateNotice} role="status">
+                    <Text size="sm" fw={600}>
+                      These are estimated rates — Octopus confirms tomorrow's
+                      prices around 4pm.
                     </Text>
-                    <RateSourceBadge variant="estimate" />
-                  </Group>
+                    <Text size="xs" c="dimmed">
+                      Derived from wholesale day-ahead prices; may differ by a
+                      few p/kWh.
+                      {estimateAccuracy &&
+                        ` Yesterday's estimate was within ±${estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
+                    </Text>
+                  </div>
                   <DaySection data={estimate.estimate} />
+                </>
+              ) : tomorrowForecast ? (
+                <>
+                  <div className={styles.estimateNotice} role="status">
+                    <Text size="sm" fw={600}>
+                      These are forecast rates — the wholesale-based estimate
+                      lands around midday.
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Predicted by AgilePredict; Octopus confirms tomorrow's
+                      prices around 4pm.
+                    </Text>
+                  </div>
+                  <DaySection data={tomorrowForecast} />
                 </>
               ) : (
                 <Paper
@@ -542,8 +584,9 @@ export function PricingDashboard() {
             </Tabs.Panel>
 
             <Tabs.Panel value="forecast">
+              {/* Tomorrow lives on its own tab; the Forecast tab starts at +2 days. */}
               <ForecastSection
-                forecast={forecast}
+                forecast={withoutTomorrow(forecast)}
                 loading={forecastLoading}
                 error={forecastError}
                 region={REGION_LABELS[currentRegion] ?? currentRegion}

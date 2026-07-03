@@ -64,16 +64,28 @@ async function fetchDay(date: string): Promise<Nordpool> {
   return nordpoolSchema.parse(raw);
 }
 
-export async function fetchTomorrowWholesale(): Promise<WholesaleSlot[]> {
-  // Anchor "tomorrow" to the UK civil day so the estimate covers the same day
-  // as Octopus's confirmed rates, regardless of the client's timezone.
-  const ukTomorrow = dayjs().tz(LONDON).add(1, 'day').startOf('day');
+/** Start of the UK civil day `offsetDays` from today (handles GMT/BST). */
+export function ukDayStart(offsetDays: number): dayjs.Dayjs {
+  return dayjs().tz(LONDON).add(offsetDays, 'day').startOf('day');
+}
 
-  // Only tomorrow's auction is published pre-4pm (the day after is not), so we
-  // fetch just tomorrow. A late-evening hour falling outside the CET delivery
-  // day may be absent — halfHourlySlots drops any uncovered half-hour.
-  const hours = parseNordpoolHours(
-    await fetchDay(ukTomorrow.format('YYYY-MM-DD'))
-  );
-  return halfHourlySlots(hours, ukTomorrow.toDate());
+/**
+ * Wholesale slots for the UK civil day `offsetDays` from today (+1 =
+ * tomorrow, -1 = yesterday). Anchored to UK time so the slots cover the same
+ * day as Octopus's confirmed rates, regardless of the client's timezone. A
+ * late-evening hour falling outside the CET delivery day may be absent —
+ * halfHourlySlots drops any uncovered half-hour.
+ */
+export async function fetchWholesaleForUkDay(
+  offsetDays: number
+): Promise<WholesaleSlot[]> {
+  const ukDay = ukDayStart(offsetDays);
+  const hours = parseNordpoolHours(await fetchDay(ukDay.format('YYYY-MM-DD')));
+  return halfHourlySlots(hours, ukDay.toDate());
+}
+
+export async function fetchTomorrowWholesale(): Promise<WholesaleSlot[]> {
+  // Only tomorrow's auction is published pre-4pm (the day after is not), so
+  // the estimate fetches just tomorrow.
+  return fetchWholesaleForUkDay(1);
 }

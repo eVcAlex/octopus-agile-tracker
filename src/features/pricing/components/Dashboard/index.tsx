@@ -40,6 +40,7 @@ import {
 import { SettingsDrawer } from '../SettingsDrawer';
 import { useEstimate } from '../../hooks/use-estimate';
 import { useEstimateAccuracy } from '../../hooks/use-estimate-accuracy';
+import { tomorrowForecastAsDailyPrices } from '../../api/forecastApi';
 import { PricingStats } from '../Stats';
 import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
@@ -204,6 +205,12 @@ export function PricingDashboard() {
     refresh: refreshForecast,
     lastUpdated: forecastUpdated,
   } = useForecast(currentRegion, hasTomorrow, forecastDays);
+  // Pre-auction fallback: before the day-ahead auction clears (~midday) there
+  // is no wholesale estimate, so show AgilePredict's ML forecast instead.
+  const tomorrowForecast =
+    !hasTomorrow && !estimate.estimate
+      ? tomorrowForecastAsDailyPrices(forecast)
+      : null;
   const {
     rates: gasRates,
     currentRate: gasCurrentRate,
@@ -397,6 +404,7 @@ export function PricingDashboard() {
             <UsageSection
               spend={usage.spend}
               flexibleRate={usage.flexibleRate}
+              comparison={usage.comparison}
               loading={usage.loading}
               error={usage.error}
               needsCredentials={usage.needsCredentials}
@@ -483,12 +491,13 @@ export function PricingDashboard() {
                     </Text>
                     <Text size="xs" c="dimmed">
                       {fmtDate(tomorrow)}
-                      {!hasTomorrow && estimate.estimate && (
-                        <Text span size="xs" c="violet.4" fw={600}>
-                          {' '}
-                          · estimated
-                        </Text>
-                      )}
+                      {!hasTomorrow &&
+                        (estimate.estimate || tomorrowForecast) && (
+                          <Text span size="xs" c="violet.4" fw={600}>
+                            {' '}
+                            {estimate.estimate ? '· estimated' : '· forecast'}
+                          </Text>
+                        )}
                     </Text>
                   </Box>
                 </Tabs.Tab>
@@ -533,6 +542,20 @@ export function PricingDashboard() {
                     </Text>
                   </div>
                   <DaySection data={estimate.estimate} />
+                </>
+              ) : tomorrowForecast ? (
+                <>
+                  <div className={styles.estimateNotice} role="status">
+                    <Text size="sm" fw={600}>
+                      These are forecast rates — the wholesale-based estimate
+                      lands around midday.
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Predicted by AgilePredict; Octopus confirms tomorrow's
+                      prices around 4pm.
+                    </Text>
+                  </div>
+                  <DaySection data={tomorrowForecast} />
                 </>
               ) : (
                 <Paper

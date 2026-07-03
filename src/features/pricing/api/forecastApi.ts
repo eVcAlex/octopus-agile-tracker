@@ -1,13 +1,47 @@
 import wretch from 'wretch';
+import dayjs from 'dayjs';
 import {
   agilePredictResponseSchema,
   type Region,
   type ForecastPrice,
   type ForecastDay,
   type ForecastData,
+  type DailyPrices,
 } from '../schemas';
+import { calcStats } from './octopusApi';
 
 const PROXY_BASE = '/proxy/forecast';
+
+/**
+ * Tomorrow's AgilePredict day shaped as DailyPrices, so the Tomorrow tab can
+ * fall back to the ML forecast before the day-ahead auction clears (~midday).
+ * Returns null when the forecast doesn't cover tomorrow.
+ */
+export function tomorrowForecastAsDailyPrices(
+  forecast: ForecastData | null
+): DailyPrices | null {
+  if (!forecast) return null;
+  const tomorrowStr = dayjs().add(1, 'day').format('YYYY-MM-DD');
+  const day = forecast.days.find((d) => d.date === tomorrowStr);
+  if (!day || !day.slots.length) return null;
+
+  const rates = day.slots.map((p, i) => {
+    const from = new Date(p.date_time);
+    return {
+      id: `fc-${p.date_time}-${i}`,
+      time: dayjs(from).format('HH:mm'),
+      date: day.date,
+      priceExcVat: p.agile_pred / 1.05,
+      priceIncVat: p.agile_pred,
+      validFrom: from,
+      validTo: new Date(from.getTime() + 30 * 60_000),
+      isCurrentPeriod: false,
+      dayType: 'tomorrow' as const,
+    };
+  });
+
+  return { date: day.date, rates, stats: calcStats(rates) };
+}
 
 export function groupByDay(prices: ForecastPrice[]): ForecastDay[] {
   const byDate = new Map<string, ForecastPrice[]>();

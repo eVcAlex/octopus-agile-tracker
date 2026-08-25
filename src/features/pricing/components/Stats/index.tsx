@@ -2,7 +2,7 @@ import { SimpleGrid, Text, Paper, Box } from '@mantine/core';
 import { ArrowDown, ArrowUp, ChartBar, Lightning } from 'phosphor-react';
 import type { PriceStats } from '../../schemas';
 import { formatPrice } from '../../utils';
-import { PRICE_THRESHOLDS, STAT_GRADIENTS } from '../../constants';
+import { PRICE_THRESHOLDS, PRICE_COLORS, STAT_ACCENTS } from '../../constants';
 import styles from './Stats.module.scss';
 
 interface PricingStatsProps {
@@ -16,8 +16,8 @@ interface StatCard {
   icon: React.ComponentType<any>;
   iconWeight: 'bold' | 'fill';
   value: number;
-  bg: string;
-  iconBg: string;
+  /** CSS var reference driving both the card tint and the icon badge. */
+  accent: string;
   live?: boolean;
 }
 
@@ -29,8 +29,7 @@ function buildCards(stats: PriceStats): StatCard[] {
       icon: ArrowDown,
       iconWeight: 'bold',
       value: stats.min,
-      bg: stats.min < 0 ? 'rgba(20,184,166,0.07)' : 'rgba(59,130,246,0.07)',
-      iconBg: stats.min < 0 ? STAT_GRADIENTS.teal : STAT_GRADIENTS.blue,
+      accent: stats.min < 0 ? PRICE_COLORS.free : STAT_ACCENTS.blue,
     },
     {
       key: 'max',
@@ -38,14 +37,10 @@ function buildCards(stats: PriceStats): StatCard[] {
       icon: ArrowUp,
       iconWeight: 'bold',
       value: stats.max,
-      bg:
+      accent:
         stats.max > PRICE_THRESHOLDS.HIGH
-          ? 'rgba(239,68,68,0.07)'
-          : 'rgba(249,115,22,0.07)',
-      iconBg:
-        stats.max > PRICE_THRESHOLDS.HIGH
-          ? STAT_GRADIENTS.red
-          : STAT_GRADIENTS.orange,
+          ? PRICE_COLORS.high
+          : STAT_ACCENTS.orange,
     },
     {
       key: 'average',
@@ -53,8 +48,7 @@ function buildCards(stats: PriceStats): StatCard[] {
       icon: ChartBar,
       iconWeight: 'bold',
       value: stats.average,
-      bg: 'rgba(124,58,237,0.07)',
-      iconBg: STAT_GRADIENTS.violet,
+      accent: PRICE_COLORS.current,
     },
   ];
 
@@ -66,8 +60,7 @@ function buildCards(stats: PriceStats): StatCard[] {
       icon: Lightning,
       iconWeight: 'fill',
       value: stats.current,
-      bg: cheap ? 'rgba(20,184,166,0.07)' : 'rgba(234,179,8,0.07)',
-      iconBg: cheap ? STAT_GRADIENTS.teal : STAT_GRADIENTS.yellow,
+      accent: cheap ? PRICE_COLORS.free : STAT_ACCENTS.yellow,
       live: true,
     });
   }
@@ -88,14 +81,11 @@ export const PricingStats = ({ stats }: PricingStatsProps) => {
             p="md"
             radius="md"
             className={`${styles.card} ${card.live ? styles.live : ''}`}
-            style={{ background: card.bg }}
+            style={{ '--accent': card.accent } as React.CSSProperties}
           >
             <div className={styles.cardInner}>
-              <div
-                className={styles.iconBox}
-                style={{ background: card.iconBg }}
-              >
-                <Icon size={18} weight={card.iconWeight} color="white" />
+              <div className={styles.iconBox}>
+                <Icon size={18} weight={card.iconWeight} />
               </div>
               <Box>
                 <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.6}>

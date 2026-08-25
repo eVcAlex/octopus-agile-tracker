@@ -260,13 +260,16 @@ function GasView({
               width: 36,
               height: 36,
               borderRadius: 10,
-              background: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              color: 'var(--stat-orange)',
+              background: 'color-mix(in srgb, var(--stat-orange) 12%, transparent)',
+              border:
+                '1px solid color-mix(in srgb, var(--stat-orange) 40%, transparent)',
             }}
           >
-            <Drop size={18} weight="fill" color="white" />
+            <Drop size={18} weight="fill" />
           </div>
           <Text fw={600}>Gas unit rates</Text>
         </Group>

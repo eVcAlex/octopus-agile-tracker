@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { ProcessedSlot } from '../schemas';
 import { CHART } from '../constants';
-import { getPriceColor, isPast } from '../utils';
 
 export function useChartData(data: ProcessedSlot[]) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -41,20 +40,6 @@ export function useChartData(data: ProcessedSlot[]) {
 
     const currentIndex = data.findIndex((d) => d.isCurrentPeriod);
 
-    const bars = data.map((slot) => {
-      const height = Math.max(
-        (Math.abs(slot.priceIncVat - Math.min(minPrice, 0)) / range) *
-          CHART.HEIGHT,
-        1
-      );
-      return {
-        height,
-        color: getPriceColor(slot.priceIncVat, slot.isCurrentPeriod),
-        past: isPast(slot),
-        current: slot.isCurrentPeriod,
-      };
-    });
-
     return {
       maxPrice,
       minPrice,
@@ -64,7 +49,6 @@ export function useChartData(data: ProcessedSlot[]) {
       gridPrices,
       timeLabels,
       currentIndex,
-      bars,
     };
   }, [data]);
 

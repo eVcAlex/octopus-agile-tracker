@@ -4,7 +4,6 @@ import {
   Flex,
   Stack,
   Text,
-  Select,
   Group,
   Title,
   Loader,
@@ -13,245 +12,45 @@ import {
   Tabs,
   ActionIcon,
   Container,
-  Modal,
-  Button,
 } from '@mantine/core';
-import {
-  Lightning,
-  GearSix,
-  MapPin,
-  Drop,
-  ChartBar,
-  SquaresFour,
-} from 'phosphor-react';
-import { usePricing } from '../../hooks/use-pricing';
-import { useForecast } from '../../hooks/use-forecast';
-import { useGas } from '../../hooks/use-gas';
-import { useStandingCharges } from '../../hooks/use-standing-charges';
-import { useHistory } from '../../hooks/use-history';
-import { useUsage } from '../../hooks/use-usage';
-import { useNotifications } from '../../hooks/use-notifications';
-import {
-  REGIONS,
-  REGION_LABELS,
-  type Region,
-  type DailyPrices,
-} from '../../schemas';
+import { Lightning, GearSix, Drop, ChartBar } from 'phosphor-react';
+import { usePricingDashboard } from '../../hooks/use-pricing-dashboard';
 import { SettingsDrawer } from '../SettingsDrawer';
-import { useEstimate } from '../../hooks/use-estimate';
-import { useEstimateAccuracy } from '../../hooks/use-estimate-accuracy';
-import {
-  tomorrowForecastAsDailyPrices,
-  withoutTomorrow,
-} from '../../api/forecastApi';
-import { PricingStats } from '../Stats';
-import { PeriodList } from '../PeriodList';
-import { PriceChart } from '../Chart';
+import { DaySection } from '../Day';
+import { RegionPickerModal } from '../RegionPicker';
 import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
-import { CheapWindows } from '../CheapWindows';
-import { CurrentSlotBanner } from '../CurrentSlotBanner';
 import { TrendsSection } from '../Trends';
 import { UsageSection } from '../Usage';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
 import styles from './Dashboard.module.scss';
 
-const regionOptions = REGIONS.map((code) => ({
-  value: code,
-  label: REGION_LABELS[code],
-}));
-
-type View = 'grid' | 'chart';
-
-// ─── Day section (grid / chart / table) ───
-
-function DaySection({ data }: { data: DailyPrices }) {
-  const [view, setView] = useState<View>('chart');
-
-  return (
-    <section aria-label="Price visualisation">
-      <PricingStats stats={data.stats} />
-
-      <CurrentSlotBanner data={data.rates} />
-
-      <CheapWindows data={data.rates} />
-
-      <Group justify="flex-end" mt="md" mb="md">
-        <SegmentedControl
-          value={view}
-          onChange={(v) => setView(v as View)}
-          size="sm"
-          radius="md"
-          withItemsBorders={false}
-          aria-label="View type"
-          styles={{
-            // Inline SVG labels leave descender space below the icon — flex
-            // both the label and its inner span so the icon sits centred.
-            label: {
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-            innerLabel: {
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-          }}
-          data={[
-            {
-              value: 'chart',
-              label: (
-                <ChartBar
-                  size={17}
-                  weight={view === 'chart' ? 'fill' : 'regular'}
-                  aria-label="Chart"
-                />
-              ),
-            },
-            {
-              value: 'grid',
-              label: (
-                <SquaresFour
-                  size={17}
-                  weight={view === 'grid' ? 'fill' : 'regular'}
-                  aria-label="Grid"
-                />
-              ),
-            },
-          ]}
-        />
-      </Group>
-
-      {view === 'chart' ? (
-        <PriceChart data={data.rates} />
-      ) : (
-        <PeriodList data={data.rates} />
-      )}
-    </section>
-  );
-}
-
-// ─── Region picker modal (first-time users) ───
-
-function RegionPickerModal({
-  opened,
-  onSelect,
-}: {
-  opened: boolean;
-  onSelect: (r: Region) => void;
-}) {
-  const [selected, setSelected] = useState<string | null>(null);
-
-  return (
-    <Modal
-      opened={opened}
-      onClose={() => {}}
-      title="Welcome to Octopus Tracker"
-      centered
-      withCloseButton={false}
-      closeOnClickOutside={false}
-      closeOnEscape={false}
-      aria-label="Select your electricity region"
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          Select your electricity region to see accurate Octopus Agile prices.
-        </Text>
-        <Select
-          label="Your region"
-          placeholder="Select your region..."
-          data={regionOptions}
-          value={selected}
-          onChange={setSelected}
-          leftSection={<MapPin size={16} />}
-          searchable
-          aria-required
-        />
-        <Button
-          color="violet"
-          fullWidth
-          disabled={!selected}
-          onClick={() => selected && onSelect(selected as Region)}
-        >
-          Get started
-        </Button>
-      </Stack>
-    </Modal>
-  );
-}
-
-// ─── Main dashboard ───
-
 type EnergyType = 'electricity' | 'gas' | 'insights';
 
 export function PricingDashboard() {
   const {
-    todayData,
-    tomorrowData,
-    loading,
-    error,
-    lastUpdated,
-    setRegion,
-    currentRegion,
     needsRegion,
-    forecastDays,
-    setForecastDays,
-    gasProduct,
-    setGasProduct,
-    apiKey,
-    setApiKey,
-    accountNo,
-    setAccountNo,
-  } = usePricing();
-  const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
-  const estimate = useEstimate(currentRegion, !hasTomorrow);
-  const estimateAccuracy = useEstimateAccuracy(currentRegion, !hasTomorrow);
-  const {
+    initialLoading,
+    lastUpdated,
+    settings,
+    electricity,
     forecast,
-    loading: forecastLoading,
-    error: forecastError,
-    refresh: refreshForecast,
-    lastUpdated: forecastUpdated,
-  } = useForecast(currentRegion, hasTomorrow, forecastDays);
-  // Pre-auction fallback: before the day-ahead auction clears (~midday) there
-  // is no wholesale estimate, so show AgilePredict's ML forecast instead.
-  const tomorrowForecast =
-    !hasTomorrow && !estimate.estimate
-      ? tomorrowForecastAsDailyPrices(forecast)
-      : null;
-  const {
-    rates: gasRates,
-    currentRate: gasCurrentRate,
-    loading: gasLoading,
-    error: gasError,
-    lastUpdated: gasUpdated,
-    refresh: refreshGas,
-  } = useGas(currentRegion, gasProduct);
-  const { elecStandingCharge, gasStandingCharge } = useStandingCharges(
-    currentRegion,
-    gasProduct
-  );
-  const {
-    history,
-    loading: historyLoading,
-    error: historyError,
-    refresh: refreshHistory,
-  } = useHistory(currentRegion);
-  const usage = useUsage(currentRegion, apiKey, accountNo);
-  const notifications = useNotifications(currentRegion);
+    gas,
+    trends,
+    usage,
+  } = usePricingDashboard();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [energyType, setEnergyType] = useState<EnergyType>('electricity');
 
   if (needsRegion) {
     return (
       <Flex justify="center" align="center" style={{ minHeight: '100vh' }}>
-        <RegionPickerModal opened onSelect={setRegion} />
+        <RegionPickerModal opened onSelect={settings.onSetRegion} />
       </Flex>
     );
   }
 
-  if (loading && !todayData && !tomorrowData) {
+  if (initialLoading) {
     return (
       <Flex
         justify="center"
@@ -262,7 +61,7 @@ export function PricingDashboard() {
       >
         <Stack align="center" gap="lg">
           <div className={styles.loadingLogo}>
-            <Lightning size={28} weight="fill" color="white" />
+            <Lightning size={28} weight="fill" />
           </div>
           <Stack align="center" gap={4}>
             <Title order={4} fw={600}>
@@ -292,17 +91,7 @@ export function PricingDashboard() {
       <SettingsDrawer
         opened={settingsOpen}
         onClose={() => setSettingsOpen(false)}
-        region={currentRegion}
-        onSetRegion={setRegion}
-        forecastDays={forecastDays}
-        onSetForecastDays={setForecastDays}
-        gasProduct={gasProduct}
-        onSetGasProduct={setGasProduct}
-        apiKey={apiKey}
-        onSetApiKey={setApiKey}
-        accountNo={accountNo}
-        onSetAccountNo={setAccountNo}
-        notifications={notifications}
+        {...settings}
       />
 
       {/* Header */}
@@ -318,7 +107,7 @@ export function PricingDashboard() {
         <Flex justify="space-between" align="center">
           <Flex align="center" gap="sm">
             <div className={styles.logoIcon} aria-hidden>
-              <Lightning size={17} weight="fill" color="white" />
+              <Lightning size={17} weight="fill" />
             </div>
             <Box>
               <Title
@@ -410,16 +199,7 @@ export function PricingDashboard() {
             >
               Your usage
             </Text>
-            <UsageSection
-              spend={usage.spend}
-              flexibleRate={usage.flexibleRate}
-              comparison={usage.comparison}
-              loading={usage.loading}
-              error={usage.error}
-              needsCredentials={usage.needsCredentials}
-              noData={usage.noData}
-              onOpenSettings={() => setSettingsOpen(true)}
-            />
+            <UsageSection {...usage} onOpenSettings={() => setSettingsOpen(true)} />
           </section>
           <section aria-label="Price trends">
             <Text
@@ -432,36 +212,19 @@ export function PricingDashboard() {
             >
               Price trends
             </Text>
-            <TrendsSection
-              history={history}
-              loading={historyLoading}
-              error={historyError}
-              onRefresh={refreshHistory}
-            />
+            <TrendsSection {...trends} />
           </section>
         </Stack>
       )}
 
       {/* Gas view */}
-      {energyType === 'gas' && (
-        <GasSection
-          rates={gasRates}
-          currentRate={gasCurrentRate}
-          loading={gasLoading}
-          error={gasError}
-          lastUpdated={gasUpdated}
-          gasProduct={gasProduct}
-          onRefresh={refreshGas}
-          onSetProduct={setGasProduct}
-          standingCharge={gasStandingCharge}
-        />
-      )}
+      {energyType === 'gas' && <GasSection {...gas} />}
 
       {/* Electricity view */}
       {energyType === 'electricity' && (
         <>
           {/* Error banner */}
-          {error && (
+          {electricity.error && (
             <Paper
               mb="md"
               p="sm"
@@ -470,7 +233,7 @@ export function PricingDashboard() {
               role="alert"
             >
               <Text size="sm" c="red">
-                {error}
+                {electricity.error}
               </Text>
             </Paper>
           )}
@@ -500,11 +263,14 @@ export function PricingDashboard() {
                     </Text>
                     <Text size="xs" c="dimmed">
                       {fmtDate(tomorrow)}
-                      {!hasTomorrow &&
-                        (estimate.estimate || tomorrowForecast) && (
+                      {!electricity.hasTomorrow &&
+                        (electricity.estimate ||
+                          electricity.tomorrowForecast) && (
                           <Text span size="xs" c="violet.4" fw={600}>
                             {' '}
-                            {estimate.estimate ? '· estimated' : '· forecast'}
+                            {electricity.estimate
+                              ? '· estimated'
+                              : '· forecast'}
                           </Text>
                         )}
                     </Text>
@@ -524,8 +290,8 @@ export function PricingDashboard() {
             </Paper>
 
             <Tabs.Panel value="today">
-              {todayData ? (
-                <DaySection data={todayData} />
+              {electricity.todayData ? (
+                <DaySection data={electricity.todayData} />
               ) : (
                 <Text ta="center" c="dimmed" py="xl">
                   No data for today
@@ -534,9 +300,9 @@ export function PricingDashboard() {
             </Tabs.Panel>
 
             <Tabs.Panel value="tomorrow">
-              {hasTomorrow && tomorrowData ? (
-                <DaySection data={tomorrowData} />
-              ) : estimate.estimate ? (
+              {electricity.hasTomorrow && electricity.tomorrowData ? (
+                <DaySection data={electricity.tomorrowData} />
+              ) : electricity.estimate ? (
                 <>
                   <div className={styles.estimateNotice} role="status">
                     <Text size="sm" fw={600}>
@@ -546,13 +312,13 @@ export function PricingDashboard() {
                     <Text size="xs" c="dimmed">
                       Derived from wholesale day-ahead prices; may differ by a
                       few p/kWh.
-                      {estimateAccuracy &&
-                        ` Yesterday's estimate was within ±${estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
+                      {electricity.estimateAccuracy &&
+                        ` Yesterday's estimate was within ±${electricity.estimateAccuracy.meanAbsError.toFixed(1)}p of confirmed rates on average.`}
                     </Text>
                   </div>
-                  <DaySection data={estimate.estimate} />
+                  <DaySection data={electricity.estimate} />
                 </>
-              ) : tomorrowForecast ? (
+              ) : electricity.tomorrowForecast ? (
                 <>
                   <div className={styles.estimateNotice} role="status">
                     <Text size="sm" fw={600}>
@@ -564,7 +330,7 @@ export function PricingDashboard() {
                       prices around 4pm.
                     </Text>
                   </div>
-                  <DaySection data={tomorrowForecast} />
+                  <DaySection data={electricity.tomorrowForecast} />
                 </>
               ) : (
                 <Paper
@@ -585,20 +351,14 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="forecast">
               {/* Tomorrow lives on its own tab; the Forecast tab starts at +2 days. */}
-              <ForecastSection
-                forecast={withoutTomorrow(forecast)}
-                loading={forecastLoading}
-                error={forecastError}
-                region={REGION_LABELS[currentRegion] ?? currentRegion}
-                lastUpdated={forecastUpdated}
-                onRefresh={refreshForecast}
-              />
+              <ForecastSection {...forecast} />
             </Tabs.Panel>
           </Tabs>
 
-          {elecStandingCharge != null && (
+          {electricity.standingCharge != null && (
             <Text size="xs" c="dimmed" mt="md">
-              Standing charge: {elecStandingCharge.toFixed(2)}p/day (inc VAT)
+              Standing charge: {electricity.standingCharge.toFixed(2)}p/day
+              (inc VAT)
             </Text>
           )}
         </>

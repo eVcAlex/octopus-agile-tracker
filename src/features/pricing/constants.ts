@@ -5,11 +5,18 @@ export const PRICE_THRESHOLDS = {
 } as const;
 
 export const PRICE_COLORS = {
-  free: '#14b8a6',
-  low: '#22c55e',
-  normal: '#f59e0b',
-  high: '#ef4444',
-  current: '#7c3aed',
+  free: 'var(--price-free)',
+  low: 'var(--price-low)',
+  normal: 'var(--price-normal)',
+  high: 'var(--price-high)',
+  current: 'var(--price-current)',
+} as const;
+
+// Secondary stat-card / gas accents that don't map to a price band.
+export const STAT_ACCENTS = {
+  blue: 'var(--stat-blue)',
+  orange: 'var(--stat-orange)',
+  yellow: 'var(--stat-yellow)',
 } as const;
 
 export const MANTINE_COLORS: Record<string, string | undefined> = {
@@ -46,11 +53,3 @@ export const CHART_LEGEND = [
   { color: PRICE_COLORS.high, label: 'High (>25p)' },
 ] as const;
 
-export const STAT_GRADIENTS = {
-  teal: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)',
-  blue: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
-  red: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
-  orange: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
-  violet: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
-  yellow: 'linear-gradient(135deg, #ca8a04 0%, #eab308 100%)',
-} as const;

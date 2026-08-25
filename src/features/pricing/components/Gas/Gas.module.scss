@@ -9,8 +9,8 @@ $card-depth:
 }
 
 .currentCard {
-  background: rgba(249, 115, 22, 0.06);
-  border-color: rgba(249, 115, 22, 0.25);
+  background: color-mix(in srgb, var(--stat-orange) 6%, transparent);
+  border-color: color-mix(in srgb, var(--stat-orange) 25%, transparent);
   box-shadow: $card-depth;
 }
 
@@ -37,17 +37,17 @@ $card-depth:
   flex: 1;
   min-width: 0;
   border-radius: 3px 3px 0 0;
-  background: rgba(249, 115, 22, 0.5);
+  background: color-mix(in srgb, var(--stat-orange) 50%, transparent);
   transition: background 0.1s;
   cursor: default;
   position: relative;
 
   &.current {
-    background: rgb(249, 115, 22);
+    background: var(--stat-orange);
   }
 
   &:hover {
-    background: rgb(249, 115, 22);
+    background: var(--stat-orange);
   }
 }
 
@@ -75,6 +75,6 @@ $card-depth:
 .noteBar {
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(124, 58, 237, 0.05);
-  border: 1px solid rgba(124, 58, 237, 0.15);
+  background: color-mix(in srgb, var(--price-current) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--price-current) 15%, transparent);
 }

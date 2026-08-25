@@ -2,6 +2,7 @@
   position: relative;
   overflow: hidden;
   border: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-bg));
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.18),
     0 8px 24px -16px rgba(0, 0, 0, 0.5);
@@ -9,20 +10,6 @@
     transform 0.18s ease,
     box-shadow 0.18s ease,
     border-color 0.18s ease;
-
-  // Soft top highlight so cards read as raised glass.
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.14),
-      transparent
-    );
-  }
 
   &:hover {
     transform: translateY(-2px);
@@ -48,9 +35,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow:
-    0 4px 12px -4px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 .value {
@@ -68,11 +55,11 @@
   100% {
     box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.18),
-      0 0 0 0 rgba(124, 58, 237, 0);
+      0 0 0 0 color-mix(in srgb, var(--price-current) 0%, transparent);
   }
   50% {
     box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.18),
-      0 0 0 3px rgba(124, 58, 237, 0.16);
+      0 0 0 3px color-mix(in srgb, var(--price-current) 16%, transparent);
   }
 }

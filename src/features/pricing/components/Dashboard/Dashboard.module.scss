@@ -13,25 +13,25 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow:
-    0 6px 16px -4px rgba(124, 58, 237, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  color: var(--price-current);
+  background: color-mix(in srgb, var(--price-current) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--price-current) 40%, transparent);
 }
 
 .loadingLogo {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 40px -8px rgba(124, 58, 237, 0.6);
+  color: var(--price-current);
+  background: color-mix(in srgb, var(--price-current) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--price-current) 40%, transparent);
   animation: logoBreath 2.6s ease-in-out infinite;
 }
 
@@ -39,11 +39,11 @@
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 12px 40px -8px rgba(124, 58, 237, 0.5);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--price-current) 0%, transparent);
   }
   50% {
     transform: scale(1.04);
-    box-shadow: 0 14px 48px -6px rgba(124, 58, 237, 0.75);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--price-current) 14%, transparent);
   }
 }
 
@@ -55,8 +55,8 @@
 }
 
 .errorBar {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: color-mix(in srgb, var(--price-high) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--price-high) 25%, transparent);
 }
 
 .emptyState {
@@ -70,6 +70,6 @@
   padding: 10px 14px;
   margin-bottom: 12px;
   border-radius: 12px;
-  background: rgba(124, 58, 237, 0.08);
-  border: 1px solid rgba(124, 58, 237, 0.3);
+  background: color-mix(in srgb, var(--price-current) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--price-current) 30%, transparent);
 }

@@ -14,6 +14,7 @@ export const ColorModeButton = () => {
         variant="light"
         color={dark ? 'yellow' : 'violet'}
         onClick={toggleColorScheme}
+        aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`}
         size="lg"
         radius="md"
       >

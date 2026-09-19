@@ -117,7 +117,7 @@ function Summary({
             On Flexible
           </Text>
           <Text fw={700} size="lg" ff="monospace" lh={1.2}>
-            {flexibleRate != null ? pounds(spend.totalFlatCost) : '—'}
+            {flexibleRate != null ? pounds(spend.totalFlatCost) : 'n/a'}
           </Text>
           <Text size="xs" c="dimmed">
             {flexibleRate != null
@@ -138,7 +138,7 @@ function Summary({
           >
             {flexibleRate != null
               ? `${saving >= 0 ? '' : '-'}${pounds(Math.abs(saving))}`
-              : '—'}
+              : 'n/a'}
           </Text>
           {flexibleRate != null && (
             <Badge
@@ -157,7 +157,7 @@ function Summary({
       </SimpleGrid>
       {showFlat && (
         <Text size="xs" c="dimmed">
-          Unit-rate comparison only — standing charges are excluded.
+          Unit-rate comparison only. Standing charges are excluded.
         </Text>
       )}
     </Stack>
@@ -252,7 +252,7 @@ export function UsageSection({
             </Text>
             <Text size="sm" c="dimmed" mt={4} maw={420}>
               Connect your Octopus account to see what your real usage costs on
-              your tariff — and how it compares with the alternatives.
+              your tariff, and how it compares with the alternatives.
             </Text>
           </Box>
           <Button

@@ -39,7 +39,7 @@ export function PeriodList({ data }: { data: ProcessedSlot[] }) {
       {PERIODS.map((period) => {
         const slots = data.filter((s) => {
           const h = hourOf(s);
-          // Current + upcoming only — elapsed slots aren't actionable.
+          // Current + upcoming only. Elapsed slots aren't actionable.
           return h >= period.from && h < period.to && !isPast(s);
         });
         if (!slots.length) return null;

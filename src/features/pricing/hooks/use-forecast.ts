@@ -16,7 +16,7 @@ export function useForecast(
   region: Region,
   hasTomorrowRates: boolean,
   maxDays = 7,
-  /** AgilePredict only forecasts Agile — skip the fetch on other tariffs. */
+  /** AgilePredict only forecasts Agile, so skip the fetch on other tariffs. */
   enabled = true
 ): UseForecastReturn {
   const qc = useQueryClient();
@@ -39,7 +39,7 @@ export function useForecast(
         Math.round((d.getTime() - today.getTime()) / 86_400_000) >= minOffset
       );
     });
-    // Drop the last day — API often returns incomplete data for it
+    // Drop the last day, since the API often returns incomplete data for it
     const trimmed = filtered.length > 1 ? filtered.slice(0, -1) : filtered;
     return {
       ...data,

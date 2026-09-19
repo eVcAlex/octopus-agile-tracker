@@ -80,7 +80,7 @@ export async function listSubscriptions(): Promise<StoredSubscription[]> {
 }
 
 /**
- * Returns true exactly once per key within `ttlSeconds` — used to dedupe
+ * Returns true exactly once per key within `ttlSeconds`. Used to dedupe
  * notifications across cron runs.
  */
 export async function claimOnce(

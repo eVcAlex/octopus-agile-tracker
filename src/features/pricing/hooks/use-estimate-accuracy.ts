@@ -14,7 +14,7 @@ const MIN_MATCHED_SLOTS = 40;
 
 /**
  * How close yesterday's wholesale-derived estimate came to the rates Octopus
- * actually confirmed — recomputed from the settled auction, so no stored
+ * actually confirmed. Recomputed from the settled auction, so no stored
  * estimate is needed. Shown as a trust signal next to today's estimate.
  */
 export function useEstimateAccuracy(

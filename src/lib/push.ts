@@ -62,7 +62,7 @@ export async function sendTestNotification(): Promise<void> {
   if (!isPushSupported()) throw new Error('Push is not supported here');
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.getSubscription();
-  if (!subscription) throw new Error('Not subscribed — enable notifications first');
+  if (!subscription) throw new Error('Not subscribed. Enable notifications first');
   await wretch('/api/push/test')
     .post({ subscription: subscription.toJSON() })
     .json();

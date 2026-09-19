@@ -1,6 +1,6 @@
 {
   "name": "octopus-agile-tracker",
-  "description": "Dashboard for Octopus Energy Agile electricity prices and gas unit rates — today/tomorrow rates, wholesale-derived estimates, forecasts, usage spend, and push alerts",
+  "description": "Dashboard for Octopus Energy electricity and gas prices: today and tomorrow rates, wholesale-derived estimates, forecasts, usage spend and push alerts",
   "license": "MIT",
   "repository": {
     "type": "git",

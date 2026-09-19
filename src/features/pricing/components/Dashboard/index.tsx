@@ -332,8 +332,8 @@ export function PricingDashboard() {
                   {electricity.tomorrowData.projected && (
                     <div className={styles.estimateNotice} role="status">
                       <Text size="sm" fw={600}>
-                        Assumed to match today — Octopus hasn't listed
-                        tomorrow's {electricity.tariffName} rates yet.
+                        Assumed to match today. Octopus hasn't listed tomorrow's{' '}
+                        {electricity.tariffName} rates yet.
                       </Text>
                       <Text size="xs" c="dimmed">
                         Time-of-use bands normally repeat every day.
@@ -346,7 +346,7 @@ export function PricingDashboard() {
                 <>
                   <div className={styles.estimateNotice} role="status">
                     <Text size="sm" fw={600}>
-                      These are estimated rates — Octopus confirms tomorrow's
+                      These are estimated rates. Octopus confirms tomorrow's
                       prices around 4pm.
                     </Text>
                     <Text size="xs" c="dimmed">
@@ -362,7 +362,7 @@ export function PricingDashboard() {
                 <>
                   <div className={styles.estimateNotice} role="status">
                     <Text size="sm" fw={600}>
-                      These are forecast rates — the wholesale-based estimate
+                      These are forecast rates. The wholesale-based estimate
                       lands around midday.
                     </Text>
                     <Text size="xs" c="dimmed">

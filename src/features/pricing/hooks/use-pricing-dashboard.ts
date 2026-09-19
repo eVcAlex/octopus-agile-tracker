@@ -64,7 +64,7 @@ export interface DashboardElectricity {
 }
 
 export interface DashboardForecast {
-  /** Already `withoutTomorrow()`-filtered — the tab starts at +2 days. */
+  /** Already `withoutTomorrow()`-filtered. The tab starts at +2 days. */
   forecast: ForecastData | null;
   loading: boolean;
   error: string | null;
@@ -178,7 +178,7 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
 
   // Pre-auction fallback: before the day-ahead auction clears (~midday) there
   // is no wholesale estimate, so show AgilePredict's ML forecast instead. Must
-  // read the RAW forecast — `withoutTomorrow` filters out the exact date this
+  // read the RAW forecast, since `withoutTomorrow` filters out the exact date this
   // looks for, so reusing the filtered value here would make it always null.
   const tomorrowForecast =
     isAgile && !hasTomorrow && !estimate.estimate

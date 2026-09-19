@@ -1,4 +1,4 @@
-# Octopus Agile Tracker — App Improvements Design
+# Octopus Agile Tracker: App Improvements Design
 
 **Date:** 2026-06-12
 **Status:** Approved
@@ -82,7 +82,7 @@ solely for push notifications, following the WorldCup26 server conventions.
 
 ## Out of scope
 
-- Outgoing Agile (export) view — skipped for now; architecture should not
+- Outgoing Agile (export) view, skipped for now; architecture should not
   preclude adding it later.
 - Storing Octopus credentials server-side.
 

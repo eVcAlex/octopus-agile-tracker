@@ -54,10 +54,10 @@ describe('expandToSlots', () => {
       D('2026-09-20T00:00:00Z')
     );
     expect(slots).toHaveLength(48);
-    expect(slots[0].value_inc_vat).toBe(8.6); // 00:00 – in the night band
+    expect(slots[0].value_inc_vat).toBe(8.6); // 00:00, in the night band
     expect(slots[8].value_inc_vat).toBe(8.6); // 04:00
-    expect(slots[9].value_inc_vat).toBe(31); // 04:30 – band boundary
-    expect(slots[47].value_inc_vat).toBe(8.6); // 23:30 – next night band
+    expect(slots[9].value_inc_vat).toBe(31); // 04:30, band boundary
+    expect(slots[47].value_inc_vat).toBe(8.6); // 23:30, next night band
   });
 
   it('clips a window to the requested range', () => {

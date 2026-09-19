@@ -76,7 +76,7 @@ describe('runRatesPublishedAlerts', () => {
     );
   });
 
-  it('does nothing — and says why — before the rates are published', async () => {
+  it('does nothing, and says why, before the rates are published', async () => {
     vi.mocked(listSubscriptions).mockResolvedValue([sub('a')]);
     vi.mocked(fetchTomorrowRates).mockResolvedValue(
       day('2026-09-20', () => 20).slice(0, 4)

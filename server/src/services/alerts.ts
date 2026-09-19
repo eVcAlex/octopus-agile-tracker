@@ -31,7 +31,7 @@ export interface AlertRunResult {
   notificationsSent: number;
   /** Subscribers eligible for this kind of alert, before any filtering. */
   subscribers: number;
-  /** Why nothing (or something) was sent — makes a silent run debuggable. */
+  /** Why nothing (or something) was sent, so a silent run can be debugged. */
   notes: string[];
 }
 
@@ -106,7 +106,7 @@ export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
     if (min < 0 && (await claimOnce(`plunge:${region}:${date}`, DAY_TTL))) {
       const payload = {
         title: 'Plunge tomorrow ⚡',
-        body: `Prices go negative — down to ${min.toFixed(1)}p/kWh at ${fmtTime(new Date(minSlot.valid_from))}.`,
+        body: `Prices go negative, down to ${min.toFixed(1)}p/kWh at ${fmtTime(new Date(minSlot.valid_from))}.`,
         tag: `plunge-${date}`,
         url: '/',
       };

@@ -205,7 +205,7 @@ async function discoverCandidates(): Promise<Candidate[]> {
   if (go) candidates.push({ key: 'go', label: 'Go (EV)', code: go.code });
   const cosy = byPrefix('COSY-', true);
   if (cosy) candidates.push({ key: 'cosy', label: 'Cosy', code: cosy.code });
-  // Tracker is unlisted — probed directly in fetchTariffComparison.
+  // Tracker is unlisted, so it is probed directly in fetchTariffComparison.
   return candidates;
 }
 
@@ -236,7 +236,7 @@ async function costCandidate(
       totalCost: unitCost + standingCharge,
     };
   } catch {
-    return null; // tariff unavailable in this region — skip
+    return null; // tariff unavailable in this region, skip
   }
 }
 

@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#7c3aed" />
-    <title>Privacy — Octopus Tracker</title>
+    <title>Octopus Tracker: Privacy</title>
     <meta
       name="description"
-      content="What Octopus Tracker stores, where, and how to remove it."
+      content="What Octopus Tracker stores, where it lives, and how to get rid of it."
     />
     <link
       rel="canonical"
@@ -82,120 +82,114 @@
   </head>
   <body>
     <main>
-      <p class="muted"><a href="/">← Back to Octopus Tracker</a></p>
+      <p class="muted"><a href="/">Back to Octopus Tracker</a></p>
       <h1>Privacy</h1>
       <p class="muted">Last updated 19 September 2026</p>
 
       <p class="summary">
-        <strong>Short version:</strong> no accounts, no cookies, no analytics
-        and no ads. Nearly everything stays in your browser. The only personal
-        data our server holds is a push subscription, and only if you turn
-        notifications on.
+        There are no accounts, cookies, analytics or ads. Almost everything
+        stays in your browser. The one thing my server keeps is a push
+        subscription, and only if you turn notifications on.
       </p>
 
-      <h2>Who runs this</h2>
+      <h2>Who I am</h2>
       <p>
-        Octopus Tracker is an independent hobby project by Alex McGuiness. It is
-        not affiliated with, endorsed by or connected to Octopus Energy Ltd.
-        Questions, or a request to remove data, go to the
+        I'm Alex McGuiness and I built this as a hobby. It isn't affiliated with
+        or endorsed by Octopus Energy. If you have a question or want something
+        removed, open an issue on
         <a href="https://github.com/eVcAlex/octopus-agile-tracker/issues"
-          >project's GitHub issues</a
-        >
-        (please don't post personal details there — just say what you need and
-        you'll be told how to proceed).
+          >GitHub</a
+        >. Please keep personal details out of it. Just say what you need and
+        I'll tell you how to sort it.
       </p>
 
       <h2>What stays in your browser</h2>
       <p>
-        These are kept in your browser's local storage and are never sent to our
+        This is saved in your browser's local storage and never sent to my
         server:
       </p>
       <ul>
         <li>
-          <strong>Settings:</strong> region, tariff, gas tariff, whether gas is
-          shown, forecast length, light/dark theme and notification choices.
+          Your settings: region, tariff, gas tariff, whether gas is shown,
+          forecast length, theme and notification choices.
         </li>
         <li>
-          <strong>Octopus API key and account number</strong>, if you choose to
-          enter them for tariff detection or usage. They are sent only to
-          Octopus's own API (<code>api.octopus.energy</code>), directly from
-          your browser. Remove them any time with
-          <em>Settings → Clear stored credentials</em>.
+          Your Octopus API key and account number, if you enter them for tariff
+          detection or usage. They go straight from your browser to Octopus
+          (<code>api.octopus.energy</code>) and nowhere else. There's a button
+          in Settings to clear them.
         </li>
         <li>
-          <strong>Cached data:</strong> recent prices and, if you've connected
-          your account, a summary of your spend. It's kept for up to 48 hours so
-          the app opens quickly and works offline.
+          Recent prices, plus a summary of your spend if you've connected your
+          account. These are kept for up to 48 hours so the app loads fast and
+          works offline.
         </li>
       </ul>
-      <p>Clearing this site's data in your browser removes all of it.</p>
+      <p>Clear this site's data in your browser and all of it goes.</p>
 
-      <h2>What our server stores</h2>
+      <h2>What my server keeps</h2>
       <p>
-        Only if you turn on <em>push notifications</em>. Then we store your
-        browser's push address (a URL issued by your browser's push service) and
-        its encryption keys, your region, your alert choices and when you
-        subscribed. It's kept in a hosted database (Upstash Redis) and used only
-        to send the alerts you picked. It is not linked to your name, email or
-        Octopus account.
+        Only if you turn on push notifications. Then it stores your browser's
+        push address (a URL from your browser's push service), its keys, your
+        region, your alert choices and when you signed up. It sits in a hosted
+        database (Upstash Redis) and is only used to send the alerts you picked.
+        It isn't tied to your name, email or Octopus account.
       </p>
       <ul>
         <li>
-          Turning notifications off in Settings deletes it. It's also removed if
-          your push service reports the address is no longer valid.
+          Turn notifications off and it's deleted. It's also dropped if your
+          push service says the address is dead.
         </li>
         <li>
-          Short-lived markers (up to 36 hours) stop the same alert being sent
-          twice. They contain no personal details.
+          To avoid sending the same alert twice, I keep short-lived markers for
+          up to 36 hours. There's nothing personal in them.
         </li>
-        <li>
-          We never store your Octopus API key or account number on our server.
-        </li>
+        <li>Your API key and account number never reach my server.</li>
       </ul>
 
-      <h2>Other services involved</h2>
+      <h2>Who else sees what</h2>
       <ul>
         <li>
-          <strong>Octopus Energy:</strong> your browser fetches prices directly
-          from their API, so they see your IP address, and your API key and
-          account if you've connected them. Their privacy policy applies.
+          Octopus: your browser gets prices straight from their API, so they see
+          your IP address, plus your API key and account if you've connected
+          them. Their own privacy policy covers that.
         </li>
         <li>
-          <strong>Vercel</strong> hosts this site and keeps standard server logs
-          (such as IP address and requested pages), under their policy.
+          Vercel hosts the site and keeps normal server logs, like IP addresses
+          and the pages requested.
         </li>
         <li>
-          <strong>Push delivery</strong> goes through the push service run by
-          your browser's maker (for example Google, Mozilla or Apple).
+          Push messages travel through whoever made your browser (Google,
+          Mozilla or Apple).
         </li>
         <li>
-          <strong>AgilePredict and Nord Pool</strong> supply forecast and
-          wholesale data. Those requests are relayed through this site's
-          hosting, so those services don't receive your details.
+          Forecast and wholesale data come from AgilePredict and Nord Pool.
+          Those requests are relayed through the site's host, so they don't get
+          your details.
         </li>
         <li>Fonts are served from this site, not from Google.</li>
       </ul>
 
       <h2>Cookies</h2>
       <p>
-        None. The local storage described above is used only for things you
-        asked the app to do, such as remembering your region.
+        None. The local storage above is only used for things you asked for,
+        like remembering your region.
       </p>
 
       <h2>Your rights</h2>
       <p>
-        Under UK data protection law you can ask what we hold about you, have it
-        deleted, and withdraw consent at any time (turn notifications off). You
-        can also complain to the
+        Under UK data protection law you can ask what I hold about you, ask for
+        it to be deleted, and withdraw your consent by turning notifications
+        off. Notification data is handled on the basis of your consent. If
+        you're not happy, you can complain to the
         <a href="https://ico.org.uk/make-a-complaint/"
           >Information Commissioner's Office</a
-        >. Notification data is processed on the basis of your consent.
+        >.
       </p>
 
       <h2>Changes</h2>
       <p>
-        If this changes, the date at the top will change with it. The source
-        code is public on
+        If this changes I'll update the date at the top. The code is public on
         <a href="https://github.com/eVcAlex/octopus-agile-tracker">GitHub</a>.
       </p>
     </main>

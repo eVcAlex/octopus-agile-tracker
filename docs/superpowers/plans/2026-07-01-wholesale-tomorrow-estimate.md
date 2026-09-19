@@ -1,4 +1,4 @@
-# Wholesale Tomorrow Estimate — Implementation Plan
+# Wholesale Tomorrow Estimate: Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Estimate slots MUST reuse the existing `ProcessedSlot` / `DailyPrices` shapes (no new render components for the chart/heatmap/table).
-- The estimate query MUST be disabled once confirmed rates exist (`!hasTomorrowRates`) — no wasted fetches after 4pm.
+- The estimate query MUST be disabled once confirmed rates exist (`!hasTomorrowRates`), no wasted fetches after 4pm.
 - Peak uplift window: `16:00 <= localHour < 19:00`. Cap: `100` p/kWh inc VAT.
 - Wholesale conversion: `pPerKwh = priceGbpMwh / 10`.
 - Provider preference: `N2EXMIDP`, fallback `APXMIDP`; never mix providers for a slot that has N2EX.
@@ -122,7 +122,7 @@ interface Coeff {
 }
 
 // Inc-VAT p/kWh coefficients for AGILE-24-10-01: agile = D*wholesale + P(peak).
-// Seed values — the per-region table is calibrated against real data in Task 3.
+// Seed values, the per-region table is calibrated against real data in Task 3.
 const SEED: Coeff = { multiplier: 0.94, peakUplift: 12 };
 
 export const REGION_COEFFICIENTS: Record<Region, Coeff> = {
@@ -461,7 +461,7 @@ Fill the `wPerKwh`/`confirmed` values from the captured data before running.
 - [ ] **Step 5: Run the full formula test**
 
 Run: `pnpm test -- agileFormula`
-Expected: PASS, including the validation cases within tolerance. If the peak case exceeds tolerance, the peak window or `peakUplift` needs revisiting — do not loosen the tolerance beyond ±3p peak / ±1p off-peak without noting why.
+Expected: PASS, including the validation cases within tolerance. If the peak case exceeds tolerance, the peak window or `peakUplift` needs revisiting, do not loosen the tolerance beyond ±3p peak / ±1p off-peak without noting why.
 
 - [ ] **Step 6: Commit**
 
@@ -602,7 +602,7 @@ Find the `<Tabs.Panel value="tomorrow">` block and replace its contents with:
                 <>
                   <Group justify="space-between" align="center" mb="xs">
                     <Text size="xs" c="dimmed">
-                      Estimate from wholesale prices — Octopus confirms
+                      Estimate from wholesale prices, Octopus confirms
                       tomorrow's rates around 4pm
                     </Text>
                     <RateSourceBadge variant="estimate" />
@@ -670,7 +670,7 @@ In `README.md`, under the **Electricity (Agile)** feature list, add a bullet:
 And under **Data sources**, add:
 
 ```markdown
-- [Elexon BMRS](https://bmrs.elexon.co.uk/) — GB day-ahead market index prices,
+- [Elexon BMRS](https://bmrs.elexon.co.uk/), GB day-ahead market index prices,
   used to estimate tomorrow's Agile rates before Octopus publishes them.
 ```
 
@@ -699,6 +699,6 @@ git commit -m "docs: document the wholesale tomorrow estimate"
 - README mentions estimate + Elexon → Task 6 ✅
 - Out-of-scope items (archive, accuracy dashboard, runtime auto-tune) → not present ✅
 
-**Placeholder scan:** The only intentional "fill" is the captured real numbers in Task 3 Step 4 (impossible to know before running the calibration) — the step gives exact instructions to obtain and insert them.
+**Placeholder scan:** The only intentional "fill" is the captured real numbers in Task 3 Step 4 (impossible to know before running the calibration), the step gives exact instructions to obtain and insert them.
 
 **Type consistency:** `WholesaleSlot { startTime: Date; priceGbpMwh: number }` defined in Task 1 and consumed identically in Tasks 2/4. `estimateSlots`, `wholesaleToAgile`, `selectWholesaleSlots`, `fetchTomorrowWholesale`, `useEstimate`, `RateSourceBadge` signatures match across all consuming tasks. `calcStats` is imported from `../api/octopusApi` where it is already exported.

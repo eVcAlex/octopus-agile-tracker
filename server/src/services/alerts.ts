@@ -3,6 +3,7 @@ import { fetchTodayRates, fetchTomorrowRates } from './octopus.js';
 import { findCheapestWindow } from './cheapWindow.js';
 import { listSubscriptions, claimOnce } from './store.js';
 import { sendPush } from './push.js';
+import { ukDateString } from './ukTime.js';
 
 const DAY_TTL = 60 * 60 * 36; // 36h dedupe window
 
@@ -78,7 +79,7 @@ export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
       continue;
     }
 
-    const date = rates[0].valid_from.slice(0, 10);
+    const date = ukDateString(new Date(rates[0].valid_from));
     const prices = rates.map((r) => r.value_inc_vat);
     const avg = prices.reduce((s, p) => s + p, 0) / prices.length;
     const min = Math.min(...prices);

@@ -22,6 +22,7 @@ import { ForecastSection } from '../Forecast';
 import { GasSection } from '../Gas';
 import { TrendsSection } from '../Trends';
 import { UsageSection } from '../Usage';
+import { Footer } from '../Footer';
 import { ColorModeButton } from '../../../../provider/ColorModeButton';
 import styles from './Dashboard.module.scss';
 
@@ -404,6 +405,7 @@ export function PricingDashboard() {
           )}
         </>
       )}
+      <Footer />
     </Container>
   );
 }

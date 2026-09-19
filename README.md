@@ -115,7 +115,8 @@ pnpm dev:server   # notification API (Hono, port 3001) — optional
 
 Your Octopus API key and account number are stored only in your browser's
 localStorage and are sent only to the Octopus Energy API. They can be cleared
-at any time from Settings.
+at any time from Settings. The [privacy page](public/privacy.html) lists
+everything the app stores, including what push notifications keep server-side.
 
 ## Data sources
 

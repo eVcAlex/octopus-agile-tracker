@@ -406,6 +406,13 @@ export function SettingsDrawer({
                   notifications.setEnabled(e.currentTarget.checked)
                 }
               />
+              <Text size="xs" c="dimmed">
+                Turning this on stores your browser's push address and these
+                choices on our server until you turn it off.{' '}
+                <a href="/privacy.html" target="_blank" rel="noreferrer">
+                  Privacy
+                </a>
+              </Text>
               {notifications.enabled && (
                 <>
                   <Switch

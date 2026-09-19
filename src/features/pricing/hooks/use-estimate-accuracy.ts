@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchWholesaleForUkDay, ukDayStart } from '../api/wholesaleApi';
 import { fetchRates } from '../api/octopusApi';
+import { DEFAULT_ELECTRICITY_PRODUCT } from '../api/tariffs';
 import {
   estimateSlots,
   compareEstimateToConfirmed,
@@ -34,8 +35,10 @@ export function useEstimateAccuracy(
     queryFn: async (): Promise<EstimateAccuracy> => {
       const [wholesale, confirmed] = await Promise.all([
         fetchWholesaleForUkDay(-1),
+        // The formula is calibrated to this exact Agile version.
         fetchRates(
           region,
+          DEFAULT_ELECTRICITY_PRODUCT,
           yesterday.toDate(),
           yesterday.add(1, 'day').toDate()
         ),

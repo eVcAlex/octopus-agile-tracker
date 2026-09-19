@@ -17,8 +17,12 @@ export interface UsePricingReturn {
   needsRegion: boolean;
   forecastDays: number;
   setForecastDays: (days: number) => void;
+  electricityProduct: string;
+  setElectricityProduct: (code: string) => void;
   gasProduct: string;
   setGasProduct: (code: string) => void;
+  showGas: boolean;
+  setShowGas: (show: boolean) => void;
   apiKey: string;
   setApiKey: (key: string) => void;
   accountNo: string;
@@ -32,8 +36,12 @@ export function usePricing(): UsePricingReturn {
     isFirstTime,
     forecastDays,
     setForecastDays,
+    electricityProduct,
+    setElectricityProduct,
     gasProduct,
     setGasProduct,
+    showGas,
+    setShowGas,
     apiKey,
     setApiKey,
     accountNo,
@@ -42,8 +50,8 @@ export function usePricing(): UsePricingReturn {
   const qc = useQueryClient();
 
   const { data, isLoading, error, dataUpdatedAt } = useQuery({
-    queryKey: ['pricing', region] as const,
-    queryFn: () => fetchDailyRates(region),
+    queryKey: ['pricing', region, electricityProduct] as const,
+    queryFn: () => fetchDailyRates(region, electricityProduct),
     refetchInterval: 30 * 60_000,
     enabled: !!region,
   });
@@ -65,8 +73,12 @@ export function usePricing(): UsePricingReturn {
     needsRegion: isFirstTime,
     forecastDays,
     setForecastDays,
+    electricityProduct,
+    setElectricityProduct,
     gasProduct,
     setGasProduct,
+    showGas,
+    setShowGas,
     apiKey,
     setApiKey,
     accountNo,

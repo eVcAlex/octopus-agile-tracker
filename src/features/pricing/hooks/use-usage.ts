@@ -12,6 +12,7 @@ import {
   fetchTariffComparison,
   type TariffCost,
 } from '../api/tariffComparisonApi';
+import { tariffKey, tariffName } from '../api/tariffs';
 import { errorMessage } from '../../../lib/errors';
 import type { Region } from '../schemas';
 
@@ -19,6 +20,10 @@ const SIX_HOURS = 6 * 60 * 60_000;
 const USAGE_DAYS = 30;
 
 export interface UseUsageReturn {
+  /** Short name of the tariff the spend is priced on, e.g. "Agile". */
+  tariffName: string;
+  /** The user is on Flexible, so a "vs Flexible" comparison is meaningless. */
+  isFlexible: boolean;
   spend: SpendSummary | null;
   flexibleRate: number | null;
   /** What the same usage would cost per tariff (incl. standing charges). */
@@ -33,13 +38,16 @@ export interface UseUsageReturn {
 
 export function useUsage(
   region: Region,
+  product: string,
   apiKey: string,
   accountNo: string
 ): UseUsageReturn {
   const enabled = !!region && !!apiKey && !!accountNo;
+  const name = tariffName(product);
+  const key = tariffKey(product);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['usage', region, accountNo] as const,
+    queryKey: ['usage', region, product, accountNo] as const,
     enabled,
     staleTime: SIX_HOURS,
     retry: 1,
@@ -60,7 +68,7 @@ export function useUsage(
           from,
           to
         ),
-        fetchRates(region, from, to),
+        fetchRates(region, product, from, to),
         fetchFlexibleRate(region),
       ]);
 
@@ -73,20 +81,21 @@ export function useUsage(
       let comparison: TariffCost[] | null = null;
       try {
         const days = spend.days.length;
-        const [others, agileSc] = await Promise.all([
+        const [others, ownSc] = await Promise.all([
           fetchTariffComparison(region, consumption, from, to, days),
-          fetchElecStandingCharge(region),
+          fetchElecStandingCharge(region, product),
         ]);
-        const agileStanding = (agileSc ?? 0) * days;
+        const ownStanding = (ownSc ?? 0) * days;
         comparison = [
           {
-            key: 'agile',
-            label: 'Agile (you)',
-            unitCost: spend.totalAgileCost,
-            standingCharge: agileStanding,
-            totalCost: spend.totalAgileCost + agileStanding,
+            key: 'current',
+            label: `${name} (you)`,
+            unitCost: spend.totalCost,
+            standingCharge: ownStanding,
+            totalCost: spend.totalCost + ownStanding,
           },
-          ...others,
+          // Don't list the user's own tariff twice.
+          ...others.filter((o) => o.key !== key),
         ].sort((a, b) => a.totalCost - b.totalCost);
       } catch {
         comparison = null;
@@ -97,6 +106,8 @@ export function useUsage(
   });
 
   return {
+    tariffName: name,
+    isFlexible: key === 'flexible',
     spend: data?.spend ?? null,
     flexibleRate: data?.flexibleRate ?? null,
     comparison: data?.comparison ?? null,

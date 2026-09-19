@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Group, SegmentedControl } from '@mantine/core';
 import { ChartBar, SquaresFour } from 'phosphor-react';
 import type { DailyPrices } from '../../schemas';
+import { hasIntradayVariation } from '../../api/tariffs';
 import { PricingStats } from '../Stats';
 import { PeriodList } from '../PeriodList';
 import { PriceChart } from '../Chart';
@@ -19,7 +20,10 @@ export function DaySection({ data }: { data: DailyPrices }) {
 
       <CurrentSlotBanner data={data.rates} />
 
-      <CheapWindows data={data.rates} />
+      {/* "Cheapest window" is meaningless when the whole day costs the same. */}
+      {hasIntradayVariation(data.rates.map((r) => r.priceIncVat)) && (
+        <CheapWindows data={data.rates} />
+      )}
 
       <Group justify="flex-end" mt="md" mb="md">
         <SegmentedControl

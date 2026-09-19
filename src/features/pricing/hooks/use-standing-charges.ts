@@ -5,10 +5,14 @@ import type { Region } from '../schemas';
 
 const SIX_HOURS = 6 * 60 * 60_000;
 
-export function useStandingCharges(region: Region, gasProduct: string) {
+export function useStandingCharges(
+  region: Region,
+  electricityProduct: string,
+  gasProduct: string
+) {
   const elec = useQuery({
-    queryKey: ['standing-charge', 'elec', region] as const,
-    queryFn: () => fetchElecStandingCharge(region),
+    queryKey: ['standing-charge', 'elec', region, electricityProduct] as const,
+    queryFn: () => fetchElecStandingCharge(region, electricityProduct),
     staleTime: SIX_HOURS,
     enabled: !!region,
   });

@@ -15,7 +15,9 @@ export interface UseForecastReturn {
 export function useForecast(
   region: Region,
   hasTomorrowRates: boolean,
-  maxDays = 7
+  maxDays = 7,
+  /** AgilePredict only forecasts Agile — skip the fetch on other tariffs. */
+  enabled = true
 ): UseForecastReturn {
   const qc = useQueryClient();
 
@@ -23,7 +25,7 @@ export function useForecast(
     queryKey: ['forecast', region] as const,
     queryFn: () => fetchForecast(region),
     refetchInterval: 30 * 60_000,
-    enabled: !!region,
+    enabled: !!region && enabled,
   });
 
   const forecast = useMemo<ForecastData | null>(() => {

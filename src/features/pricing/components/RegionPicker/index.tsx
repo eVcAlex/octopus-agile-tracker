@@ -30,7 +30,7 @@ export function RegionPickerModal({
     >
       <Stack gap="md">
         <Text size="sm" c="dimmed">
-          Select your electricity region to see accurate Octopus Agile prices.
+          Select your electricity region to see accurate Octopus prices.
         </Text>
         <Select
           label="Your region"

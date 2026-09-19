@@ -2,12 +2,15 @@ import { z } from 'zod';
 
 // ─── Octopus API ───
 
+// Raw rate window as the API returns it: half-hourly for Agile, multi-hour
+// bands for Go/Cosy, daily for Tracker, and open-ended (`valid_to: null`) for
+// fixed tariffs. Payment method is absent on some products.
 export const octopusRateSchema = z.object({
   value_exc_vat: z.number(),
   value_inc_vat: z.number(),
   valid_from: z.string(),
-  valid_to: z.string(),
-  payment_method: z.string().nullable(),
+  valid_to: z.string().nullable(),
+  payment_method: z.string().nullable().optional(),
 });
 
 export const octopusResponseSchema = z.object({
@@ -17,7 +20,9 @@ export const octopusResponseSchema = z.object({
   results: z.array(octopusRateSchema),
 });
 
-export type OctopusRate = z.infer<typeof octopusRateSchema>;
+export type OctopusRateWindow = z.infer<typeof octopusRateSchema>;
+/** A single closed half-hour slot, produced by `expandToSlots`. */
+export type OctopusRate = OctopusRateWindow & { valid_to: string };
 export type OctopusResponse = z.infer<typeof octopusResponseSchema>;
 
 // Standing charges share the rate shape but valid_to is null when open-ended
@@ -126,6 +131,8 @@ export interface DailyPrices {
   date: string;
   rates: ProcessedSlot[];
   stats: PriceStats;
+  /** Not yet published by Octopus — assumed to repeat today's pattern. */
+  projected?: boolean;
 }
 
 // ─── Gas ───

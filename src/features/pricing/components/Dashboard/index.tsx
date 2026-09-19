@@ -40,7 +40,14 @@ export function PricingDashboard() {
     usage,
   } = usePricingDashboard();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [energyType, setEnergyType] = useState<EnergyType>('electricity');
+  const [selectedType, setEnergyType] = useState<EnergyType>('electricity');
+  // Hiding gas while the Gas tab is open drops back to Electricity.
+  const energyType: EnergyType =
+    selectedType === 'gas' && !settings.showGas ? 'electricity' : selectedType;
+  const [selectedDay, setSelectedDay] = useState('today');
+  // The Forecast tab only exists for Agile; fall back if the tariff changes.
+  const dayTab =
+    selectedDay === 'forecast' && !electricity.isAgile ? 'today' : selectedDay;
 
   if (needsRegion) {
     return (
@@ -68,7 +75,7 @@ export function PricingDashboard() {
               Loading pricing data
             </Title>
             <Text size="sm" c="dimmed">
-              Fetching Octopus Agile rates...
+              Fetching your Octopus rates...
             </Text>
           </Stack>
           <Loader size="sm" color="violet" type="dots" />
@@ -164,15 +171,19 @@ export function PricingDashboard() {
               </Group>
             ),
           },
-          {
-            value: 'gas',
-            label: (
-              <Group gap={6} justify="center">
-                <Drop size={14} weight="fill" />
-                <span>Gas</span>
-              </Group>
-            ),
-          },
+          ...(settings.showGas
+            ? [
+                {
+                  value: 'gas',
+                  label: (
+                    <Group gap={6} justify="center">
+                      <Drop size={14} weight="fill" />
+                      <span>Gas</span>
+                    </Group>
+                  ),
+                },
+              ]
+            : []),
           {
             value: 'insights',
             label: (
@@ -199,7 +210,10 @@ export function PricingDashboard() {
             >
               Your usage
             </Text>
-            <UsageSection {...usage} onOpenSettings={() => setSettingsOpen(true)} />
+            <UsageSection
+              {...usage}
+              onOpenSettings={() => setSettingsOpen(true)}
+            />
           </section>
           <section aria-label="Price trends">
             <Text
@@ -239,7 +253,11 @@ export function PricingDashboard() {
           )}
 
           {/* Day / Forecast tabs */}
-          <Tabs defaultValue="today" color="violet">
+          <Tabs
+            value={dayTab}
+            onChange={(v) => setSelectedDay(v ?? 'today')}
+            color="violet"
+          >
             <Paper mb="md" radius="lg" withBorder className={styles.tabBar}>
               <Tabs.List
                 grow
@@ -263,6 +281,12 @@ export function PricingDashboard() {
                     </Text>
                     <Text size="xs" c="dimmed">
                       {fmtDate(tomorrow)}
+                      {electricity.tomorrowData?.projected && (
+                        <Text span size="xs" c="violet.4" fw={600}>
+                          {' '}
+                          · assumed
+                        </Text>
+                      )}
                       {!electricity.hasTomorrow &&
                         (electricity.estimate ||
                           electricity.tomorrowForecast) && (
@@ -276,16 +300,18 @@ export function PricingDashboard() {
                     </Text>
                   </Box>
                 </Tabs.Tab>
-                <Tabs.Tab value="forecast" py="md">
-                  <Box>
-                    <Text fw={600} size="sm">
-                      Forecast
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      Predictions
-                    </Text>
-                  </Box>
-                </Tabs.Tab>
+                {electricity.isAgile && (
+                  <Tabs.Tab value="forecast" py="md">
+                    <Box>
+                      <Text fw={600} size="sm">
+                        Forecast
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        Predictions
+                      </Text>
+                    </Box>
+                  </Tabs.Tab>
+                )}
               </Tabs.List>
             </Paper>
 
@@ -301,7 +327,20 @@ export function PricingDashboard() {
 
             <Tabs.Panel value="tomorrow">
               {electricity.hasTomorrow && electricity.tomorrowData ? (
-                <DaySection data={electricity.tomorrowData} />
+                <>
+                  {electricity.tomorrowData.projected && (
+                    <div className={styles.estimateNotice} role="status">
+                      <Text size="sm" fw={600}>
+                        Assumed to match today — Octopus hasn't listed
+                        tomorrow's {electricity.tariffName} rates yet.
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        Time-of-use bands normally repeat every day.
+                      </Text>
+                    </div>
+                  )}
+                  <DaySection data={electricity.tomorrowData} />
+                </>
               ) : electricity.estimate ? (
                 <>
                   <div className={styles.estimateNotice} role="status">
@@ -349,16 +388,18 @@ export function PricingDashboard() {
               )}
             </Tabs.Panel>
 
-            <Tabs.Panel value="forecast">
-              {/* Tomorrow lives on its own tab; the Forecast tab starts at +2 days. */}
-              <ForecastSection {...forecast} />
-            </Tabs.Panel>
+            {electricity.isAgile && (
+              <Tabs.Panel value="forecast">
+                {/* Tomorrow lives on its own tab; the Forecast tab starts at +2 days. */}
+                <ForecastSection {...forecast} />
+              </Tabs.Panel>
+            )}
           </Tabs>
 
           {electricity.standingCharge != null && (
             <Text size="xs" c="dimmed" mt="md">
-              Standing charge: {electricity.standingCharge.toFixed(2)}p/day
-              (inc VAT)
+              Standing charge: {electricity.standingCharge.toFixed(2)}p/day (inc
+              VAT)
             </Text>
           )}
         </>

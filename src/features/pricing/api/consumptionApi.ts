@@ -110,20 +110,21 @@ export async function fetchConsumption(
 export interface DailySpend {
   date: string;
   kwh: number;
-  agileCost: number; // pence
+  cost: number; // pence on the user's own tariff
   flatCost: number; // pence at the comparison flat rate
 }
 
 export interface SpendSummary {
   days: DailySpend[];
   totalKwh: number;
-  totalAgileCost: number; // pence
+  totalCost: number; // pence on the user's own tariff
   totalFlatCost: number; // pence
 }
 
 /**
- * Joins half-hourly consumption with Agile rates (matched on interval start)
- * and totals cost per day. Slots without a matching rate are skipped.
+ * Joins half-hourly consumption with the user's tariff rates (matched on
+ * interval start) and totals cost per day. Slots without a matching rate are
+ * skipped.
  */
 export function calcSpend(
   consumption: ConsumptionEntry[],
@@ -135,30 +136,30 @@ export function calcSpend(
     priceByStart.set(new Date(r.valid_from).getTime(), r.value_inc_vat);
   }
 
-  const byDay = new Map<string, { kwh: number; agileCost: number }>();
+  const byDay = new Map<string, { kwh: number; cost: number }>();
   for (const entry of consumption) {
     const price = priceByStart.get(new Date(entry.interval_start).getTime());
     if (price === undefined) continue;
     const date = dayjs(entry.interval_start).format('YYYY-MM-DD');
-    const day = byDay.get(date) ?? { kwh: 0, agileCost: 0 };
+    const day = byDay.get(date) ?? { kwh: 0, cost: 0 };
     day.kwh += entry.consumption;
-    day.agileCost += entry.consumption * price;
+    day.cost += entry.consumption * price;
     byDay.set(date, day);
   }
 
   const days: DailySpend[] = [...byDay.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, { kwh, agileCost }]) => ({
+    .map(([date, { kwh, cost }]) => ({
       date,
       kwh,
-      agileCost,
+      cost,
       flatCost: kwh * flatRate,
     }));
 
   return {
     days,
     totalKwh: days.reduce((s, d) => s + d.kwh, 0),
-    totalAgileCost: days.reduce((s, d) => s + d.agileCost, 0),
+    totalCost: days.reduce((s, d) => s + d.cost, 0),
     totalFlatCost: days.reduce((s, d) => s + d.flatCost, 0),
   };
 }

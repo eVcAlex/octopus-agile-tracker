@@ -12,6 +12,8 @@ import {
   Badge,
 } from '@mantine/core';
 import { Drop, ArrowClockwise, TrendUp, TrendDown } from 'phosphor-react';
+import dayjs from 'dayjs';
+import { dailyGasRates, gasRateAt } from '../../api/gasApi';
 import type { GasRate } from '../../schemas';
 import styles from './Gas.module.scss';
 
@@ -42,7 +44,11 @@ function GasHistoryChart({ rates }: { rates: GasRate[] }) {
       </Text>
       <div className={styles.historyChart}>
         {display.map((rate, i) => {
-          const heightPct = ((rate.unitRateIncVat - minRate) / range) * 60 + 20; // 20%–80%
+          // 20%–80%; a rate that never changed (fixed tariff) sits mid-height.
+          const heightPct =
+            maxRate === minRate
+              ? 50
+              : ((rate.unitRateIncVat - minRate) / range) * 60 + 20;
           return (
             <div
               key={rate.date}
@@ -264,7 +270,8 @@ function GasView({
               alignItems: 'center',
               justifyContent: 'center',
               color: 'var(--stat-orange)',
-              background: 'color-mix(in srgb, var(--stat-orange) 12%, transparent)',
+              background:
+                'color-mix(in srgb, var(--stat-orange) 12%, transparent)',
               border:
                 '1px solid color-mix(in srgb, var(--stat-orange) 40%, transparent)',
             }}
@@ -387,16 +394,14 @@ export function GasSection({
     );
   }
 
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-  const tomorrowStr = tomorrowDate.toISOString().slice(0, 10);
-  const tomorrowRate = rates.find((r) => r.date === tomorrowStr) ?? null;
+  const tomorrowNoon = dayjs().add(1, 'day').hour(12).minute(0).toDate();
+  const tomorrowRate = gasRateAt(rates, tomorrowNoon);
 
   return (
     <GasView
       currentRate={currentRate}
       tomorrowRate={tomorrowRate}
-      rates={rates}
+      rates={dailyGasRates(rates)}
       lastUpdated={lastUpdated}
       onRefresh={onRefresh}
       refreshing={loading}

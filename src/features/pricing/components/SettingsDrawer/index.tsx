@@ -20,6 +20,7 @@ import {
   Bell,
   Key,
   Flame,
+  type Icon as PhosphorIcon,
 } from 'phosphor-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAccountDetails } from '../../api/accountApi';
@@ -46,8 +47,7 @@ function SectionHeader({
   icon: Icon,
   label,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: React.ComponentType<any>;
+  icon: PhosphorIcon;
   label: string;
 }) {
   return (

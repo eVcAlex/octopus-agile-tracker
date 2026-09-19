@@ -42,9 +42,9 @@ describe('calcSpend', () => {
 
     expect(summary.days).toHaveLength(2);
     // day 1: 0.5*10 + 1.0*20 = 25p; day 2: 2.0*5 = 10p
-    expect(summary.days[0].agileCost).toBe(25);
-    expect(summary.days[1].agileCost).toBe(10);
-    expect(summary.totalAgileCost).toBe(35);
+    expect(summary.days[0].cost).toBe(25);
+    expect(summary.days[1].cost).toBe(10);
+    expect(summary.totalCost).toBe(35);
     expect(summary.totalKwh).toBe(3.5);
     // flat: 3.5 kWh * 15p
     expect(summary.totalFlatCost).toBe(52.5);
@@ -58,12 +58,12 @@ describe('calcSpend', () => {
     );
 
     expect(summary.totalKwh).toBe(1);
-    expect(summary.totalAgileCost).toBe(10);
+    expect(summary.totalCost).toBe(10);
   });
 
   it('handles empty input', () => {
     const summary = calcSpend([], [], 15);
     expect(summary.days).toEqual([]);
-    expect(summary.totalAgileCost).toBe(0);
+    expect(summary.totalCost).toBe(0);
   });
 });

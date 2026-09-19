@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /proxy/
+
+Sitemap: https://octopus-agile-tracker.vercel.app/sitemap.xml

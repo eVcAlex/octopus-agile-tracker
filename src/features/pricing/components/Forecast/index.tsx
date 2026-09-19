@@ -351,6 +351,7 @@ export const ForecastView = ({
                 key={d.date}
                 className={`${styles.dayChip} ${i === selectedDay ? styles.active : ''}`}
                 onClick={() => setSelectedDay(i)}
+                aria-pressed={i === selectedDay}
               >
                 <span className={styles.dayChipWeekday}>{weekday}</span>
                 <span className={styles.dayChipDate}>
@@ -376,6 +377,7 @@ export const ForecastView = ({
             radius="md"
             onClick={onRefresh}
             loading={refreshing}
+            aria-label="Refresh forecast"
             style={{ flexShrink: 0 }}
           >
             <ArrowClockwise size={16} />
@@ -443,6 +445,7 @@ export const ForecastSection = ({
           radius="md"
           onClick={onRefresh}
           mt="xs"
+          aria-label="Retry loading forecast"
         >
           <ArrowClockwise size={16} />
         </ActionIcon>

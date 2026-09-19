@@ -28,7 +28,7 @@ function fmtDay(date: string): string {
 function SpendChart({ spend }: { spend: SpendSummary }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const days = spend.days;
-  const maxCost = Math.max(...days.map((d) => d.agileCost), 1);
+  const maxCost = Math.max(...days.map((d) => d.cost), 1);
 
   const labelIndices = new Set([
     0,
@@ -44,7 +44,7 @@ function SpendChart({ spend }: { spend: SpendSummary }) {
             key={day.date}
             className={styles.bar}
             style={{
-              height: `${Math.max((day.agileCost / maxCost) * 95, 3)}%`,
+              height: `${Math.max((day.cost / maxCost) * 95, 3)}%`,
             }}
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
@@ -55,7 +55,7 @@ function SpendChart({ spend }: { spend: SpendSummary }) {
                   {fmtDay(day.date)}
                 </Text>
                 <Text size="xs" ff="monospace">
-                  {pounds(day.agileCost)} · {day.kwh.toFixed(1)} kWh
+                  {pounds(day.cost)} · {day.kwh.toFixed(1)} kWh
                 </Text>
                 <Text size="xs" c="dimmed" ff="monospace">
                   flat: {pounds(day.flatCost)}
@@ -81,29 +81,37 @@ function SpendChart({ spend }: { spend: SpendSummary }) {
 function Summary({
   spend,
   flexibleRate,
+  tariffName,
+  isFlexible,
 }: {
   spend: SpendSummary;
   flexibleRate: number | null;
+  tariffName: string;
+  isFlexible: boolean;
 }) {
-  const saving = spend.totalFlatCost - spend.totalAgileCost;
+  const saving = spend.totalFlatCost - spend.totalCost;
   const savingPct = spend.totalFlatCost
     ? (saving / spend.totalFlatCost) * 100
     : 0;
+  // Comparing Flexible against itself says nothing.
+  const showFlat = !isFlexible;
 
   return (
     <Stack gap="sm">
-      <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="sm">
+      <SimpleGrid cols={{ base: showFlat ? 2 : 1, sm: showFlat ? 3 : 1 }} spacing="sm">
         <Paper p="md" radius="md" className={styles.summaryCard}>
           <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5}>
-            Agile spend · 30d
+            {tariffName} spend · 30d
           </Text>
           <Text fw={700} size="lg" ff="monospace" lh={1.2}>
-            {pounds(spend.totalAgileCost)}
+            {pounds(spend.totalCost)}
           </Text>
           <Text size="xs" c="dimmed">
             {spend.totalKwh.toFixed(0)} kWh
           </Text>
         </Paper>
+        {showFlat && (
+        <>
         <Paper p="md" radius="md" className={styles.summaryCard}>
           <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5}>
             On Flexible
@@ -119,7 +127,7 @@ function Summary({
         </Paper>
         <Paper p="md" radius="md" className={styles.summaryCard}>
           <Text size="xs" c="dimmed" fw={500} tt="uppercase" lts={0.5}>
-            Agile saving you
+            {tariffName} saving you
           </Text>
           <Text
             fw={700}
@@ -144,17 +152,20 @@ function Summary({
             </Badge>
           )}
         </Paper>
+        </>
+        )}
       </SimpleGrid>
-      <Text size="xs" c="dimmed">
-        Unit-rate comparison only — standing charges are similar on both tariffs
-        and excluded.
-      </Text>
+      {showFlat && (
+        <Text size="xs" c="dimmed">
+          Unit-rate comparison only — standing charges are excluded.
+        </Text>
+      )}
     </Stack>
   );
 }
 
 function TariffComparison({ comparison }: { comparison: TariffCost[] }) {
-  const agile = comparison.find((t) => t.key === 'agile');
+  const own = comparison.find((t) => t.key === 'current');
   const cheapest = comparison[0];
 
   return (
@@ -165,10 +176,10 @@ function TariffComparison({ comparison }: { comparison: TariffCost[] }) {
       <Paper p="md" radius="md" className={styles.summaryCard}>
         <Stack gap={8}>
           {comparison.map((t) => {
-            const delta = agile ? t.totalCost - agile.totalCost : 0;
+            const delta = own ? t.totalCost - own.totalCost : 0;
             return (
               <Box key={t.key} className={styles.compareRow}>
-                <Text size="sm" fw={t.key === 'agile' ? 700 : 500}>
+                <Text size="sm" fw={t.key === 'current' ? 700 : 500}>
                   {t.label}
                   {t.key === cheapest.key && (
                     <Badge color="teal" variant="light" size="xs" ml={8}>
@@ -178,7 +189,7 @@ function TariffComparison({ comparison }: { comparison: TariffCost[] }) {
                 </Text>
                 <Text size="sm" fw={700} ff="monospace" ta="right">
                   {pounds(t.totalCost)}
-                  {agile && t.key !== 'agile' && (
+                  {own && t.key !== 'current' && (
                     <Text
                       span
                       size="xs"
@@ -206,6 +217,8 @@ function TariffComparison({ comparison }: { comparison: TariffCost[] }) {
 }
 
 interface UsageSectionProps {
+  tariffName: string;
+  isFlexible: boolean;
   spend: SpendSummary | null;
   flexibleRate: number | null;
   comparison: TariffCost[] | null;
@@ -217,6 +230,8 @@ interface UsageSectionProps {
 }
 
 export function UsageSection({
+  tariffName,
+  isFlexible,
   spend,
   flexibleRate,
   comparison,
@@ -237,7 +252,7 @@ export function UsageSection({
             </Text>
             <Text size="sm" c="dimmed" mt={4} maw={420}>
               Connect your Octopus account to see what your real usage costs on
-              Agile — and whether it beats the flat Flexible tariff.
+              your tariff — and how it compares with the alternatives.
             </Text>
           </Box>
           <Button
@@ -290,10 +305,15 @@ export function UsageSection({
 
   return (
     <Stack gap="md">
-      <Summary spend={spend} flexibleRate={flexibleRate} />
+      <Summary
+        spend={spend}
+        flexibleRate={flexibleRate}
+        tariffName={tariffName}
+        isFlexible={isFlexible}
+      />
       <Box>
         <Text size="xs" c="dimmed" tt="uppercase" fw={600} lts={0.5} mb={6}>
-          Daily cost on Agile
+          Daily cost on {tariffName}
         </Text>
         <SpendChart spend={spend} />
       </Box>

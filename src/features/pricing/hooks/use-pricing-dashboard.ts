@@ -7,6 +7,7 @@ import { useStandingCharges } from './use-standing-charges';
 import { useHistory } from './use-history';
 import { useUsage, type UseUsageReturn } from './use-usage';
 import { useNotifications } from './use-notifications';
+import { isAgileProduct, tariffName } from '../api/tariffs';
 import {
   tomorrowForecastAsDailyPrices,
   withoutTomorrow,
@@ -28,8 +29,14 @@ export interface DashboardSettings {
   onSetRegion: (region: Region) => void;
   forecastDays: number;
   onSetForecastDays: (days: number) => void;
+  electricityProduct: string;
+  onSetElectricityProduct: (code: string) => void;
+  /** Agile-only features (alerts, forecast) are hidden when false. */
+  isAgile: boolean;
   gasProduct: string;
   onSetGasProduct: (code: string) => void;
+  showGas: boolean;
+  onSetShowGas: (show: boolean) => void;
   apiKey: string;
   onSetApiKey: (key: string) => void;
   accountNo: string;
@@ -38,6 +45,10 @@ export interface DashboardSettings {
 }
 
 export interface DashboardElectricity {
+  /** Short tariff name for headings, e.g. "Go". */
+  tariffName: string;
+  /** Wholesale estimate, forecast and push alerts only exist for Agile. */
+  isAgile: boolean;
   todayData: DailyPrices | null;
   tomorrowData: DailyPrices | null;
   /** Octopus has published tomorrow's confirmed rates (~4pm). */
@@ -106,18 +117,31 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
     needsRegion,
     forecastDays,
     setForecastDays,
+    electricityProduct,
+    setElectricityProduct,
     gasProduct,
     setGasProduct,
+    showGas,
+    setShowGas,
     apiKey,
     setApiKey,
     accountNo,
     setAccountNo,
   } = usePricing();
 
+  const isAgile = isAgileProduct(electricityProduct);
+
+  // An empty product code disables the gas queries, so hiding gas also stops
+  // the network requests.
+  const activeGasProduct = showGas ? gasProduct : '';
+
   const hasTomorrow = (tomorrowData?.rates.length ?? 0) > 0;
 
-  const estimate = useEstimate(currentRegion, !hasTomorrow);
-  const estimateAccuracy = useEstimateAccuracy(currentRegion, !hasTomorrow);
+  const estimate = useEstimate(currentRegion, isAgile && !hasTomorrow);
+  const estimateAccuracy = useEstimateAccuracy(
+    currentRegion,
+    isAgile && !hasTomorrow
+  );
 
   const {
     forecast: rawForecast,
@@ -125,7 +149,7 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
     error: forecastError,
     refresh: refreshForecast,
     lastUpdated: forecastUpdated,
-  } = useForecast(currentRegion, hasTomorrow, forecastDays);
+  } = useForecast(currentRegion, hasTomorrow, forecastDays, isAgile);
 
   const {
     rates: gasRates,
@@ -134,11 +158,12 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
     error: gasError,
     lastUpdated: gasUpdated,
     refresh: refreshGas,
-  } = useGas(currentRegion, gasProduct);
+  } = useGas(currentRegion, activeGasProduct);
 
   const { elecStandingCharge, gasStandingCharge } = useStandingCharges(
     currentRegion,
-    gasProduct
+    electricityProduct,
+    activeGasProduct
   );
 
   const {
@@ -146,9 +171,9 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
     loading: historyLoading,
     error: historyError,
     refresh: refetchHistory,
-  } = useHistory(currentRegion);
+  } = useHistory(currentRegion, electricityProduct);
 
-  const usage = useUsage(currentRegion, apiKey, accountNo);
+  const usage = useUsage(currentRegion, electricityProduct, apiKey, accountNo);
   const notifications = useNotifications(currentRegion);
 
   // Pre-auction fallback: before the day-ahead auction clears (~midday) there
@@ -156,7 +181,7 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
   // read the RAW forecast — `withoutTomorrow` filters out the exact date this
   // looks for, so reusing the filtered value here would make it always null.
   const tomorrowForecast =
-    !hasTomorrow && !estimate.estimate
+    isAgile && !hasTomorrow && !estimate.estimate
       ? tomorrowForecastAsDailyPrices(rawForecast)
       : null;
 
@@ -169,8 +194,13 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
       onSetRegion: setRegion,
       forecastDays,
       onSetForecastDays: setForecastDays,
+      electricityProduct,
+      onSetElectricityProduct: setElectricityProduct,
+      isAgile,
       gasProduct,
       onSetGasProduct: setGasProduct,
+      showGas,
+      onSetShowGas: setShowGas,
       apiKey,
       onSetApiKey: setApiKey,
       accountNo,
@@ -178,6 +208,8 @@ export function usePricingDashboard(): UsePricingDashboardReturn {
       notifications,
     },
     electricity: {
+      tariffName: tariffName(electricityProduct),
+      isAgile,
       todayData,
       tomorrowData,
       hasTomorrow,

@@ -47,6 +47,45 @@ export async function fetchGasRates(
     .sort((a, b) => b.validFrom.getTime() - a.validFrom.getTime());
 }
 
+/**
+ * The rate in force at `at`. Rates are validity windows, so this works for any
+ * tariff shape: Tracker (one row per day) and fixed/variable (one long row).
+ */
+export function gasRateAt(rates: GasRate[], at: Date): GasRate | null {
+  return (
+    rates.find(
+      (r) => r.validFrom <= at && (r.validTo === null || r.validTo > at)
+    ) ?? null
+  );
+}
+
+/**
+ * One entry per calendar day (newest first, ending today), each carrying the
+ * rate in force that day. Lets fixed/variable tariffs chart as a flat line
+ * rather than one bar per rate change.
+ */
+export function dailyGasRates(
+  rates: GasRate[],
+  days = 30,
+  now: Date = new Date()
+): GasRate[] {
+  const daily: GasRate[] = [];
+  for (let i = 0; i < days; i++) {
+    const day = dayjs(now).subtract(i, 'day');
+    const rate = gasRateAt(rates, day.hour(12).minute(0).toDate());
+    // Keep today even before noon, when the day's rate may already be live.
+    const effective = rate ?? (i === 0 ? gasRateAt(rates, now) : null);
+    if (effective) {
+      daily.push({
+        ...effective,
+        date: day.format('YYYY-MM-DD'),
+        isCurrent: i === 0,
+      });
+    }
+  }
+  return daily;
+}
+
 export async function fetchGasStandingCharge(
   region: Region,
   productCode: string

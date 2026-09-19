@@ -40,11 +40,9 @@ registerRoute(
 );
 
 registerRoute(
-  ({ url }) =>
-    url.origin === 'https://fonts.googleapis.com' ||
-    url.origin === 'https://fonts.gstatic.com',
+  ({ request }) => request.destination === 'font',
   new CacheFirst({
-    cacheName: 'google-fonts',
+    cacheName: 'fonts',
     plugins: [
       new ExpirationPlugin({
         maxEntries: 16,

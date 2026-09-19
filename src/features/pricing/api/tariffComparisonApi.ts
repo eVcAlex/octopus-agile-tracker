@@ -172,7 +172,10 @@ interface Candidate {
   code: string;
 }
 
-/** Discover current comparison candidates from the public products list. */
+/**
+ * Discover current comparison candidates from the public products list. The
+ * caller drops whichever one matches the user's own tariff.
+ */
 async function discoverCandidates(): Promise<Candidate[]> {
   const raw = await wretch(
     `${PRODUCTS_BASE}/?brand=OCTOPUS_ENERGY&page_size=250`
@@ -188,6 +191,9 @@ async function discoverCandidates(): Promise<Candidate[]> {
   };
 
   const candidates: Candidate[] = [];
+  const agile = byPrefix('AGILE-', true);
+  if (agile)
+    candidates.push({ key: 'agile', label: 'Agile', code: agile.code });
   const flexible = byPrefix('VAR-', true);
   if (flexible)
     candidates.push({

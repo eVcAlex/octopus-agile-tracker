@@ -5,10 +5,10 @@ import type { Region } from '../schemas';
 
 const SIX_HOURS = 6 * 60 * 60_000;
 
-export function useHistory(region: Region) {
+export function useHistory(region: Region, product: string) {
   const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery({
-    queryKey: ['history', region] as const,
-    queryFn: () => fetchHistory(region),
+    queryKey: ['history', region, product] as const,
+    queryFn: () => fetchHistory(region, product),
     staleTime: SIX_HOURS,
     enabled: !!region,
   });

@@ -17,10 +17,10 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'Octopus Agile Tracker',
-        short_name: 'Agile Tracker',
+        name: 'Octopus Tracker',
+        short_name: 'Octopus',
         description:
-          'Track Octopus Energy Agile electricity prices and gas unit rates',
+          'Live Octopus Energy electricity and gas prices for any tariff',
         theme_color: '#7c3aed',
         background_color: '#1a1b1e',
         display: 'standalone',

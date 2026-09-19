@@ -1,21 +1,21 @@
-import type { Region, StoredSubscription } from "../schemas.js";
-import { fetchTodayRates, fetchTomorrowRates } from "./octopus.js";
-import { findCheapestWindow } from "./cheapWindow.js";
-import { listSubscriptions, claimOnce } from "./store.js";
-import { sendPush } from "./push.js";
+import type { Region, StoredSubscription } from '../schemas.js';
+import { fetchTodayRates, fetchTomorrowRates } from './octopus.js';
+import { findCheapestWindow } from './cheapWindow.js';
+import { listSubscriptions, claimOnce } from './store.js';
+import { sendPush } from './push.js';
 
 const DAY_TTL = 60 * 60 * 36; // 36h dedupe window
 
 function fmtTime(d: Date): string {
-  return d.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/London",
+  return d.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Europe/London',
   });
 }
 
 function byRegion(
-  subs: StoredSubscription[],
+  subs: StoredSubscription[]
 ): Map<Region, StoredSubscription[]> {
   const map = new Map<Region, StoredSubscription[]>();
   for (const s of subs) {
@@ -29,23 +29,54 @@ function byRegion(
 export interface AlertRunResult {
   regionsChecked: number;
   notificationsSent: number;
+  /** Subscribers eligible for this kind of alert, before any filtering. */
+  subscribers: number;
+  /** Why nothing (or something) was sent — makes a silent run debuggable. */
+  notes: string[];
+}
+
+// Agile publishes tomorrow's rates around 16:00 UK; keep trying until evening.
+const PUBLISH_WINDOW_START_HOUR = 15;
+const PUBLISH_WINDOW_END_HOUR = 21;
+
+/** True during the UK-time hours when tomorrow's rates get published. */
+export function inRatesPublishWindow(now: Date = new Date()): boolean {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      hourCycle: 'h23',
+      timeZone: 'Europe/London',
+    }).format(now)
+  );
+  return hour >= PUBLISH_WINDOW_START_HOUR && hour < PUBLISH_WINDOW_END_HOUR;
 }
 
 /**
- * "Tomorrow's rates published" + plunge-pricing alerts. Run a few times
- * around 4pm UK; dedupe keys ensure each fires at most once per day.
+ * "Tomorrow's rates published" + plunge-pricing alerts. Run every ~15 minutes
+ * across the publish window; dedupe keys ensure each fires at most once per
+ * day, so extra runs are harmless and a run before publication just retries.
  */
 export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
   const subs = (await listSubscriptions()).filter(
-    (s) => s.prefs.ratesPublished || s.prefs.plunge,
+    (s) => s.prefs.ratesPublished || s.prefs.plunge
   );
   const regions = byRegion(subs);
+  const notes: string[] = [];
   let sent = 0;
+
+  if (subs.length === 0) {
+    notes.push('No subscribers with rates or plunge alerts enabled');
+  }
 
   for (const [region, regionSubs] of regions) {
     const rates = await fetchTomorrowRates(region);
     // Treat the day as published once a full schedule is up (≥40 slots)
-    if (rates.length < 40) continue;
+    if (rates.length < 40) {
+      notes.push(
+        `${region}: tomorrow not published yet (${rates.length} slots)`
+      );
+      continue;
+    }
 
     const date = rates[0].valid_from.slice(0, 10);
     const prices = rates.map((r) => r.value_inc_vat);
@@ -58,27 +89,44 @@ export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
         title: "Tomorrow's rates ⚡",
         body: `Average ${avg.toFixed(1)}p/kWh · cheapest ${min.toFixed(1)}p at ${fmtTime(new Date(minSlot.valid_from))}`,
         tag: `rates-${date}`,
-        url: "/",
+        url: '/',
       };
+      let ok = 0;
       for (const sub of regionSubs.filter((s) => s.prefs.ratesPublished)) {
-        if (await sendPush(sub, payload)) sent++;
+        if (await sendPush(sub, payload)) {
+          sent++;
+          ok++;
+        }
       }
+      notes.push(`${region}: rates alert for ${date} sent to ${ok}`);
+    } else {
+      notes.push(`${region}: rates alert for ${date} already sent`);
     }
 
     if (min < 0 && (await claimOnce(`plunge:${region}:${date}`, DAY_TTL))) {
       const payload = {
-        title: "Plunge tomorrow ⚡",
+        title: 'Plunge tomorrow ⚡',
         body: `Prices go negative — down to ${min.toFixed(1)}p/kWh at ${fmtTime(new Date(minSlot.valid_from))}.`,
         tag: `plunge-${date}`,
-        url: "/",
+        url: '/',
       };
+      let ok = 0;
       for (const sub of regionSubs.filter((s) => s.prefs.plunge)) {
-        if (await sendPush(sub, payload)) sent++;
+        if (await sendPush(sub, payload)) {
+          sent++;
+          ok++;
+        }
       }
+      notes.push(`${region}: plunge alert for ${date} sent to ${ok}`);
     }
   }
 
-  return { regionsChecked: regions.size, notificationsSent: sent };
+  return {
+    regionsChecked: regions.size,
+    notificationsSent: sent,
+    subscribers: subs.length,
+    notes,
+  };
 }
 
 const WINDOW_LOOKAHEAD_MS = 30 * 60_000;
@@ -88,39 +136,64 @@ const WINDOW_LOOKAHEAD_MS = 30 * 60_000;
  * subscriber once per window start.
  */
 export async function runCheapWindowAlerts(
-  now: Date = new Date(),
+  now: Date = new Date()
 ): Promise<AlertRunResult> {
   const subs = (await listSubscriptions()).filter((s) => s.prefs.cheapWindow);
   const regions = byRegion(subs);
+  const notes: string[] = [];
   let sent = 0;
+
+  if (subs.length === 0) {
+    notes.push('No subscribers with cheap-window alerts enabled');
+  }
 
   for (const [region, regionSubs] of regions) {
     const rates = await fetchTodayRates(region);
+    let regionSent = 0;
+    let notDue = 0;
 
     for (const sub of regionSubs) {
       const win = findCheapestWindow(
         rates,
         sub.prefs.cheapWindowHours * 2,
-        now,
+        now
       );
-      if (!win) continue;
-
-      const startsInMs = win.start.getTime() - now.getTime();
-      if (startsInMs <= 0 || startsInMs > WINDOW_LOOKAHEAD_MS) continue;
+      const startsInMs = win ? win.start.getTime() - now.getTime() : null;
+      if (
+        !win ||
+        startsInMs === null ||
+        startsInMs <= 0 ||
+        startsInMs > WINDOW_LOOKAHEAD_MS
+      ) {
+        notDue++;
+        continue;
+      }
 
       const key = `window:${sub.id}:${win.start.toISOString()}`;
       if (!(await claimOnce(key, DAY_TTL))) continue;
 
       const mins = Math.round(startsInMs / 60_000);
       const ok = await sendPush(sub, {
-        title: "Cheap window soon",
+        title: 'Cheap window soon',
         body: `${sub.prefs.cheapWindowHours}h from ${fmtTime(win.start)} (in ${mins} min) · avg ${win.avgPrice.toFixed(1)}p/kWh`,
         tag: `window-${win.start.toISOString()}`,
-        url: "/",
+        url: '/',
       });
-      if (ok) sent++;
+      if (ok) {
+        sent++;
+        regionSent++;
+      }
     }
+
+    notes.push(
+      `${region}: ${regionSubs.length} subscriber(s), ${regionSent} sent, ${notDue} not due (cheapest window not starting within 30 min)`
+    );
   }
 
-  return { regionsChecked: regions.size, notificationsSent: sent };
+  return {
+    regionsChecked: regions.size,
+    notificationsSent: sent,
+    subscribers: subs.length,
+    notes,
+  };
 }

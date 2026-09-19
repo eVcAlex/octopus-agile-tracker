@@ -1,14 +1,30 @@
 # Octopus Agile Tracker
 
-A dashboard for tracking **Octopus Energy Agile** electricity prices and gas
-unit rates across UK regions. Built with **React**, **TypeScript**,
-**Mantine**, **TanStack Query**, and **Phosphor Icons**.
+A dashboard for tracking **Octopus Energy** electricity and gas prices across
+UK regions — built for **Agile**, but works with any single-rate tariff
+(Go, Cosy, Snug, Flux, Tracker, Flexible, fixed…). Built with **React**,
+**TypeScript**, **Mantine**, **TanStack Query**, and **Phosphor Icons**.
 
 ---
 
 ## Features
 
+### Any tariff
+
+- Pick your tariff in **Settings → Tariff** (live list from Octopus), or let
+  **Auto-detect** read it — and your region — from your account.
+- Every tariff's rate windows (half-hourly, multi-hour bands, daily, fixed) are
+  expanded to half-hour slots, so charts, stats and 30-day trends work
+  everywhere. Cheapest-window suggestions appear only when the price moves
+  during the day.
+- Time-of-use tariffs (Go, Cosy…) fill any unpublished part of tomorrow from
+  today's pattern, clearly labelled _assumed_.
+- Day/night tariffs (e.g. Economy 7) aren't supported yet.
+
 ### Electricity (Agile)
+
+Agile-only extras — the wholesale estimate, AgilePredict forecast and push
+alerts — appear only when you're on Agile.
 
 - **Today & Tomorrow** half-hourly rates as a chart or a time-of-day card
   grid (tomorrow's prices publish around 4pm).
@@ -24,16 +40,20 @@ unit rates across UK regions. Built with **React**, **TypeScript**,
 
 ### Gas
 
-- Daily gas unit rate with **today vs tomorrow** comparison and % change.
+- Gas unit rate with **today vs tomorrow** comparison and % change. Works with
+  daily-changing (Tracker) and fixed/variable tariffs alike.
 - **30-day history** chart.
+- **Show/hide gas** in Settings — hide it if you don't have gas with Octopus
+  (auto-detect hides it for you when your account has no gas tariff).
 - **Auto-detect your gas tariff** from your Octopus account (API key +
   account number), or enter a product code manually.
 
 ### Usage & spend
 
-- **Your actual spend** from half-hourly smart meter data × Agile rates.
-- **"Is Agile saving me money?"** — comparison against the current
-  Flexible Octopus flat rate for your region.
+- **Your actual spend** from half-hourly smart meter data × your tariff's rates.
+- **"Is my tariff saving me money?"** — your usage priced against the current
+  Flexible Octopus flat rate for your region, and against Agile, Go, Cosy and
+  Tracker including standing charges.
 
 ### Push notifications
 
@@ -79,13 +99,17 @@ pnpm dev:server   # notification API (Hono, port 3001) — optional
 - Set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`,
   `CRON_SECRET`, and the Upstash Redis env vars in Vercel
   (the Upstash Marketplace integration provides the Redis ones).
-- No cron is defined in `vercel.json` (`"crons": []`). To make notifications
-  fire, trigger the two endpoints in `server/src/routes/cron.ts` —
-  `/api/cron/rates-published` (daily, ~4pm UK) and `/api/cron/cheap-window`
-  (every 15 min for timely alerts) — with the
-  `Authorization: Bearer $CRON_SECRET` header, either from an external
-  scheduler or by adding Vercel crons (sub-daily schedules need a paid plan;
-  on Hobby, use a daily schedule or an external scheduler).
+- No cron is defined in `vercel.json` (Hobby only allows daily crons), so alerts
+  need an external scheduler (e.g. cron-job.org, free). Create **one** job:
+  `GET https://<your-domain>/api/cron/tick` every 15 minutes, with the header
+  `Authorization: Bearer <CRON_SECRET>`. Each run checks cheap-window alerts,
+  and during the UK 15:00–21:00 publish window also checks for tomorrow's rates
+  and plunge pricing. Alerts are de-duplicated, so extra runs are harmless and a
+  run before the rates are published simply retries 15 minutes later.
+- The response says what happened (subscribers found, slots published, why
+  nothing was sent), so open the URL with the header in a REST client to debug.
+  `/api/cron/rates-published` and `/api/cron/cheap-window` still work
+  individually.
 
 ## Privacy
 

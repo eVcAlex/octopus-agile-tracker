@@ -131,7 +131,7 @@ export interface DailyPrices {
   date: string;
   rates: ProcessedSlot[];
   stats: PriceStats;
-  /** Not yet published by Octopus — assumed to repeat today's pattern. */
+  /** Not yet published by Octopus, so assumed to repeat today's pattern. */
   projected?: boolean;
 }
 

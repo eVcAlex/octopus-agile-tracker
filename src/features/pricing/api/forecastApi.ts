@@ -13,7 +13,7 @@ import { calcStats } from './octopusApi';
 const PROXY_BASE = '/proxy/forecast';
 
 /**
- * The forecast without tomorrow's day — the Tomorrow tab always covers
+ * The forecast without tomorrow's day. The Tomorrow tab always covers
  * tomorrow (estimate or forecast fallback), so the Forecast tab shouldn't
  * duplicate it.
  */

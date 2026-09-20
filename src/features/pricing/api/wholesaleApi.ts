@@ -11,7 +11,7 @@ dayjs.extend(timezone);
 const PROXY_BASE = '/proxy/wholesale';
 const LONDON = 'Europe/London';
 
-// Nord Pool N2EX day-ahead auction — hourly £/MWh prices per delivery area.
+// Nord Pool N2EX day-ahead auction: hourly £/MWh prices per delivery area.
 const nordpoolSchema = z.object({
   multiAreaEntries: z.array(
     z.object({
@@ -73,7 +73,7 @@ export function ukDayStart(offsetDays: number): dayjs.Dayjs {
  * Wholesale slots for the UK civil day `offsetDays` from today (+1 =
  * tomorrow, -1 = yesterday). Anchored to UK time so the slots cover the same
  * day as Octopus's confirmed rates, regardless of the client's timezone. A
- * late-evening hour falling outside the CET delivery day may be absent —
+ * late-evening hour falling outside the CET delivery day may be absent:
  * halfHourlySlots drops any uncovered half-hour.
  */
 export async function fetchWholesaleForUkDay(

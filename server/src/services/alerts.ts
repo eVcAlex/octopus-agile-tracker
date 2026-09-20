@@ -3,6 +3,7 @@ import { fetchTodayRates, fetchTomorrowRates } from './octopus.js';
 import { findCheapestWindow } from './cheapWindow.js';
 import { listSubscriptions, claimOnce } from './store.js';
 import { sendPush } from './push.js';
+import { ukDateString } from './ukTime.js';
 
 const DAY_TTL = 60 * 60 * 36; // 36h dedupe window
 
@@ -31,7 +32,7 @@ export interface AlertRunResult {
   notificationsSent: number;
   /** Subscribers eligible for this kind of alert, before any filtering. */
   subscribers: number;
-  /** Why nothing (or something) was sent — makes a silent run debuggable. */
+  /** Why nothing (or something) was sent, so a silent run can be debugged. */
   notes: string[];
 }
 
@@ -78,7 +79,7 @@ export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
       continue;
     }
 
-    const date = rates[0].valid_from.slice(0, 10);
+    const date = ukDateString(new Date(rates[0].valid_from));
     const prices = rates.map((r) => r.value_inc_vat);
     const avg = prices.reduce((s, p) => s + p, 0) / prices.length;
     const min = Math.min(...prices);
@@ -106,7 +107,7 @@ export async function runRatesPublishedAlerts(): Promise<AlertRunResult> {
     if (min < 0 && (await claimOnce(`plunge:${region}:${date}`, DAY_TTL))) {
       const payload = {
         title: 'Plunge tomorrow ⚡',
-        body: `Prices go negative — down to ${min.toFixed(1)}p/kWh at ${fmtTime(new Date(minSlot.valid_from))}.`,
+        body: `Prices go negative, down to ${min.toFixed(1)}p/kWh at ${fmtTime(new Date(minSlot.valid_from))}.`,
         tag: `plunge-${date}`,
         url: '/',
       };

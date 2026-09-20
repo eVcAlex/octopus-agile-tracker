@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#7c3aed" />
+    <title>Octopus Tracker: Privacy</title>
+    <meta
+      name="description"
+      content="What Octopus Tracker stores, where it lives, and how to get rid of it."
+    />
+    <link
+      rel="canonical"
+      href="https://octopus-agile-tracker.vercel.app/privacy.html"
+    />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f6f7f9;
+        --fg: #212529;
+        --muted: #5c636a;
+        --link: #6d28d9;
+        --rule: #dee2e6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141414;
+          --fg: #e9ecef;
+          --muted: #a1a8b0;
+          --link: #a78bfa;
+          --rule: #2a2a2a;
+        }
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          16px/1.6 -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+      }
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 4rem;
+      }
+      h1 {
+        font-size: 1.75rem;
+        margin: 0 0 0.25rem;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin: 2rem 0 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--rule);
+      }
+      p,
+      ul {
+        margin: 0.5rem 0;
+      }
+      li {
+        margin: 0.35rem 0;
+      }
+      a {
+        color: var(--link);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .summary {
+        margin: 1.25rem 0 0;
+        padding: 0.9rem 1.1rem;
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="muted"><a href="/">Back to Octopus Tracker</a></p>
+      <h1>Privacy</h1>
+      <p class="muted">Last updated 19 September 2026</p>
+
+      <p class="summary">
+        There are no accounts, cookies, analytics or ads. Almost everything
+        stays in your browser. The one thing my server keeps is a push
+        subscription, and only if you turn notifications on.
+      </p>
+
+      <h2>Who I am</h2>
+      <p>
+        I'm Alex McGuiness and I built this as a hobby. It isn't affiliated with
+        or endorsed by Octopus Energy. If you have a question or want something
+        removed, open an issue on
+        <a href="https://github.com/eVcAlex/octopus-agile-tracker/issues"
+          >GitHub</a
+        >. Please keep personal details out of it. Just say what you need and
+        I'll tell you how to sort it.
+      </p>
+
+      <h2>What stays in your browser</h2>
+      <p>
+        This is saved in your browser's local storage and never sent to my
+        server:
+      </p>
+      <ul>
+        <li>
+          Your settings: region, tariff, gas tariff, whether gas is shown,
+          forecast length, theme and notification choices.
+        </li>
+        <li>
+          Your Octopus API key and account number, if you enter them for tariff
+          detection or usage. They go straight from your browser to Octopus
+          (<code>api.octopus.energy</code>) and nowhere else. There's a button
+          in Settings to clear them.
+        </li>
+        <li>
+          Recent prices, plus a summary of your spend if you've connected your
+          account. These are kept for up to 48 hours so the app loads fast and
+          works offline.
+        </li>
+      </ul>
+      <p>Clear this site's data in your browser and all of it goes.</p>
+
+      <h2>What my server keeps</h2>
+      <p>
+        Only if you turn on push notifications. Then it stores your browser's
+        push address (a URL from your browser's push service), its keys, your
+        region, your alert choices and when you signed up. It sits in a hosted
+        database (Upstash Redis) and is only used to send the alerts you picked.
+        It isn't tied to your name, email or Octopus account.
+      </p>
+      <ul>
+        <li>
+          Turn notifications off and it's deleted. It's also dropped if your
+          push service says the address is dead.
+        </li>
+        <li>
+          To avoid sending the same alert twice, I keep short-lived markers for
+          up to 36 hours. There's nothing personal in them.
+        </li>
+        <li>Your API key and account number never reach my server.</li>
+      </ul>
+
+      <h2>Who else sees what</h2>
+      <ul>
+        <li>
+          Octopus: your browser gets prices straight from their API, so they see
+          your IP address, plus your API key and account if you've connected
+          them. Their own privacy policy covers that.
+        </li>
+        <li>
+          Vercel hosts the site and keeps normal server logs, like IP addresses
+          and the pages requested.
+        </li>
+        <li>
+          Push messages travel through whoever made your browser (Google,
+          Mozilla or Apple).
+        </li>
+        <li>
+          Forecast and wholesale data come from AgilePredict and Nord Pool.
+          Those requests are relayed through the site's host, so they don't get
+          your details.
+        </li>
+        <li>Fonts are served from this site, not from Google.</li>
+      </ul>
+
+      <h2>Cookies</h2>
+      <p>
+        None. The local storage above is only used for things you asked for,
+        like remembering your region.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>
+        Under UK data protection law you can ask what I hold about you, ask for
+        it to be deleted, and withdraw your consent by turning notifications
+        off. Notification data is handled on the basis of your consent. If
+        you're not happy, you can complain to the
+        <a href="https://ico.org.uk/make-a-complaint/"
+          >Information Commissioner's Office</a
+        >.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        If this changes I'll update the date at the top. The code is public on
+        <a href="https://github.com/eVcAlex/octopus-agile-tracker">GitHub</a>.
+      </p>
+    </main>
+  </body>
+</html>

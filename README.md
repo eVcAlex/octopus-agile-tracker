@@ -1,7 +1,7 @@
 # Octopus Agile Tracker
 
 A dashboard for tracking **Octopus Energy** electricity and gas prices across
-UK regions — built for **Agile**, but works with any single-rate tariff
+UK regions. Built for **Agile**, but works with any single-rate tariff
 (Go, Cosy, Snug, Flux, Tracker, Flexible, fixed…). Built with **React**,
 **TypeScript**, **Mantine**, **TanStack Query**, and **Phosphor Icons**.
 
@@ -12,7 +12,7 @@ UK regions — built for **Agile**, but works with any single-rate tariff
 ### Any tariff
 
 - Pick your tariff in **Settings → Tariff** (live list from Octopus), or let
-  **Auto-detect** read it — and your region — from your account.
+  **Auto-detect** read it, and your region, from your account.
 - Every tariff's rate windows (half-hourly, multi-hour bands, daily, fixed) are
   expanded to half-hour slots, so charts, stats and 30-day trends work
   everywhere. Cheapest-window suggestions appear only when the price moves
@@ -23,14 +23,14 @@ UK regions — built for **Agile**, but works with any single-rate tariff
 
 ### Electricity (Agile)
 
-Agile-only extras — the wholesale estimate, AgilePredict forecast and push
-alerts — appear only when you're on Agile.
+Agile-only extras (the wholesale estimate, AgilePredict forecast and push
+alerts) appear only when you're on Agile.
 
 - **Today & Tomorrow** half-hourly rates as a chart or a time-of-day card
   grid (tomorrow's prices publish around 4pm).
 - **Tomorrow before 4pm**: a wholesale-derived _estimate_ of tomorrow's rates
   (clearly labelled 🔮 Estimate), computed from the N2EX day-ahead auction and
-  the Agile formula. It's a rough guide — typically within a few p/kWh — and is
+  the Agile formula. It's a rough guide, typically within a few p/kWh, and is
   replaced automatically by Octopus's ✓ Confirmed rates when they publish.
 - **Stats cards**: lowest, highest, average, and the live "right now" price.
 - **Cheap windows**: the cheapest contiguous slots for running appliances.
@@ -43,7 +43,7 @@ alerts — appear only when you're on Agile.
 - Gas unit rate with **today vs tomorrow** comparison and % change. Works with
   daily-changing (Tracker) and fixed/variable tariffs alike.
 - **30-day history** chart.
-- **Show/hide gas** in Settings — hide it if you don't have gas with Octopus
+- **Show/hide gas** in Settings. Hide it if you don't have gas with Octopus
   (auto-detect hides it for you when your account has no gas tariff).
 - **Auto-detect your gas tariff** from your Octopus account (API key +
   account number), or enter a product code manually.
@@ -51,7 +51,7 @@ alerts — appear only when you're on Agile.
 ### Usage & spend
 
 - **Your actual spend** from half-hourly smart meter data × your tariff's rates.
-- **"Is my tariff saving me money?"** — your usage priced against the current
+- **"Is my tariff saving me money?"**: your usage priced against the current
   Flexible Octopus flat rate for your region, and against Agile, Go, Cosy and
   Tracker including standing charges.
 
@@ -77,7 +77,7 @@ alerts — appear only when you're on Agile.
 ```sh
 pnpm install
 pnpm dev          # frontend (Vite, port 5174)
-pnpm dev:server   # notification API (Hono, port 3001) — optional
+pnpm dev:server   # notification API (Hono, port 3001), optional
 ```
 
 ## Scripts
@@ -115,15 +115,16 @@ pnpm dev:server   # notification API (Hono, port 3001) — optional
 
 Your Octopus API key and account number are stored only in your browser's
 localStorage and are sent only to the Octopus Energy API. They can be cleared
-at any time from Settings.
+at any time from Settings. The [privacy page](public/privacy.html) lists
+everything the app stores, including what push notifications keep server-side.
 
 ## Data sources
 
-- [Octopus Energy API](https://developer.octopus.energy/) — rates, standing
+- [Octopus Energy API](https://developer.octopus.energy/): rates, standing
   charges, account/tariff detection.
-- [AgilePredict](https://agilepredict.com/) — price forecasts (proxied via a
+- [AgilePredict](https://agilepredict.com/): price forecasts (proxied via a
   rewrite in `vercel.json`).
-- [Nord Pool](https://www.nordpoolgroup.com/) — N2EX GB day-ahead auction
+- [Nord Pool](https://www.nordpoolgroup.com/): N2EX GB day-ahead auction
   prices, used to estimate tomorrow's Agile rates before Octopus publishes them
   (proxied via `vercel.json`; free, no API key). Coefficients are calibrated by
   `scripts/calibrate-agile.ts`.

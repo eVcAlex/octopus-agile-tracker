@@ -15,7 +15,7 @@ export function setStored(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
   } catch {
-    // Storage unavailable — ignore.
+    // Storage unavailable, ignore.
   }
 }
 

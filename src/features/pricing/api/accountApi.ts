@@ -41,7 +41,7 @@ export interface AccountDetails {
   gasProductCode: string | null; // e.g. "SILVER-24-07-01"
   gasTariffCode: string | null; // e.g. "G-1R-SILVER-24-07-01-A"
   electricityTariffCode: string | null;
-  /** e.g. "AGILE-24-10-01" — null when the tariff code can't be parsed. */
+  /** e.g. "AGILE-24-10-01", or null when the tariff code can't be parsed. */
   electricityProductCode: string | null;
   /** Region letter from the electricity tariff code. */
   electricityRegion: string | null;

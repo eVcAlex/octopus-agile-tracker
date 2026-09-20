@@ -110,7 +110,7 @@ export function expandToSlots(
 
 // ─── Shape helpers ───
 
-/** True when the day's price moves — false for flat, fixed and Tracker days. */
+/** True when the day's price moves, false for flat, fixed and Tracker days. */
 export function hasIntradayVariation(prices: number[]): boolean {
   if (!prices.length) return false;
   return Math.max(...prices) - Math.min(...prices) > 0.01;

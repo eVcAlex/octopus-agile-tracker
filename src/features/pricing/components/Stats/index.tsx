@@ -1,5 +1,11 @@
 import { SimpleGrid, Text, Paper, Box } from '@mantine/core';
-import { ArrowDown, ArrowUp, ChartBar, Lightning } from 'phosphor-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  ChartBar,
+  Lightning,
+  type Icon as PhosphorIcon,
+} from 'phosphor-react';
 import type { PriceStats } from '../../schemas';
 import { formatPrice } from '../../utils';
 import { PRICE_THRESHOLDS, PRICE_COLORS, STAT_ACCENTS } from '../../constants';
@@ -12,8 +18,7 @@ interface PricingStatsProps {
 interface StatCard {
   key: string;
   label: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: React.ComponentType<any>;
+  icon: PhosphorIcon;
   iconWeight: 'bold' | 'fill';
   value: number;
   /** CSS var reference driving both the card tint and the icon badge. */

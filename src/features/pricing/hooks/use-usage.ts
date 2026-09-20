@@ -30,7 +30,7 @@ export interface UseUsageReturn {
   comparison: TariffCost[] | null;
   loading: boolean;
   error: string | null;
-  /** Credentials are missing — show setup prompt instead of data */
+  /** Credentials are missing: show setup prompt instead of data */
   needsCredentials: boolean;
   /** Credentials present but no smart-meter data came back */
   noData: boolean;
@@ -77,7 +77,7 @@ export function useUsage(
 
       const spend = calcSpend(consumption, rates, flexibleRate ?? 0);
 
-      // Best-effort tariff comparison — the spend view works without it.
+      // Best-effort tariff comparison. The spend view works without it.
       let comparison: TariffCost[] | null = null;
       try {
         const days = spend.days.length;

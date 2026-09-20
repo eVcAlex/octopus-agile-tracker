@@ -41,7 +41,7 @@ export function formatDuration(hours: number): string {
 }
 
 export function isPast(item: ProcessedSlot): boolean {
-  // validTo may be a string after cache rehydration — normalise to a Date.
+  // validTo may be a string after cache rehydration, so normalise to a Date.
   return !item.isCurrentPeriod && new Date(item.validTo) < new Date();
 }
 

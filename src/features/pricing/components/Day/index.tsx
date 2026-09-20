@@ -34,7 +34,7 @@ export function DaySection({ data }: { data: DailyPrices }) {
           withItemsBorders={false}
           aria-label="View type"
           styles={{
-            // Inline SVG labels leave descender space below the icon — flex
+            // Inline SVG labels leave descender space below the icon, so flex
             // both the label and its inner span so the icon sits centred.
             label: {
               display: 'flex',

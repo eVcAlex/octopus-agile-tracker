@@ -28,3 +28,6 @@ dist-ssr
 
 .vercel
 .env*
+
+# Build artifacts
+*.tsbuildinfo

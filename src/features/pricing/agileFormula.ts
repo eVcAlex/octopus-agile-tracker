@@ -12,7 +12,7 @@ interface Coeff {
 // Coefficients are a least-squares fit of the confirmed Octopus rates against
 // the N2EX day-ahead hourly auction, pooled over several settled days
 // (see scripts/calibrate-agile.ts). This reproduces Agile to a few p/kWh on a
-// typical day — it is a labelled estimate, not the confirmed rate.
+// typical day. It is a labelled estimate, not the confirmed rate.
 export const REGION_COEFFICIENTS: Record<Region, Coeff> = {
   A: { base: -2.889, multiplier: 2.1235, peakUplift: 13.804 },
   B: { base: -2.92, multiplier: 2.0225, peakUplift: 14.847 },

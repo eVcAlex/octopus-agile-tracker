@@ -17,10 +17,14 @@ clientsClaim();
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
 
-// SPA navigations — but never API or proxy calls
+// SPA navigations, but never API/proxy calls or the static pages
 registerRoute(
   new NavigationRoute(createHandlerBoundToURL('index.html'), {
-    denylist: [/^\/api\//, /^\/proxy\//],
+    denylist: [
+      /^\/api\//,
+      /^\/proxy\//,
+      /^\/(?:privacy\.html|robots\.txt|sitemap\.xml)$/,
+    ],
   })
 );
 

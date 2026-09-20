@@ -20,6 +20,7 @@ import {
   Bell,
   Key,
   Flame,
+  type Icon as PhosphorIcon,
 } from 'phosphor-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAccountDetails } from '../../api/accountApi';
@@ -46,8 +47,7 @@ function SectionHeader({
   icon: Icon,
   label,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: React.ComponentType<any>;
+  icon: PhosphorIcon;
   label: string;
 }) {
   return (
@@ -183,7 +183,7 @@ export function SettingsDrawer({
         found.push(`Gas: ${details.gasProductCode}`);
       } else {
         onSetShowGas(false);
-        notes.push('No active gas tariff found — Gas tab hidden.');
+        notes.push('No active gas tariff found, so the Gas tab is hidden.');
       }
 
       setDetectSuccess(found.length ? found.join(' · ') : null);
@@ -260,7 +260,7 @@ export function SettingsDrawer({
           </Button>
           {detectSuccess && (
             <Text size="xs" c="green">
-              ✓ Detected — {detectSuccess}
+              ✓ Detected: {detectSuccess}
             </Text>
           )}
           {detectError && (
@@ -308,7 +308,7 @@ export function SettingsDrawer({
             label="Tariff"
             description={
               products.isError
-                ? "Couldn't load the tariff list — showing your saved tariff"
+                ? "Couldn't load the tariff list, showing your saved tariff"
                 : 'Auto-detected from your account, or pick one'
             }
             value={electricityProduct}
@@ -406,6 +406,13 @@ export function SettingsDrawer({
                   notifications.setEnabled(e.currentTarget.checked)
                 }
               />
+              <Text size="xs" c="dimmed">
+                Turning this on saves your browser's push address and these
+                choices on my server until you turn it off.{' '}
+                <a href="/privacy.html" target="_blank" rel="noreferrer">
+                  Privacy
+                </a>
+              </Text>
               {notifications.enabled && (
                 <>
                   <Switch
@@ -492,12 +499,12 @@ export function SettingsDrawer({
                   </Button>
                   {testState === 'ok' && (
                     <Text size="xs" c="green">
-                      ✓ Sent — check your notifications
+                      ✓ Sent. Check your notifications
                     </Text>
                   )}
                   {testState === 'err' && (
                     <Text size="xs" c="red">
-                      Failed to send — check the console
+                      Failed to send. Check the console
                     </Text>
                   )}
                 </>

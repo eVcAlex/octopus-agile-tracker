@@ -34,22 +34,9 @@ export const CHART = {
   TIME_LABEL_INTERVAL: 4,
 } as const;
 
-export const HEATMAP = {
-  CELL_HEIGHT: 34,
-  CELL_RADIUS: 7,
-  HOURS: 24,
-} as const;
-
-export const TABLE = {
-  MAX_HEIGHT: '60vh',
-  SCROLL_OFFSET: 80,
-  PAST_OPACITY: 0.35,
-} as const;
-
 export const CHART_LEGEND = [
   { color: PRICE_COLORS.free, label: 'Free (\u22640p)' },
   { color: PRICE_COLORS.low, label: 'Low (<10p)' },
   { color: PRICE_COLORS.normal, label: 'Normal' },
   { color: PRICE_COLORS.high, label: 'High (>25p)' },
 ] as const;
-

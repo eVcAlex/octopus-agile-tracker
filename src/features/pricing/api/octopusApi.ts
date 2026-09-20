@@ -39,7 +39,7 @@ export async function fetchRates(
   const params = new URLSearchParams({
     period_from: from.toISOString(),
     period_to: to.toISOString(),
-    // Octopus accepts up to 1500/page — 30 days of half-hours (1440) fits in
+    // Octopus accepts up to 1500/page, so 30 days of half-hours (1440) fit in
     // one request instead of 15 sequential pages.
     page_size: '1500',
   });
@@ -118,8 +118,8 @@ export async function fetchDailyRates(region: Region, product: string) {
   ]);
 
   // Time-of-use tariffs (Go, Cosy…) repeat daily but Octopus may not have
-  // listed all of tomorrow yet. Agile is never projected — its prices are the
-  // news — and flat/daily tariffs (Tracker) have no pattern to repeat.
+  // listed all of tomorrow yet. Agile is never projected (its prices are the
+  // news) and flat/daily tariffs (Tracker) have no pattern to repeat.
   let tomorrowFinal = tomorrowRates;
   let projected = false;
   if (

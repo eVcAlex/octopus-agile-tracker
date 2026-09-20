@@ -368,7 +368,7 @@ export function GasSection({
           {error}
         </Text>
         <Text size="xs" c="dimmed">
-          Check your product code in Settings — it may have changed.
+          Check your product code in Settings. It may have changed.
         </Text>
         <Button
           variant="light"

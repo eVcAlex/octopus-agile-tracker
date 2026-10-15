@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   Box,
+  Button,
   Text,
   Group,
   Loader,
@@ -436,19 +437,20 @@ export const ForecastSection = ({
           {error}
         </Text>
         <Text size="xs" c="dimmed">
-          Forecast data from AgilePredict may be temporarily unavailable
+          AgilePredict may be temporarily unavailable. Today and Tomorrow
+          prices are not affected.
         </Text>
-        <ActionIcon
+        <Button
           variant="light"
           color="violet"
-          size="md"
+          size="xs"
           radius="md"
           onClick={onRefresh}
           mt="xs"
-          aria-label="Retry loading forecast"
+          leftSection={<ArrowClockwise size={14} />}
         >
-          <ArrowClockwise size={16} />
-        </ActionIcon>
+          Try again
+        </Button>
       </Stack>
     );
   }

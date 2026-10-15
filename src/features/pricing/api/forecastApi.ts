@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import dayjs from 'dayjs';
 import {
   agilePredictResponseSchema,
@@ -94,7 +94,12 @@ export function groupByDay(prices: ForecastPrice[]): ForecastDay[] {
 }
 
 export async function fetchForecast(region: Region): Promise<ForecastData> {
-  const raw = await wretch(`${PROXY_BASE}/${region}`).get().json();
+  const raw = await http(`${PROXY_BASE}/${region}`)
+    .get()
+    .json()
+    .catch(() => {
+      throw new Error('Could not reach the forecast service');
+    });
   const data = agilePredictResponseSchema.parse(raw);
 
   if (!data.length || !data[0].prices.length) {

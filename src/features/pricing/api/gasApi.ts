@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import dayjs from 'dayjs';
 import {
   octopusResponseSchema,
@@ -92,7 +92,7 @@ export async function fetchGasStandingCharge(
 ): Promise<number | null> {
   const tariff = gasTariffCode(region, productCode);
   const url = `${PRODUCTS_BASE}/${productCode}/gas-tariffs/${tariff}/standing-charges/?page_size=10`;
-  const raw = await wretch(url).get().json();
+  const raw = await http(url).get().json();
   const page = standingChargeResponseSchema.parse(raw);
   return currentStandingCharge(page.results);
 }

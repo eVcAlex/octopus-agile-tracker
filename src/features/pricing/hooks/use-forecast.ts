@@ -24,6 +24,9 @@ export function useForecast(
   const { data, isLoading, error, dataUpdatedAt } = useQuery({
     queryKey: ['forecast', region] as const,
     queryFn: () => fetchForecast(region),
+    // One retry then show the error state, rather than the default backoff.
+    retry: 1,
+    retryDelay: 1_000,
     refetchInterval: 30 * 60_000,
     enabled: !!region && enabled,
   });

@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import { z } from 'zod';
 import { PRODUCTS_BASE } from './octopusClient';
 
@@ -39,7 +39,7 @@ export async function fetchElectricityProducts(): Promise<
   let next: string | null = `${PRODUCTS_BASE}/?${params}`;
 
   while (next) {
-    const raw: unknown = await wretch(next).get().json();
+    const raw: unknown = await http(next).get().json();
     const page = productsResponseSchema.parse(raw);
     for (const p of page.results) {
       if (p.direction === 'EXPORT' || p.is_prepay) continue;

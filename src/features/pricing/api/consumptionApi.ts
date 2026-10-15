@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import dayjs from 'dayjs';
 import { z } from 'zod';
 import type { OctopusRate } from '../schemas';
@@ -57,7 +57,7 @@ const unitRatesResponseSchema = z.object({
 export async function fetchFlexibleRate(
   region: string
 ): Promise<number | null> {
-  const raw = await wretch(
+  const raw = await http(
     `${PRODUCTS_BASE}/?is_variable=true&brand=OCTOPUS_ENERGY&page_size=100`
   )
     .get()
@@ -72,7 +72,7 @@ export async function fetchFlexibleRate(
   if (!flexible) return null;
 
   const tariff = `E-1R-${flexible.code}-${region}`;
-  const ratesRaw = await wretch(
+  const ratesRaw = await http(
     `${PRODUCTS_BASE}/${flexible.code}/electricity-tariffs/${tariff}/standard-unit-rates/?page_size=10`
   )
     .get()
@@ -100,7 +100,7 @@ export async function fetchConsumption(
   });
   const url = `${API_BASE}/electricity-meter-points/${mpan}/meters/${serial}/consumption/?${params}`;
 
-  const raw = await wretch(url).auth(apiKeyAuth(apiKey)).get().json();
+  const raw = await http(url).auth(apiKeyAuth(apiKey)).get().json();
 
   return consumptionResponseSchema.parse(raw).results;
 }

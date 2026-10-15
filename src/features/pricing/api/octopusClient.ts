@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import type { z } from 'zod';
 import type { StandingCharge } from '../schemas';
 
@@ -22,7 +22,7 @@ export async function fetchAllPages<T>(
   let nextUrl: string | null = firstUrl;
 
   while (nextUrl) {
-    const raw = await wretch(nextUrl).get().json();
+    const raw = await http(nextUrl).get().json();
     const page = schema.parse(raw);
     all.push(...page.results);
     nextUrl = page.next;

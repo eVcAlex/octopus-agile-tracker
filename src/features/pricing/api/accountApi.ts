@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import { z } from 'zod';
 import { API_BASE, apiKeyAuth } from './octopusClient';
 import { parseTariffCode } from './tariffs';
@@ -79,7 +79,7 @@ export async function fetchAccountDetails(
   apiKey: string,
   accountNo: string
 ): Promise<AccountDetails> {
-  const raw = await wretch(`${API_BASE}/accounts/${accountNo}/`)
+  const raw = await http(`${API_BASE}/accounts/${accountNo}/`)
     .auth(apiKeyAuth(apiKey))
     .get()
     .json();

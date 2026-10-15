@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from './http';
 import type { Region } from '../features/pricing/schemas';
 
 export interface NotificationPrefs {
@@ -44,7 +44,7 @@ export async function subscribeToPush(prefs: NotificationPrefs): Promise<void> {
   let subscription = await registration.pushManager.getSubscription();
 
   if (!subscription) {
-    const { key } = await wretch('/api/push/vapid-public-key')
+    const { key } = await http('/api/push/vapid-public-key')
       .get()
       .json<{ key: string }>();
     subscription = await registration.pushManager.subscribe({
@@ -53,7 +53,7 @@ export async function subscribeToPush(prefs: NotificationPrefs): Promise<void> {
     });
   }
 
-  await wretch('/api/push/subscribe')
+  await http('/api/push/subscribe')
     .post({ subscription: subscription.toJSON(), prefs })
     .json();
 }
@@ -63,7 +63,7 @@ export async function sendTestNotification(): Promise<void> {
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.getSubscription();
   if (!subscription) throw new Error('Not subscribed. Enable notifications first');
-  await wretch('/api/push/test')
+  await http('/api/push/test')
     .post({ subscription: subscription.toJSON() })
     .json();
 }
@@ -75,7 +75,7 @@ export async function unsubscribeFromPush(): Promise<void> {
   if (!subscription) return;
 
   try {
-    await wretch('/api/push/unsubscribe')
+    await http('/api/push/unsubscribe')
       .post({ endpoint: subscription.endpoint })
       .json();
   } finally {

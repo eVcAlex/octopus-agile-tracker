@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
+  fetchForecast,
   groupByDay,
   tomorrowForecastAsDailyPrices,
   withoutTomorrow,
@@ -144,5 +145,22 @@ describe('withoutTomorrow', () => {
 
   it('passes null through', () => {
     expect(withoutTomorrow(null)).toBeNull();
+  });
+});
+
+describe('fetchForecast', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('rejects with a readable error when the request is aborted', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new DOMException('aborted', 'TimeoutError')))
+    );
+
+    await expect(fetchForecast('C')).rejects.toThrow(
+      'Could not reach the forecast service'
+    );
   });
 });

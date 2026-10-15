@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -56,7 +56,7 @@ export function halfHourlySlots(
 }
 
 async function fetchDay(date: string): Promise<Nordpool> {
-  const raw = await wretch(
+  const raw = await http(
     `${PROXY_BASE}?date=${date}&market=N2EX_DayAhead&deliveryArea=UK&currency=GBP`
   )
     .get()

@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import { z } from 'zod';
 import type { Region } from '../schemas';
 import type { ConsumptionEntry } from './consumptionApi';
@@ -140,7 +140,7 @@ async function fetchSpans(
     period_to: to.toISOString(),
     page_size: '1500',
   });
-  const raw = await wretch(
+  const raw = await http(
     `${PRODUCTS_BASE}/${code}/electricity-tariffs/${tariff}/standard-unit-rates/?${params}`
   )
     .get()
@@ -153,7 +153,7 @@ async function fetchStandingCharge(
   region: Region
 ): Promise<number | null> {
   const tariff = `E-1R-${code}-${region}`;
-  const raw = await wretch(
+  const raw = await http(
     `${PRODUCTS_BASE}/${code}/electricity-tariffs/${tariff}/standing-charges/?page_size=10`
   )
     .get()
@@ -177,7 +177,7 @@ interface Candidate {
  * caller drops whichever one matches the user's own tariff.
  */
 async function discoverCandidates(): Promise<Candidate[]> {
-  const raw = await wretch(
+  const raw = await http(
     `${PRODUCTS_BASE}/?brand=OCTOPUS_ENERGY&page_size=250`
   )
     .get()

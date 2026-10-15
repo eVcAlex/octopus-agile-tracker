@@ -1,4 +1,4 @@
-import wretch from 'wretch';
+import { http } from '../../../lib/http';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import {
@@ -190,7 +190,7 @@ export async function fetchElecStandingCharge(
 ): Promise<number | null> {
   const tariff = electricityTariffCode(product, region);
   const url = `${PRODUCTS_BASE}/${product}/electricity-tariffs/${tariff}/standing-charges/?page_size=10`;
-  const raw = await wretch(url).get().json();
+  const raw = await http(url).get().json();
   const page = standingChargeResponseSchema.parse(raw);
   return currentStandingCharge(page.results);
 }
